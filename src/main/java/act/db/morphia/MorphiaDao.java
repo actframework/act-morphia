@@ -64,6 +64,12 @@ public class MorphiaDao<ID_TYPE, MODEL_TYPE, DAO_TYPE extends MorphiaDao<ID_TYPE
     }
 
     @Override
+    public MODEL_TYPE findOneBy(String fields, Object... values) throws IllegalArgumentException {
+        MorphiaQuery<MODEL_TYPE> q = q(fields, values);
+        return q.first();
+    }
+
+    @Override
     public Iterable<MODEL_TYPE> findAll() {
         return q().fetch();
     }
