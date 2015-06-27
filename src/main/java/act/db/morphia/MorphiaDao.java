@@ -10,6 +10,7 @@ import org.osgl.util.C;
 import org.osgl.util.E;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.Map;
 
 public class MorphiaDao<ID_TYPE, MODEL_TYPE, DAO_TYPE extends MorphiaDao<ID_TYPE, MODEL_TYPE, DAO_TYPE>> extends DaoBase<ID_TYPE, MODEL_TYPE, MorphiaQuery<MODEL_TYPE>, DAO_TYPE> {
@@ -60,6 +61,12 @@ public class MorphiaDao<ID_TYPE, MODEL_TYPE, DAO_TYPE extends MorphiaDao<ID_TYPE
     @Override
     public Iterable<MODEL_TYPE> findBy(String fields, Object... values) throws IllegalArgumentException {
         MorphiaQuery<MODEL_TYPE> q = q(fields, values);
+        return q.fetch();
+    }
+
+    @Override
+    public Iterable<MODEL_TYPE> findByIdList(List<ID_TYPE> idList) {
+        MorphiaQuery<MODEL_TYPE> q = q("_id in", idList);
         return q.fetch();
     }
 
