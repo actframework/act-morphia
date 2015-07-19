@@ -126,11 +126,6 @@ public class MorphiaDao<ID_TYPE, MODEL_TYPE, DAO_TYPE extends MorphiaDao<ID_TYPE
         return new MorphiaQuery<MODEL_TYPE>(ds(), modelType);
     }
 
-    @Override
-    public DAO_TYPE on(String dbId) {
-        return getService(dbId, app.dbServiceManager()).dao(modelType);
-    }
-
     public Class modelType() {
         return modelType;
     }

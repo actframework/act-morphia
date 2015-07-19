@@ -50,19 +50,6 @@ public class MorphiaService extends DbService {
     }
 
     @Override
-    public <DAO extends Dao> DAO dao(Class<?> modelType) {
-        DAO dao = _.cast(daoMap.get(modelType));
-        if (null == dao) {
-            DAO dao1 = _.cast(new MorphiaDao(modelType, ds));
-            dao = _.cast(daoMap.putIfAbsent(modelType, dao1));
-            if (null == dao) {
-                dao = dao1;
-            }
-        }
-        return dao;
-    }
-
-    @Override
     protected <DAO extends Dao> DAO defaultDao(Class<?> modelType) {
         return _.cast(new MorphiaDao(modelType, ds));
     }
