@@ -99,6 +99,9 @@ public class MorphiaDao<ID_TYPE, MODEL_TYPE, DAO_TYPE extends MorphiaDao<ID_TYPE
 
     @Override
     public void save(MODEL_TYPE entity) {
+        if (entity instanceof MorphiaModel) {
+            ((MorphiaModel) entity)._preSave();
+        }
         ds().save(entity);
     }
 
