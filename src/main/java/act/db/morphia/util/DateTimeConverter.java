@@ -11,7 +11,9 @@ import org.mongodb.morphia.mapping.MappedField;
  * http://grepcode.com/file/repo1.maven.org/maven2/io.rtr.alchemy/alchemy-db-mongo/0.1.10/io/rtr/alchemy/db/mongo/util/DateTimeConverter.java
  */
 public class DateTimeConverter extends TypeConverter implements SimpleValueConverter {
-    public DateTimeConverter() {}
+    public DateTimeConverter() {
+        setSupportedTypes(new Class[]{DateTime.class});
+    }
 
     @Override
     public Object decode(Class<?> targetClass, Object fromDBObject, MappedField optionalExtraInfo) {
@@ -30,4 +32,5 @@ public class DateTimeConverter extends TypeConverter implements SimpleValueConve
         final DateTime dateTime = (DateTime) value;
         return dateTime.getMillis();
     }
+
 }

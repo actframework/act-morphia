@@ -4,6 +4,7 @@ import act.app.App;
 import act.app.DbServiceManager;
 import act.db.Dao;
 import act.db.DbService;
+import act.db.morphia.util.DateTimeConverter;
 import com.mongodb.MongoClient;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
@@ -36,6 +37,7 @@ public class MorphiaService extends DbService {
                     return app.classLoader();
                 }
             });
+            morphia.getMapper().getConverters().addConverter(new DateTimeConverter());
         }
         daoMap = new ConcurrentHashMap<Class<?>, Dao>();
         MongoClient client = ClientManager.register(this, conf);

@@ -1,12 +1,11 @@
 package act.db.morphia;
 
-import act.db.morphia.util.DateTimeConverter;
 import org.bson.types.ObjectId;
 import org.joda.time.DateTime;
-import org.mongodb.morphia.annotations.Converters;
 import org.mongodb.morphia.annotations.Id;
+import org.osgl._;
+import org.osgl.util.S;
 
-@Converters(DateTimeConverter.class)
 public abstract class MorphiaModel {
 
     @Id
@@ -23,11 +22,15 @@ public abstract class MorphiaModel {
         this.id = id;
     }
 
-    public String getId() {
+    public ObjectId getId() {
+        return id;
+    }
+
+    public String getIdAsStr() {
         return null != id ? id.toString() : null;
     }
 
-    public String _id() {
+    public ObjectId _id() {
         return getId();
     }
 
@@ -51,4 +54,25 @@ public abstract class MorphiaModel {
         _modified = now;
     }
 
+    @Override
+    public String toString() {
+        return S.builder().append(getClass().getName()).append("[").append(id).append("]").toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return _.hc(getClass(), id);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (_.eq(obj.getClass(), getClass())) {
+            MorphiaModel that = (MorphiaModel) obj;
+            return _.eq(that.id, id);
+        }
+        return false;
+    }
 }

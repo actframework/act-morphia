@@ -17,7 +17,6 @@ public class MorphiaDao<ID_TYPE, MODEL_TYPE, DAO_TYPE extends MorphiaDao<ID_TYPE
 
     private Class<MODEL_TYPE> modelType;
     private volatile Datastore ds;
-    @Inject
     private App app;
 
     MorphiaDao(Class<MODEL_TYPE> modelType, Datastore ds) {
@@ -28,6 +27,15 @@ public class MorphiaDao<ID_TYPE, MODEL_TYPE, DAO_TYPE extends MorphiaDao<ID_TYPE
 
     protected MorphiaDao(Class<MODEL_TYPE> modelType) {
         this.modelType = modelType;
+    }
+
+    @Inject
+    public void setApp(App app) {
+        this.app = app;
+    }
+
+    public void setDatastore(Datastore ds) {
+        this.ds = ds;
     }
 
     private MorphiaService getService(String dbId, DbServiceManager mgr) {
