@@ -90,6 +90,11 @@ public class MorphiaDao<ID_TYPE, MODEL_TYPE, DAO_TYPE extends MorphiaDao<ID_TYPE
     }
 
     @Override
+    public List<MODEL_TYPE> findAllAsList() {
+        return q().fetchAsList();
+    }
+
+    @Override
     public MODEL_TYPE reload(MODEL_TYPE model) {
         return ds().get(model);
     }

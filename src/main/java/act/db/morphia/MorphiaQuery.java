@@ -6,6 +6,8 @@ import org.mongodb.morphia.query.Query;
 import org.osgl.util.C;
 import org.osgl.util.S;
 
+import java.util.List;
+
 public class MorphiaQuery<MODEL_TYPE> implements Dao.Query<MODEL_TYPE, MorphiaQuery<MODEL_TYPE>> {
 
     private Query<MODEL_TYPE> mq;
@@ -59,6 +61,10 @@ public class MorphiaQuery<MODEL_TYPE> implements Dao.Query<MODEL_TYPE, MorphiaQu
     @Override
     public Iterable<MODEL_TYPE> fetch() {
         return mq.fetch();
+    }
+
+    public List<MODEL_TYPE> fetchAsList() {
+        return mq.asList();
     }
 
     public Query<MODEL_TYPE> morphiaQuery() {
