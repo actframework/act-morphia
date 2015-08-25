@@ -7,6 +7,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.runner.JUnitCore;
+import org.osgl._;
 import org.osgl.http.H;
 import org.osgl.util.S;
 
@@ -37,8 +38,16 @@ public abstract class TestBase extends Assert {
         yes(Arrays.equals(a1, a2));
     }
 
+    protected void ne(Object[] a1, Object[] a2) {
+        no(Arrays.equals(a1, a2));
+    }
+
     protected void eq(Object o1, Object o2) {
         assertEquals(o1, o2);
+    }
+
+    protected void ne(Object o1, Object o2) {
+        no(_.eq(o1, o2));
     }
 
     protected void yes(Boolean expr, String msg, Object... args) {

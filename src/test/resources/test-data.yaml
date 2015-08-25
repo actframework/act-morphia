@@ -1,0 +1,19 @@
+Address(addr1):
+  unit: 1
+  street: 4 Park St
+  suburb: Bankstown
+
+Address(addr2):
+  unit: 5
+  street: 13 Geroge Cl
+  suburb: Windsor
+
+Contact(tom):
+  firstName: Tom
+  lastName: White
+  address: $addr1
+
+Contact(peter):
+  firstName: Peter
+  lastName: Black
+  address: $addr2

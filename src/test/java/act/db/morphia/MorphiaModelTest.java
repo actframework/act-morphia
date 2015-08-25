@@ -1,8 +1,8 @@
 package act.db.morphia;
 
+import model.Contact;
 import org.junit.Before;
 import org.junit.Test;
-import playground.Contact;
 
 public class MorphiaModelTest extends MongoTestBase {
 

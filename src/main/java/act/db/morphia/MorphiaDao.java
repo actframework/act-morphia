@@ -10,6 +10,7 @@ import org.osgl.util.C;
 import org.osgl.util.E;
 
 import javax.inject.Inject;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -73,7 +74,7 @@ public class MorphiaDao<ID_TYPE, MODEL_TYPE, DAO_TYPE extends MorphiaDao<ID_TYPE
     }
 
     @Override
-    public Iterable<MODEL_TYPE> findByIdList(List<ID_TYPE> idList) {
+    public Iterable<MODEL_TYPE> findByIdList(Collection<ID_TYPE> idList) {
         MorphiaQuery<MODEL_TYPE> q = q("_id in", idList);
         return q.fetch();
     }
