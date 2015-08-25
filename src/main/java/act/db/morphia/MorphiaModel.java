@@ -3,6 +3,9 @@ package act.db.morphia;
 import org.bson.types.ObjectId;
 import org.joda.time.DateTime;
 import org.mongodb.morphia.annotations.Id;
+import org.mongodb.morphia.annotations.Indexed;
+import org.mongodb.morphia.annotations.PrePersist;
+import org.mongodb.morphia.annotations.Version;
 import org.osgl._;
 import org.osgl.util.S;
 
@@ -11,9 +14,14 @@ public abstract class MorphiaModel {
     @Id
     private ObjectId id;
 
+    @Indexed
     private DateTime _created;
 
+    @Indexed
     private DateTime _modified;
+
+    @Version
+    private Long v;
 
     public MorphiaModel() {
     }
@@ -46,7 +54,8 @@ public abstract class MorphiaModel {
         return _modified;
     }
 
-    void _preSave() {
+    @PrePersist
+    private void updateTimestamps() {
         DateTime now = DateTime.now();
         if (null == _created) {
             _created = now;

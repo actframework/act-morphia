@@ -70,4 +70,5 @@ public class MorphiaQuery<MODEL_TYPE> implements Dao.Query<MODEL_TYPE, MorphiaQu
     public Query<MODEL_TYPE> morphiaQuery() {
         return mq;
     }
+
 }

@@ -95,8 +95,19 @@ public class MorphiaDao<ID_TYPE, MODEL_TYPE, DAO_TYPE extends MorphiaDao<ID_TYPE
     }
 
     @Override
-    public MODEL_TYPE reload(MODEL_TYPE model) {
-        return ds().get(model);
+    public ID_TYPE getId(MODEL_TYPE entity) {
+        if (entity instanceof MorphiaModel) {
+            return (ID_TYPE) ((MorphiaModel) entity).getId();
+        } else if (entity instanceof Model) {
+            return (ID_TYPE) ((Model) entity)._id();
+        } else {
+            return (ID_TYPE) MorphiaService.mapper().getId(entity);
+        }
+    }
+
+    @Override
+    public MODEL_TYPE reload(MODEL_TYPE entity) {
+        return ds().get(entity);
     }
 
     @Override
@@ -112,9 +123,6 @@ public class MorphiaDao<ID_TYPE, MODEL_TYPE, DAO_TYPE extends MorphiaDao<ID_TYPE
 
     @Override
     public void save(MODEL_TYPE entity) {
-        if (entity instanceof MorphiaModel) {
-            ((MorphiaModel) entity)._preSave();
-        }
         ds().save(entity);
     }
 
@@ -135,6 +143,21 @@ public class MorphiaDao<ID_TYPE, MODEL_TYPE, DAO_TYPE extends MorphiaDao<ID_TYPE
     @Override
     public void delete(MODEL_TYPE entity) {
         ds().delete(entity);
+    }
+
+    @Override
+    public void delete(MorphiaQuery<MODEL_TYPE> query) {
+        ds().delete(query.morphiaQuery());
+    }
+
+    @Override
+    public void deleteById(ID_TYPE id) {
+        ds().delete(modelType(), id);
+    }
+
+    @Override
+    public void drop() {
+        ds().delete(ds().createQuery(modelType()));
     }
 
     @Override
@@ -170,11 +193,4 @@ public class MorphiaDao<ID_TYPE, MODEL_TYPE, DAO_TYPE extends MorphiaDao<ID_TYPE
         return kvList;
     }
 
-    private <T> Object getId(T entity) {
-        if (entity instanceof Model) {
-            return ((Model) entity)._id();
-        } else {
-            return MorphiaService.mapper().getId(entity);
-        }
-    }
 }
