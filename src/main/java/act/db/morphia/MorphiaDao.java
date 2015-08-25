@@ -30,6 +30,10 @@ public class MorphiaDao<ID_TYPE, MODEL_TYPE, DAO_TYPE extends MorphiaDao<ID_TYPE
         this.modelType = modelType;
     }
 
+    protected App app() {
+        return app;
+    }
+
     @Inject
     public void setApp(App app) {
         this.app = app;
