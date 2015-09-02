@@ -1,5 +1,6 @@
 package act.db.morphia;
 
+import act.ActComponent;
 import act.app.App;
 import act.app.DbServiceManager;
 import act.db.Dao;
@@ -18,6 +19,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+@ActComponent
 public class MorphiaService extends DbService {
 
     // the morphia instance - keep track of class mapping

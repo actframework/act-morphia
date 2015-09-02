@@ -1,5 +1,6 @@
 package act.db.morphia;
 
+import act.ActComponent;
 import act.app.App;
 import act.app.DbServiceManager;
 import act.db.*;
@@ -14,6 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+@ActComponent
 public class MorphiaDao<ID_TYPE, MODEL_TYPE, DAO_TYPE extends MorphiaDao<ID_TYPE, MODEL_TYPE, DAO_TYPE>> extends DaoBase<ID_TYPE, MODEL_TYPE, MorphiaQuery<MODEL_TYPE>, DAO_TYPE> {
 
     private Class<MODEL_TYPE> modelType;
