@@ -18,12 +18,7 @@ public class EntityFinder extends AnnotatedTypeFinder {
         super(true, true, Entity.class, new _.F2<App, String, Map<Class<? extends AppByteCodeScanner>, Set<String>>>() {
             @Override
             public Map<Class<? extends AppByteCodeScanner>, Set<String>> apply(App app, String className) throws NotAppliedException, _.Break {
-                // TODO Fix me: different class detecting filter shall have different result thus we do not
-                // need the following workarounds
                 Class<?> c = _.classForName(className, app.classLoader());
-                if (Modifier.isAbstract(c.getModifiers())) {
-                    return null;
-                }
                 MorphiaService.morphia().map(c);
                 return null;
             }
