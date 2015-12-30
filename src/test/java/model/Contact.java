@@ -3,10 +3,8 @@ package model;
 import act.db.morphia.MorphiaDao;
 import act.db.morphia.MorphiaModel;
 import org.bson.types.ObjectId;
-import org.junit.Before;
 import org.mongodb.morphia.annotations.Entity;
-import org.mongodb.morphia.annotations.Id;
-import org.osgl._;
+import org.osgl.$;
 
 @Entity("ctct")
 public class Contact extends MorphiaModel {
@@ -21,9 +19,9 @@ public class Contact extends MorphiaModel {
     }
 
     public Contact(String firstName, String lastName, String mobile) {
-        this.firstName = _.NPE(firstName);
-        this.lastName = _.NPE(lastName);
-        this.mobile = _.NPE(mobile);
+        this.firstName = $.NPE(firstName);
+        this.lastName = $.NPE(lastName);
+        this.mobile = $.NPE(mobile);
     }
 
     public String getFirstName() {

@@ -6,7 +6,7 @@ import act.app.DbServiceManager;
 import act.db.*;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.UpdateOperations;
-import org.osgl._;
+import org.osgl.$;
 import org.osgl.util.C;
 import org.osgl.util.E;
 
@@ -49,7 +49,7 @@ public class MorphiaDao<ID_TYPE, MODEL_TYPE, DAO_TYPE extends MorphiaDao<ID_TYPE
         DbService svc = mgr.dbService(dbId);
         E.invalidConfigurationIf(null == svc, "Cannot find db service by id: %s", dbId);
         E.invalidConfigurationIf(!(svc instanceof MorphiaService), "The db service[%s|%s] is not morphia service", dbId, svc.getClass());
-        return _.cast(svc);
+        return $.cast(svc);
     }
 
     private Datastore ds() {

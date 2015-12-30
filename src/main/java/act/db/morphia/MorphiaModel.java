@@ -6,7 +6,7 @@ import org.mongodb.morphia.annotations.Id;
 import org.mongodb.morphia.annotations.Indexed;
 import org.mongodb.morphia.annotations.PrePersist;
 import org.mongodb.morphia.annotations.Version;
-import org.osgl._;
+import org.osgl.$;
 import org.osgl.util.S;
 
 public abstract class MorphiaModel {
@@ -70,7 +70,7 @@ public abstract class MorphiaModel {
 
     @Override
     public int hashCode() {
-        return _.hc(getClass(), id);
+        return $.hc(getClass(), id);
     }
 
     @Override
@@ -78,9 +78,9 @@ public abstract class MorphiaModel {
         if (obj == this) {
             return true;
         }
-        if (_.eq(obj.getClass(), getClass())) {
+        if ($.eq(obj.getClass(), getClass())) {
             MorphiaModel that = (MorphiaModel) obj;
-            return _.eq(that.id, id);
+            return $.eq(that.id, id);
         }
         return false;
     }

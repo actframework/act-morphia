@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.osgl._;
+import org.osgl.$;
 import org.osgl.util.C;
 
 import java.util.List;
@@ -33,7 +33,7 @@ public class MorphiaDaoTest extends MongoTestBase {
             @Override
             public Dao answer(InvocationOnMock invocationOnMock) throws Throwable {
                 Object[] args = invocationOnMock.getArguments();
-                Class<?> modelType = _.cast(args[0]);
+                Class<?> modelType = $.cast(args[0]);
                 if (Contact.class.isAssignableFrom(modelType)) {
                     return dao;
                 }

@@ -12,7 +12,7 @@ import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.mapping.DefaultCreator;
 import org.mongodb.morphia.mapping.Mapper;
 import org.mongodb.morphia.mapping.MapperOptions;
-import org.osgl._;
+import org.osgl.$;
 import org.osgl.util.S;
 
 import java.util.Map;
@@ -55,7 +55,7 @@ public class MorphiaService extends DbService {
 
     @Override
     protected <DAO extends Dao> DAO defaultDao(Class<?> modelType) {
-        return _.cast(new MorphiaDao(modelType, ds));
+        return $.cast(new MorphiaDao(modelType, ds));
     }
 
     public Datastore ds() {

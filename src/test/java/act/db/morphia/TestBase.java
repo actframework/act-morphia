@@ -7,7 +7,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.runner.JUnitCore;
-import org.osgl._;
+import org.osgl.$;
 import org.osgl.http.H;
 import org.osgl.util.S;
 
@@ -47,7 +47,7 @@ public abstract class TestBase extends Assert {
     }
 
     protected void ne(Object o1, Object o2) {
-        no(_.eq(o1, o2));
+        no($.eq(o1, o2));
     }
 
     protected void yes(Boolean expr, String msg, Object... args) {
