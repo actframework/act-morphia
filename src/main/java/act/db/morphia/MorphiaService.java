@@ -48,7 +48,8 @@ public class MorphiaService extends DbService {
         daoMap = new ConcurrentHashMap<Class<?>, Dao>();
         MongoClient client = ClientManager.register(this, conf);
         initDataStore(client, conf);
-        onAppStart(app);
+        delayedEnsureIndexesAndCaps(app);
+        registerFastJsonConfig();
     }
 
     @Override
@@ -84,7 +85,7 @@ public class MorphiaService extends DbService {
         this.ds = morphia.createDatastore(client, db);
     }
 
-    private void onAppStart(App app) {
+    private void delayedEnsureIndexesAndCaps(App app) {
         app.jobManager().beforeAppStart(new Runnable() {
             @Override
             public void run() {
