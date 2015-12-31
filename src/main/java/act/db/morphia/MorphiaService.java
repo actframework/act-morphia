@@ -6,7 +6,11 @@ import act.app.DbServiceManager;
 import act.db.Dao;
 import act.db.DbService;
 import act.db.morphia.util.DateTimeConverter;
+import act.db.morphia.util.FastJsonObjectIdCodec;
+import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.mongodb.MongoClient;
+import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.mapping.DefaultCreator;
@@ -84,10 +88,25 @@ public class MorphiaService extends DbService {
         app.jobManager().beforeAppStart(new Runnable() {
             @Override
             public void run() {
-                ds.ensureIndexes();
-                ds.ensureCaps();
+                ensureIndexesAndCaps();
+                registerFastJsonConfig();
             }
         });
+    }
+
+    private void ensureIndexesAndCaps() {
+        ds.ensureIndexes();
+        ds.ensureCaps();
+    }
+
+    private void registerFastJsonConfig() {
+        FastJsonObjectIdCodec objectIdCodec = new FastJsonObjectIdCodec();
+
+        SerializeConfig serializeConfig = SerializeConfig.getGlobalInstance();
+        serializeConfig.put(ObjectId.class, objectIdCodec);
+
+        ParserConfig parserConfig = ParserConfig.getGlobalInstance();
+        parserConfig.putDeserializer(ObjectId.class, objectIdCodec);
     }
 
     public static Mapper mapper() {
