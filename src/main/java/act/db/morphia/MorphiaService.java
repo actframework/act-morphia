@@ -90,7 +90,6 @@ public class MorphiaService extends DbService {
             @Override
             public void run() {
                 ensureIndexesAndCaps();
-                registerFastJsonConfig();
             }
         });
     }
