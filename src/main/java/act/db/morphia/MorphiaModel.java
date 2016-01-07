@@ -34,6 +34,11 @@ public abstract class MorphiaModel {
         return id;
     }
 
+    // for JSON deserialization
+    public void setId(ObjectId id) {
+        this.id = id;
+    }
+
     public String getIdAsStr() {
         return null != id ? id.toString() : null;
     }
