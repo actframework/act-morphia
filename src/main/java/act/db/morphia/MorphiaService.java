@@ -19,11 +19,13 @@ import org.mongodb.morphia.mapping.MapperOptions;
 import org.osgl.$;
 import org.osgl.util.S;
 
+import javax.inject.Singleton;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 @ActComponent
+@Singleton
 public class MorphiaService extends DbService {
 
     // the morphia instance - keep track of class mapping
