@@ -7,6 +7,7 @@ import act.db.Dao;
 import act.db.DbService;
 import act.db.morphia.util.DateTimeConverter;
 import act.db.morphia.util.FastJsonObjectIdCodec;
+import act.util.FastJsonIterableSerializer;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.mongodb.MongoClient;
@@ -16,6 +17,7 @@ import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.mapping.DefaultCreator;
 import org.mongodb.morphia.mapping.Mapper;
 import org.mongodb.morphia.mapping.MapperOptions;
+import org.mongodb.morphia.query.MorphiaIterator;
 import org.osgl.$;
 import org.osgl.util.S;
 
@@ -107,9 +109,11 @@ public class MorphiaService extends DbService {
 
         SerializeConfig serializeConfig = SerializeConfig.getGlobalInstance();
         serializeConfig.put(ObjectId.class, objectIdCodec);
+        serializeConfig.put(MorphiaIterator.class, FastJsonIterableSerializer.instance);
 
         ParserConfig parserConfig = ParserConfig.getGlobalInstance();
         parserConfig.putDeserializer(ObjectId.class, objectIdCodec);
+
     }
 
     public static Mapper mapper() {
