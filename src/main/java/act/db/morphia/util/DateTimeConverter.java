@@ -1,6 +1,9 @@
 package act.db.morphia.util;
 
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
 import org.mongodb.morphia.converters.SimpleValueConverter;
 import org.mongodb.morphia.converters.TypeConverter;
 import org.mongodb.morphia.mapping.MappedField;
@@ -12,7 +15,12 @@ import org.mongodb.morphia.mapping.MappedField;
  */
 public class DateTimeConverter extends TypeConverter implements SimpleValueConverter {
     public DateTimeConverter() {
-        setSupportedTypes(new Class[]{DateTime.class});
+        setSupportedTypes(new Class[]{
+                DateTime.class,
+                LocalDate.class,
+                LocalDateTime.class,
+                LocalTime.class
+        });
     }
 
     @Override
@@ -21,7 +29,18 @@ public class DateTimeConverter extends TypeConverter implements SimpleValueConve
             return null;
         }
         final Long instant = (Long) fromDBObject;
-        return new DateTime(instant);
+        if (targetClass == DateTime.class) {
+            return new DateTime(instant);
+        } else if (targetClass == LocalDateTime.class) {
+            return new LocalDateTime(instant);
+        } else if (targetClass == LocalDate.class) {
+            return new LocalDate(instant);
+        } else if (targetClass == LocalTime.class) {
+            return new LocalTime(instant);
+        } else {
+            assert false;
+            return null;
+        }
     }
 
     @Override
@@ -29,8 +48,23 @@ public class DateTimeConverter extends TypeConverter implements SimpleValueConve
         if (null == value) {
             return null;
         }
-        final DateTime dateTime = (DateTime) value;
-        return dateTime.getMillis();
+        if (value instanceof DateTime) {
+            DateTime dateTime = (DateTime) value;
+            return dateTime.getMillis();
+        } else if (value instanceof LocalDateTime) {
+            LocalDateTime localDateTime = (LocalDateTime) value;
+            return localDateTime.toDateTime().getMillis();
+        } else if (value instanceof LocalDate) {
+            LocalDate localDate = (LocalDate) value;
+            return localDate.toDateTimeAtStartOfDay().getMillis();
+        } else if (value instanceof LocalTime) {
+            LocalTime localTime = (LocalTime) value;
+            return localTime.toDateTime(new DateTime(0)).getMillis();
+        } else {
+            assert false;
+            return null;
+        }
     }
+
 
 }
