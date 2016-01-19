@@ -1,8 +1,7 @@
 package act.db.morphia;
 
 import act.app.DbServiceManager;
-import act.db.morphia.util.DateTimeConverter;
-import act.db.morphia.util.DateTimeConverterTest;
+import act.db.morphia.util.JodaDateTimeConverter;
 import com.github.fakemongo.Fongo;
 import org.junit.Before;
 import org.mongodb.morphia.Datastore;
@@ -43,7 +42,7 @@ public abstract class MongoTestBase extends TestBase {
     protected void prepareData() {}
 
     protected void mapClasses() {
-        morphia.getMapper().getConverters().addConverter(new DateTimeConverter());
+        morphia.getMapper().getConverters().addConverter(new JodaDateTimeConverter());
         morphia.mapPackage("playground", true);
     }
 

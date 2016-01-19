@@ -8,7 +8,7 @@ import org.joda.time.LocalTime;
 import org.junit.Test;
 import org.osgl.$;
 
-public class DateTimeConverterTest extends TestBase {
+public class JodaDateTimeConverterTest extends TestBase {
     @Test
     public void testDateTime() {
         long ts = $.ms();

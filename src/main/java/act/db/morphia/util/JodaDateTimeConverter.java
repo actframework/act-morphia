@@ -13,8 +13,8 @@ import org.mongodb.morphia.mapping.MappedField;
  * Disclaim: Source code copied from
  * http://grepcode.com/file/repo1.maven.org/maven2/io.rtr.alchemy/alchemy-db-mongo/0.1.10/io/rtr/alchemy/db/mongo/util/DateTimeConverter.java
  */
-public class DateTimeConverter extends TypeConverter implements SimpleValueConverter {
-    public DateTimeConverter() {
+public class JodaDateTimeConverter extends TypeConverter implements SimpleValueConverter {
+    public JodaDateTimeConverter() {
         setSupportedTypes(new Class[]{
                 DateTime.class,
                 LocalDate.class,
