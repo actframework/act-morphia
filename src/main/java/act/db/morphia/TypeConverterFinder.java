@@ -3,6 +3,7 @@ package act.db.morphia;
 import act.ActComponent;
 import act.app.App;
 import act.app.AppByteCodeScanner;
+import act.app.event.AppEventId;
 import act.util.AnnotatedTypeFinder;
 import act.util.SubTypeFinder2;
 import org.mongodb.morphia.Morphia;
@@ -25,11 +26,16 @@ public class TypeConverterFinder extends SubTypeFinder2<TypeConverter> {
     }
 
     @Override
-    protected void found(Class<TypeConverter> target, App app) {
+    protected void found(final Class<TypeConverter> target, final App app) {
         if (target.getName().startsWith(SYS_CONVERTER_PKG)) {
             return;
         }
-        MorphiaService.mapper().getConverters().addConverter(app.newInstance(target));
+        app.jobManager().on(AppEventId.DEPENDENCY_INJECTOR_LOADED, new Runnable() {
+            @Override
+            public void run() {
+                MorphiaService.mapper().getConverters().addConverter(app.newInstance(target));
+            }
+        });
     }
 
 }
