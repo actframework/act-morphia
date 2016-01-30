@@ -1,26 +1,35 @@
 package act.db.morphia;
 
 import act.ActComponent;
-import act.app.App;
-import act.app.AppByteCodeScanner;
+import act.app.event.AppEventId;
+import act.db.morphia.event.EntityMapped;
 import act.util.AnnotatedTypeFinder;
 import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.mapping.Mapper;
 import org.osgl.$;
-import org.osgl.exception.NotAppliedException;
-
-import java.util.Map;
-import java.util.Set;
 
 @ActComponent
+@SuppressWarnings("unused")
 public class EntityFinder extends AnnotatedTypeFinder {
+
     public EntityFinder() {
-        super(true, true, Entity.class, new $.F2<App, String, Map<Class<? extends AppByteCodeScanner>, Set<String>>>() {
+        super(Entity.class);
+        app().jobManager().on(AppEventId.PRE_START, new Runnable() {
             @Override
-            public Map<Class<? extends AppByteCodeScanner>, Set<String>> apply(App app, String className) throws NotAppliedException, $.Break {
-                Class<?> c = $.classForName(className, app.classLoader());
-                MorphiaService.morphia().map(c);
-                return null;
+            public void run() {
+                doMap();
             }
         });
+    }
+
+    private void doMap() {
+        Mapper mapper = MorphiaService.mapper();
+        for (String className : foundClasses) {
+            Class<?> c = $.classForName(className, app().classLoader());
+            if (!mapper.isMapped(c)) {
+                mapper.addMappedClass(c);
+            }
+        }
+        app().eventBus().emit(new EntityMapped(mapper));
     }
 }

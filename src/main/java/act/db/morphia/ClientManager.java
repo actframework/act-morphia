@@ -8,7 +8,7 @@ import org.osgl.util.S;
 
 import java.util.Map;
 
-public class ClientManager {
+class ClientManager {
 
     public static final String DEF_HOST = "localhost";
     public static final int DEF_PORT = 27017;
