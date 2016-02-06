@@ -3,9 +3,11 @@ package act.db.morphia;
 import act.ActComponent;
 import act.app.App;
 import act.app.DbServiceManager;
+import act.app.event.AppEventId;
 import act.db.Dao;
 import act.db.DbService;
 import act.db.morphia.util.FastJsonObjectIdCodec;
+import act.di.DiBinder;
 import act.util.FastJsonIterableSerializer;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializeConfig;
@@ -54,6 +56,24 @@ public class MorphiaService extends DbService {
         initDataStore(client, conf);
         delayedEnsureIndexesAndCaps(app);
         registerFastJsonConfig();
+        app.singletonRegistry().register(MorphiaService.class, this);
+        app.jobManager().on(AppEventId.DEPENDENCY_INJECTOR_LOADED, new Runnable() {
+            @Override
+            public void run() {
+                app().eventBus().emit(new DiBinder<Morphia>(this, Morphia.class) {
+                    @Override
+                    public Morphia resolve(App app) {
+                        return MorphiaService.morphia();
+                    }
+                });
+                app().eventBus().emit(new DiBinder<Mapper>(this, Mapper.class) {
+                    @Override
+                    public Mapper resolve(App app) {
+                        return MorphiaService.mapper();
+                    }
+                });
+            }
+        });
     }
 
     @Override
