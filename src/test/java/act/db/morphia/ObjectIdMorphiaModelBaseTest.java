@@ -4,7 +4,7 @@ import model.Contact;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MorphiaModelTest extends MongoTestBase {
+public class ObjectIdMorphiaModelBaseTest extends MongoTestBase {
 
     Contact.Dao dao;
 

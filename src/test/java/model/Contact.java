@@ -1,13 +1,15 @@
 package model;
 
+import act.db.ModelBase;
 import act.db.morphia.MorphiaDao;
+import act.db.morphia.MorphiaDaoBase;
 import act.db.morphia.MorphiaModel;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.Entity;
 import org.osgl.$;
 
 @Entity("ctct")
-public class Contact extends MorphiaModel {
+public class Contact extends MorphiaModel<Contact> {
 
     private String firstName;
     private String lastName;
@@ -56,7 +58,7 @@ public class Contact extends MorphiaModel {
         this.address = address;
     }
 
-    public static class Dao extends MorphiaDao<ObjectId, Contact, Dao> {
+    public static class Dao extends MorphiaDao<Contact> {
         public Dao() {
             super(Contact.class);
         }

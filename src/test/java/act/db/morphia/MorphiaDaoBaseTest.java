@@ -17,7 +17,7 @@ import java.util.Map;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
-public class MorphiaDaoTest extends MongoTestBase {
+public class MorphiaDaoBaseTest extends MongoTestBase {
 
     Contact.Dao dao;
     Fixture fixture;

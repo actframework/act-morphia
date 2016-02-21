@@ -1,27 +1,18 @@
 package act.db.morphia;
 
 import org.bson.types.ObjectId;
-import org.joda.time.DateTime;
 import org.mongodb.morphia.annotations.Id;
-import org.mongodb.morphia.annotations.Indexed;
-import org.mongodb.morphia.annotations.PrePersist;
-import org.mongodb.morphia.annotations.Version;
-import org.osgl.$;
+import org.osgl.util.E;
 import org.osgl.util.S;
 
-public abstract class MorphiaModel {
+/**
+ * The default morphia model base implementation using {@link ObjectId} as the id type
+ * @param <MODEL_TYPE>
+ */
+public abstract class MorphiaModel<MODEL_TYPE extends MorphiaModel> extends MorphiaModelBase<ObjectId, MODEL_TYPE> {
 
     @Id
     private ObjectId id;
-
-    @Indexed
-    private DateTime _created;
-
-    @Indexed
-    private DateTime _modified;
-
-    @Version
-    private Long v;
 
     public MorphiaModel() {
     }
@@ -30,63 +21,23 @@ public abstract class MorphiaModel {
         this.id = id;
     }
 
-    public ObjectId getId() {
-        return id;
-    }
-
-    // for JSON deserialization
-    public void setId(ObjectId id) {
-        this.id = id;
-    }
-
     public String getIdAsStr() {
         return null != id ? id.toString() : null;
     }
 
     public ObjectId _id() {
-        return getId();
+        return id;
     }
 
-    public boolean _isNew() {
-        return null == _created;
-    }
-
-    public DateTime _created() {
-        return _created;
-    }
-
-    public DateTime _modified() {
-        return _modified;
-    }
-
-    @PrePersist
-    private void updateTimestamps() {
-        DateTime now = DateTime.now();
-        if (null == _created) {
-            _created = now;
-        }
-        _modified = now;
+    @Override
+    public MODEL_TYPE _id(ObjectId id) {
+        E.illegalStateIf(null != this.id);
+        this.id = id;
+        return _me();
     }
 
     @Override
     public String toString() {
         return S.builder().append(getClass().getName()).append("[").append(id).append("]").toString();
-    }
-
-    @Override
-    public int hashCode() {
-        return $.hc(getClass(), id);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if ($.eq(obj.getClass(), getClass())) {
-            MorphiaModel that = (MorphiaModel) obj;
-            return $.eq(that.id, id);
-        }
-        return false;
     }
 }

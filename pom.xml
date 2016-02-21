@@ -22,7 +22,7 @@
   <groupId>org.actframework</groupId>
   <artifactId>act-morphia</artifactId>
   <packaging>jar</packaging>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.1.1-SNAPSHOT</version>
 
   <name>ACT Morphia</name>
   <description>The Morphia Plugin for Actframework MongoDB access</description>

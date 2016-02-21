@@ -16,6 +16,7 @@ import java.lang.reflect.Type;
  * Serializer and Deserializer of ObjectID for FastJson
  */
 public class FastJsonObjectIdCodec implements ObjectSerializer, ObjectDeserializer {
+
     @Override
     public int getFastMatchToken() {
         return JSONToken.LITERAL_STRING;

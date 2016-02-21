@@ -15,14 +15,17 @@ import com.mongodb.MongoClient;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
+import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.mapping.DefaultCreator;
 import org.mongodb.morphia.mapping.Mapper;
 import org.mongodb.morphia.mapping.MapperOptions;
 import org.mongodb.morphia.query.MorphiaIterator;
 import org.osgl.$;
+import org.osgl.util.E;
 import org.osgl.util.S;
 
 import javax.inject.Singleton;
+import java.lang.annotation.Annotation;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -56,7 +59,7 @@ public class MorphiaService extends DbService {
         initDataStore(client, conf);
         delayedEnsureIndexesAndCaps(app);
         registerFastJsonConfig();
-        app.singletonRegistry().register(MorphiaService.class, this);
+        app.registerSingleton(MorphiaService.class, this);
         app.jobManager().on(AppEventId.DEPENDENCY_INJECTOR_LOADED, new Runnable() {
             @Override
             public void run() {
@@ -83,8 +86,25 @@ public class MorphiaService extends DbService {
     }
 
     @Override
-    protected <DAO extends Dao> DAO defaultDao(Class<?> modelType) {
-        return $.cast(new MorphiaDao(modelType, ds));
+    @SuppressWarnings("unchecked")
+    public <DAO extends Dao> DAO defaultDao(Class<?> modelType) {
+        if (MorphiaModel.class.isAssignableFrom(modelType)) {
+            return $.cast(new MorphiaDao(modelType, ds));
+        }
+        return $.cast(new MorphiaDaoBase(modelType, ds));
+    }
+
+    @Override
+    public <DAO extends Dao> DAO newDaoInstance(Class<DAO> daoType) {
+        E.illegalArgumentIf(!MorphiaDaoBase.class.isAssignableFrom(daoType), "expected MorphiaDaoBase, found: %s", daoType);
+        MorphiaDaoBase dao = $.cast(app().newInstance(daoType));
+        dao.ds(ds);
+        return (DAO) dao;
+    }
+
+    @Override
+    public Class<? extends Annotation> entityAnnotationType() {
+        return Entity.class;
     }
 
     public Datastore ds() {
