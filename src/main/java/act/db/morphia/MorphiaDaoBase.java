@@ -37,6 +37,8 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         this.modelType = modelType;
     }
 
+    public MorphiaDaoBase() {}
+
     protected App app() {
         return app;
     }
@@ -52,6 +54,10 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
 
     void ds(Datastore ds) {
         this.ds = $.notNull(ds);
+    }
+
+    void modelType(Class<MODEL_TYPE> modelType) {
+        this.modelType = $.notNull(modelType);
     }
 
     private MorphiaService getService(String dbId, DbServiceManager mgr) {

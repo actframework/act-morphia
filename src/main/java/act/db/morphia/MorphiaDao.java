@@ -18,4 +18,6 @@ public class MorphiaDao<MODEL_TYPE>
     public MorphiaDao(Class<MODEL_TYPE> modelType) {
         super(modelType);
     }
+
+    public MorphiaDao() {}
 }
