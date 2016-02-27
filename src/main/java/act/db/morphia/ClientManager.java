@@ -2,6 +2,7 @@ package act.db.morphia;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import org.osgl.$;
 import org.osgl.util.C;
 import org.osgl.util.E;
 import org.osgl.util.S;
@@ -21,13 +22,14 @@ class ClientManager {
 
     private static final Map<MorphiaService, MongoClient> clients = C.newMap();
 
-    public static MongoClient register(MorphiaService service, Map<String, Object> conf) {
+    public static $.T2<MongoClientURI, MongoClient> register(MorphiaService service, Map<String, Object> conf) {
         if (clients.containsKey(service)) {
             throw E.invalidConfiguration("Mongo client has already been registered for service[%]", service.id());
         }
-        MongoClient client = create(conf);
+        MongoClientURI clientURI = create(conf);
+        MongoClient client = new MongoClient(clientURI);
         clients.put(service, client);
-        return client;
+        return $.T2(clientURI, client);
     }
 
     public static MongoClient get(MorphiaService service) {
@@ -41,7 +43,7 @@ class ClientManager {
         }
     }
 
-    private static MongoClient create(Map<String, Object> conf) {
+    private static MongoClientURI create(Map<String, Object> conf) {
         String uri = getStr(CONF_URI, conf, null);
         if (null == uri) {
             String host = getStr(CONF_HOST, conf, DEF_HOST);
@@ -65,8 +67,7 @@ class ClientManager {
                 uri = SCHEME + uri;
             }
         }
-        MongoClientURI mongoClientURI = new MongoClientURI(uri);
-        return new MongoClient(mongoClientURI);
+        return new MongoClientURI(uri);
     }
 
     private static String getStr(String key, Map<String, Object> conf, String def) {

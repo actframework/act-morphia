@@ -12,6 +12,7 @@ import act.util.FastJsonIterableSerializer;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
@@ -55,8 +56,8 @@ public class MorphiaService extends DbService {
             // morphia.getMapper().getConverters().addConverter(new DateTimeConverter());
         }
         daoMap = new ConcurrentHashMap<Class<?>, Dao>();
-        MongoClient client = ClientManager.register(this, conf);
-        initDataStore(client, conf);
+        $.T2<MongoClientURI, MongoClient> t2 = ClientManager.register(this, conf);
+        initDataStore(t2, conf);
         delayedEnsureIndexesAndCaps(app);
         registerFastJsonConfig();
         app.registerSingleton(MorphiaService.class, this);
@@ -115,15 +116,20 @@ public class MorphiaService extends DbService {
         return morphia;
     }
 
-    private void initDataStore(MongoClient client, Map<String, Object> conf) {
-        String db = S.string(conf.get("db"));
-        if (S.empty(db)) {
-            db = id();
-            if (DbServiceManager.DEFAULT.equals(db)) {
-                db = "test";
-                logger.warn("No \"db\" (database name) configured. Will use \"test\" as database name for the default service");
-            } else {
-                logger.warn("No \"db\" (database name) configured. Will use service id \"%s\" as database name", db);
+    private void initDataStore($.T2<MongoClientURI, MongoClient> t2, Map<String, Object> conf) {
+        MongoClientURI uri = t2._1;
+        MongoClient client = t2._2;
+        String db = uri.getDatabase();
+        if (S.blank(db)) {
+            db = S.string(conf.get("db"));
+            if (S.empty(db)) {
+                db = id();
+                if (DbServiceManager.DEFAULT.equals(db)) {
+                    db = "test";
+                    logger.warn("No \"db\" (database name) configured. Will use \"test\" as database name for the default service");
+                } else {
+                    logger.warn("No \"db\" (database name) configured. Will use service id \"%s\" as database name", db);
+                }
             }
         }
         this.ds = morphia.createDatastore(client, db);
