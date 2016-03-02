@@ -33,12 +33,4 @@ public class MorphiaDao<MODEL_TYPE>
         super.deleteById(new ObjectId(id));
     }
 
-    public Iterable<MODEL_TYPE> findByIdList(Collection<String> idList) {
-        return super.findByIdList(C.list(idList).map(new Osgl.Transformer<String, ObjectId>() {
-            @Override
-            public ObjectId transform(String s) {
-                return new ObjectId(s);
-            }
-        }));
-    }
 }
