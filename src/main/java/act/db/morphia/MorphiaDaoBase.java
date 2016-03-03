@@ -6,7 +6,9 @@ import act.app.App;
 import act.app.DbServiceManager;
 import act.db.*;
 import act.util.General;
+import com.mongodb.DBCollection;
 import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.DatastoreImpl;
 import org.mongodb.morphia.query.UpdateOperations;
 import org.osgl.$;
 import org.osgl.util.C;
@@ -67,7 +69,7 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         return $.cast(svc);
     }
 
-    private Datastore ds() {
+    public Datastore ds() {
         if (null != ds) {
             return ds;
         }
@@ -199,8 +201,12 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         return new MorphiaQuery<MODEL_TYPE>(ds(), modelType);
     }
 
-    public Class modelType() {
+    public Class<MODEL_TYPE> modelType() {
         return modelType;
+    }
+
+    public DBCollection collection() {
+        return ds().getCollection(modelType());
     }
 
     private MorphiaQuery<MODEL_TYPE> q(String keys, Object... values) {
