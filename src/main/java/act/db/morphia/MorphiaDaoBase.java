@@ -209,7 +209,8 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         return ds().getCollection(modelType());
     }
 
-    private MorphiaQuery<MODEL_TYPE> q(String keys, Object... values) {
+    @Override
+    public MorphiaQuery<MODEL_TYPE> q(String keys, Object... values) {
         int len = values.length;
         E.illegalArgumentIf(len == 0, "no values supplied");
         String[] sa = keys.split("[,;:]+");
