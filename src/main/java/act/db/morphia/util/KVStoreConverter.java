@@ -7,11 +7,14 @@ import org.mongodb.morphia.converters.SimpleValueConverter;
 import org.mongodb.morphia.converters.TypeConverter;
 import org.mongodb.morphia.mapping.MappedField;
 import org.osgl.$;
+import org.osgl.util.C;
 import org.osgl.util.KVStore;
 import org.osgl.util.S;
 import org.osgl.util.ValueObject;
 
 import javax.inject.Inject;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Persistent {@link org.osgl.util.KVStore} in a special form so that application can create
@@ -32,12 +35,12 @@ public class KVStoreConverter extends TypeConverter implements SimpleValueConver
     public static final String VALUE = "v";
     public static final String UDF_TYPE = "t";
 
-    private App app;
+    private ValueObjectConverter valueObjectConverter;
 
     @Inject
     public KVStoreConverter(App app) {
         setSupportedTypes(new Class[] {KVStore.class});
-        this.app = app;
+        this.valueObjectConverter = new ValueObjectConverter(app);
     }
 
     @Override
@@ -52,13 +55,7 @@ public class KVStoreConverter extends TypeConverter implements SimpleValueConver
             BasicDBObject dbObj = (BasicDBObject) dbList.get(i);
             String key = dbObj.getString(KEY);
             Object val = dbObj.get(VALUE);
-            boolean udf = dbObj.containsField(UDF_TYPE);
-            if (udf) {
-                String type = dbObj.getString(UDF_TYPE);
-                Class cls = $.classForName(type, app.classLoader());
-                val = ValueObject.decode(S.string(val), cls);
-            }
-            store.putValue(key, val);
+            store.putValue(key, valueObjectConverter.decode(ValueObject.class, val));
         }
         return store;
     }
@@ -74,12 +71,7 @@ public class KVStoreConverter extends TypeConverter implements SimpleValueConver
             ValueObject vo = store.get(key);
             BasicDBObject dbObject = new BasicDBObject();
             dbObject.put(KEY, key);
-            if (vo.isUDF()) {
-                dbObject.put(VALUE, vo.toString());
-                dbObject.put(UDF_TYPE, vo.value().getClass().getName());
-            } else {
-                dbObject.put(VALUE, vo.value());
-            }
+            dbObject.put(VALUE, valueObjectConverter.encode(vo));
             list.add(dbObject);
         }
         return list;
