@@ -68,7 +68,7 @@ public class KVStoreConverter extends TypeConverter implements SimpleValueConver
         KVStore store = (KVStore) value;
         BasicDBList list = new BasicDBList();
         for (String key : store.keySet()) {
-            ValueObject vo = store.get(key);
+            ValueObject vo = ValueObject.of(store.get(key));
             BasicDBObject dbObject = new BasicDBObject();
             dbObject.put(KEY, key);
             dbObject.put(VALUE, valueObjectConverter.encode(vo));
