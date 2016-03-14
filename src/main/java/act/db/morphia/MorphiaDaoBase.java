@@ -6,18 +6,20 @@ import act.app.App;
 import act.app.DbServiceManager;
 import act.db.*;
 import act.util.General;
+import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.DatastoreImpl;
+import org.mongodb.morphia.aggregation.Group;
 import org.mongodb.morphia.query.UpdateOperations;
 import org.osgl.$;
 import org.osgl.util.C;
 import org.osgl.util.E;
+import org.osgl.util.KVStore;
+import org.osgl.util.ValueObject;
 
 import javax.inject.Inject;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @ActComponent
 @General
@@ -116,6 +118,30 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
     @Override
     public List<MODEL_TYPE> findAllAsList() {
         return q().fetchAsList();
+    }
+
+    public <T> List<T> distinct(String field) {
+        return collection().distinct(field);
+    }
+
+    public List<KVStore> distinct(String field, String... fields) {
+        List<Group> id = C.listOf(fields).prepend(field).map(new $.Transformer<String, Group>() {
+            @Override
+            public Group transform(String s) {
+                return Group.grouping(s);
+            }
+        });
+        Iterator<DistinctResult> result = ds().createAggregation(modelType()).group(id).out(DistinctResult.class);
+        List<KVStore> retList = C.newList();
+        while (result.hasNext()) {
+            DistinctResult dr = result.next();
+            retList.add(new KVStore(dr._id));
+        }
+        return retList;
+    }
+
+    private static class DistinctResult {
+        private Map<String, Object> _id;
     }
 
     @Override
