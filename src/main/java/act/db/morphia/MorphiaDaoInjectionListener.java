@@ -18,8 +18,8 @@ public class MorphiaDaoInjectionListener extends DaoInjectionListenerBase {
         DbService dbService = App.instance().dbServiceManager().dbService(svcId());
         if (dbService instanceof MorphiaService) {
             MorphiaDao morphiaDao = $.cast(dao);
-            MorphiaService ebeanService = $.cast(dbService);
-            morphiaDao.ds(ebeanService.ds());
+            MorphiaService morphiaService = $.cast(dbService);
+            morphiaDao.ds(morphiaService.ds());
             morphiaDao.modelType(modelType());
         }
     }
