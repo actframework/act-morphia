@@ -6,20 +6,20 @@ import act.app.App;
 import act.app.DbServiceManager;
 import act.db.*;
 import act.util.General;
-import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import org.mongodb.morphia.Datastore;
-import org.mongodb.morphia.DatastoreImpl;
 import org.mongodb.morphia.aggregation.Group;
 import org.mongodb.morphia.query.UpdateOperations;
 import org.osgl.$;
 import org.osgl.util.C;
 import org.osgl.util.E;
 import org.osgl.util.KVStore;
-import org.osgl.util.ValueObject;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 @ActComponent
 @General
@@ -60,7 +60,7 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         this.ds = $.notNull(ds);
     }
 
-    void modelType(Class<MODEL_TYPE> modelType) {
+    public void modelType(Class<MODEL_TYPE> modelType) {
         this.modelType = $.notNull(modelType);
     }
 

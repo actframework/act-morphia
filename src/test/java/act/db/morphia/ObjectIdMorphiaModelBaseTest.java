@@ -3,7 +3,6 @@ package act.db.morphia;
 import model.Contact;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 public class ObjectIdMorphiaModelBaseTest extends MongoTestBase {
 

@@ -3,10 +3,6 @@ package act.db.morphia;
 import act.util.General;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
-import org.osgl.Osgl;
-import org.osgl.util.C;
-
-import java.util.Collection;
 
 /**
  * The morphia dao base implementation use {@link org.bson.types.ObjectId} as the ID type

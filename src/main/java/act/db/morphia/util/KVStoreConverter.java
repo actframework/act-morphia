@@ -6,15 +6,10 @@ import com.mongodb.BasicDBObject;
 import org.mongodb.morphia.converters.SimpleValueConverter;
 import org.mongodb.morphia.converters.TypeConverter;
 import org.mongodb.morphia.mapping.MappedField;
-import org.osgl.$;
-import org.osgl.util.C;
 import org.osgl.util.KVStore;
-import org.osgl.util.S;
 import org.osgl.util.ValueObject;
 
 import javax.inject.Inject;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Persistent {@link org.osgl.util.KVStore} in a special form so that application can create

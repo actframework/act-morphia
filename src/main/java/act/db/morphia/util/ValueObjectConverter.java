@@ -8,13 +8,11 @@ import org.mongodb.morphia.converters.SimpleValueConverter;
 import org.mongodb.morphia.converters.TypeConverter;
 import org.mongodb.morphia.mapping.MappedField;
 import org.osgl.$;
-import org.osgl.http.H;
 import org.osgl.util.C;
 import org.osgl.util.KVStore;
 import org.osgl.util.ValueObject;
 
 import javax.inject.Inject;
-
 import java.util.List;
 import java.util.Map;
 

@@ -5,8 +5,6 @@ import act.app.App;
 import act.db.DbPlugin;
 import act.db.DbService;
 import org.mongodb.morphia.logging.MorphiaLoggerFactory;
-import org.osgl.logging.L;
-import org.osgl.logging.Logger;
 
 import java.util.Map;
 
