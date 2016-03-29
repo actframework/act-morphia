@@ -27,7 +27,6 @@ public class MorphiaDaoBaseTest extends MongoTestBase {
     @Before
     public void prepareDao() {
         dao = new Contact.Dao();
-        dao.setApp(app);
         dao.setDatastore(ds());
         when(dbServiceManager.dao(any(Class.class))).thenAnswer(new Answer<Dao>() {
             @Override

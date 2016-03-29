@@ -11,7 +11,6 @@ public class ObjectIdMorphiaModelBaseTest extends MongoTestBase {
     @Before
     public void prepareDao() {
         dao = new Contact.Dao();
-        dao.setApp(app);
         dao.setDatastore(ds());
     }
 
