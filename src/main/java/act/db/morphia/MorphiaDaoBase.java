@@ -35,21 +35,20 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         E.NPE(modelType, ds);
         this.modelType = modelType;
         this.ds = ds;
+        this.app = App.instance();
     }
 
     protected MorphiaDaoBase(Class<MODEL_TYPE> modelType) {
         this.modelType = modelType;
+        this.app = App.instance();
     }
 
-    public MorphiaDaoBase() {}
+    public MorphiaDaoBase() {
+        this.app = App.instance();
+    }
 
     protected App app() {
         return app;
-    }
-
-    @Inject
-    public void setApp(App app) {
-        this.app = app;
     }
 
     public void setDatastore(Datastore ds) {
