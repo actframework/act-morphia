@@ -25,6 +25,11 @@ public abstract class MorphiaModel<MODEL_TYPE extends MorphiaModel> extends Morp
         return null != id ? id.toString() : null;
     }
 
+    public void setId(String id) {
+        E.illegalArgumentIf(!ObjectId.isValid(id), "Invalid Object Id: %s", id);
+        this.id = new ObjectId(id);
+    }
+
     public ObjectId _id() {
         return id;
     }
