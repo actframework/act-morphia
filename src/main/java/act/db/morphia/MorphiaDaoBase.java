@@ -8,6 +8,7 @@ import act.db.*;
 import act.util.General;
 import com.mongodb.DBCollection;
 import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.aggregation.AggregationPipeline;
 import org.mongodb.morphia.aggregation.Group;
 import org.mongodb.morphia.query.UpdateOperations;
 import org.osgl.$;
@@ -119,24 +120,38 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         return q().fetchAsList();
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> List<T> distinct(MorphiaQuery q, String field) {
+        return collection().distinct(field, q.morphiaQuery().getQueryObject());
+    }
+
+    @SuppressWarnings("unchecked")
     public <T> List<T> distinct(String field) {
         return collection().distinct(field);
     }
 
-    public List<KVStore> distinct(String field, String... fields) {
+    public List<KVStore> distinct(MorphiaQuery q, String field, String... fields) {
         List<Group> id = C.listOf(fields).prepend(field).map(new $.Transformer<String, Group>() {
             @Override
             public Group transform(String s) {
                 return Group.grouping(s);
             }
         });
-        Iterator<DistinctResult> result = ds().createAggregation(modelType()).group(id).out(DistinctResult.class);
+        AggregationPipeline pipeline = ds().createAggregation(modelType());
+        if (null != q) {
+            pipeline.match(q.morphiaQuery());
+        }
+        Iterator<DistinctResult> result = pipeline.group(id).out(DistinctResult.class);
         List<KVStore> retList = C.newList();
         while (result.hasNext()) {
             DistinctResult dr = result.next();
             retList.add(new KVStore(dr._id));
         }
         return retList;
+    }
+
+    public List<KVStore> distinct(String field, String... fields) {
+        return distinct(null, field, fields);
     }
 
     private static class DistinctResult {
