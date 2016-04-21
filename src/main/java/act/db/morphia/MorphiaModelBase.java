@@ -41,4 +41,19 @@ public abstract class MorphiaModelBase<ID_TYPE, MODEL_TYPE extends MorphiaModelB
         return _modified;
     }
 
+    /**
+     * Returns version of the entity. This function should return
+     * the value of field {@link #v}. However if the  field `v`
+     * is `null`, then it will try to return the {@link DateTime#getMillis() millis}
+     * of {@link #_modified} field, if that field is also `null` then
+     * it shall return `-1`
+     * @return the version of the entity
+     */
+    public Long _version() {
+        if (null != v) {
+            return v;
+        }
+        return null == _modified ? -1L : _modified.getMillis();
+    }
+
 }
