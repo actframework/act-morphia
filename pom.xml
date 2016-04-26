@@ -21,6 +21,7 @@
 0.2.0
   - #1: add query to distinct operation on MorphiaDao
   - #2: Add _version() function to MorphiaModel
+  - Update to actframework-0.1.2
 0.1.1
   - baseline version
 -->
@@ -129,13 +130,14 @@
     <dependency>
       <groupId>org.actframework</groupId>
       <artifactId>act</artifactId>
-      <version>0.1.1-SNAPSHOT</version>
+      <version>0.1.2-SNAPSHOT</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.actframework</groupId>
       <artifactId>act-test</artifactId>
-      <version>0.1.0-SNAPSHOT</version>
+      <version>0.1.2-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
 
