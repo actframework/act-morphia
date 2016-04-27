@@ -16,7 +16,6 @@ import org.osgl.util.C;
 import org.osgl.util.E;
 import org.osgl.util.KVStore;
 
-import javax.inject.Inject;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
