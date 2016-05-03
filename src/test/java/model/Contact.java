@@ -13,7 +13,7 @@ public class Contact extends MorphiaModel<Contact> {
     private String mobile;
     private Address address;
 
-    private Contact() {
+    public Contact() {
 
     }
 
