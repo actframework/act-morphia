@@ -216,6 +216,29 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
     }
 
     @Override
+    public void save(Iterable<MODEL_TYPE> entities) {
+        C.List<MODEL_TYPE> list = C.list(entities);
+        if (list.isEmpty()) {
+            return;
+        }
+        MODEL_TYPE e0 = list.get(0);
+        if (e0 instanceof TimeTrackingModel && e0 instanceof Model) {
+            TimeTrackingModel ttm = $.cast(e0);
+            TimestampGenerator tsg = Act.dbManager().timestampGenerator(ttm._timestampType());
+            if (null != tsg) {
+                Object now = tsg.now();
+                for (MODEL_TYPE entity : entities) {
+                    if (((Model) entity)._isNew()) {
+                        ttm._created(now);
+                    }
+                    ttm._lastModified(now);
+                }
+            }
+        }
+        ds().save(entities);
+    }
+
+    @Override
     public void delete(MODEL_TYPE entity) {
         ds().delete(entity);
     }
