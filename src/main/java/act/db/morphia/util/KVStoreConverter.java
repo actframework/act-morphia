@@ -6,20 +6,36 @@ import com.mongodb.BasicDBObject;
 import org.mongodb.morphia.converters.SimpleValueConverter;
 import org.mongodb.morphia.converters.TypeConverter;
 import org.mongodb.morphia.mapping.MappedField;
+import org.mongodb.morphia.utils.IterHelper;
 import org.osgl.util.KVStore;
+import org.osgl.util.S;
 import org.osgl.util.ValueObject;
 
 import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Persistent {@link org.osgl.util.KVStore} in a special form so that application can create
- * a indexable {@code KVStore}. The mongodb JSON structure of the KVStore will be:
- * <pre>
+ * When `persistAsList` is enabled, {@link org.osgl.util.KVStore} will be persisted in a special form
+ * so that application can create a indexable {@code KVStore}. The mongodb JSON structure of the
+ * KVStore will be:
+ *
+ * ```
  *     [
  *     {"k": the-key, "v": the-value, "t": udf-type},
  *     ..
  *     ]
- * </pre>
+ * ```
+ *
+ * When `persistAsList` is not enabled, then persist KVStore as normal map:
+ *
+ * ```
+ * {
+ *     "the-key": "the-value",
+ *     "another-key" "another-value"
+ * }
+ * ```
+ *
  * see <a href="https://groups.google.com/forum/#!topic/morphia/TiaP6EOD-Mo">this</a>
  * thread
  */
@@ -31,26 +47,40 @@ public class KVStoreConverter extends TypeConverter implements SimpleValueConver
     public static final String UDF_TYPE = "t";
 
     private ValueObjectConverter valueObjectConverter;
+    private boolean persistAsList;
 
-    @Inject
-    public KVStoreConverter(App app) {
+    public KVStoreConverter() {
         setSupportedTypes(new Class[] {KVStore.class});
-        this.valueObjectConverter = new ValueObjectConverter(app);
+        this.valueObjectConverter = new ValueObjectConverter();
+        Object o = App.instance().config().get("morphia.kvstore.persist.structure");
+        if (null != o) {
+            persistAsList = S.eq(S.string(o), "list", S.IGNORECASE);
+        }
     }
 
     @Override
     public Object decode(Class<?> aClass, Object fromDB, MappedField mappedField) {
-        KVStore store = new KVStore();
+        final KVStore store = new KVStore();
         if (null == fromDB) {
             return store;
         }
-        BasicDBList dbList = (BasicDBList) fromDB;
-        int sz = dbList.size();
-        for (int i = 0; i < sz; ++i) {
-            BasicDBObject dbObj = (BasicDBObject) dbList.get(i);
-            String key = dbObj.getString(KEY);
-            Object val = dbObj.get(VALUE);
-            store.putValue(key, valueObjectConverter.decode(ValueObject.class, val));
+        if (fromDB instanceof BasicDBList) {
+            BasicDBList dbList = (BasicDBList) fromDB;
+            int sz = dbList.size();
+            for (int i = 0; i < sz; ++i) {
+                BasicDBObject dbObj = (BasicDBObject) dbList.get(i);
+                String key = dbObj.getString(KEY);
+                Object val = dbObj.get(VALUE);
+                store.putValue(key, valueObjectConverter.decode(ValueObject.class, val));
+            }
+        } else if (fromDB instanceof BasicDBObject) {
+            new IterHelper<Object, Object>().loopMap(fromDB, new IterHelper.MapIterCallback<Object, Object>() {
+                @Override
+                public void eval(final Object k, final Object val) {
+                    final String key = S.string(k);
+                    store.putValue(key, valueObjectConverter.decode(ValueObject.class, val));
+                }
+            });
         }
         return store;
     }
@@ -61,14 +91,24 @@ public class KVStoreConverter extends TypeConverter implements SimpleValueConver
             return null;
         }
         KVStore store = (KVStore) value;
-        BasicDBList list = new BasicDBList();
-        for (String key : store.keySet()) {
-            ValueObject vo = ValueObject.of(store.get(key));
-            BasicDBObject dbObject = new BasicDBObject();
-            dbObject.put(KEY, key);
-            dbObject.put(VALUE, valueObjectConverter.encode(vo));
-            list.add(dbObject);
+        boolean persistAsList = (this.persistAsList || optionalExtraInfo.hasAnnotation(PersistAsList.class)) && !optionalExtraInfo.hasAnnotation(PersistAsMap.class);
+        if (persistAsList) {
+            BasicDBList list = new BasicDBList();
+            for (String key : store.keySet()) {
+                ValueObject vo = ValueObject.of(store.get(key));
+                BasicDBObject dbObject = new BasicDBObject();
+                dbObject.put(KEY, key);
+                dbObject.put(VALUE, valueObjectConverter.encode(vo, optionalExtraInfo));
+                list.add(dbObject);
+            }
+            return list;
+        } else {
+            final Map mapForDb = new HashMap();
+            for (final Map.Entry<String, ValueObject> entry : store.entrySet()) {
+                mapForDb.put(entry.getKey(), valueObjectConverter.encode(ValueObject.of(entry.getValue()), optionalExtraInfo));
+            }
+            return mapForDb;
         }
-        return list;
     }
+
 }

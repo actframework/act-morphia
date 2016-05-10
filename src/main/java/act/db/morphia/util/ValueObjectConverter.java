@@ -24,13 +24,6 @@ import static act.db.morphia.util.KVStoreConverter.VALUE;
  */
 public class ValueObjectConverter extends TypeConverter implements SimpleValueConverter {
 
-    private App app;
-
-    @Inject
-    public ValueObjectConverter(App app) {
-        this.app = app;
-    }
-
     public ValueObjectConverter() {
         setSupportedTypes(new Class[]{ValueObject.class});
     }
@@ -40,9 +33,9 @@ public class ValueObjectConverter extends TypeConverter implements SimpleValueCo
         if (o instanceof DBObject) {
             BasicDBObject dbObject = (BasicDBObject) o;
             String valueType = dbObject.getString(UDF_TYPE);
-            Class cls = $.classForName(valueType, app.classLoader());
+            Class cls = $.classForName(valueType, App.instance().classLoader());
             if (Map.class.isAssignableFrom(cls)) {
-                return new KVStoreConverter(app).decode(KVStore.class, dbObject.get(VALUE));
+                return new KVStoreConverter().decode(KVStore.class, dbObject.get(VALUE));
             } else if (List.class.isAssignableFrom(cls)) {
                 BasicDBList dbList = $.cast(dbObject.get(VALUE));
                 List list = C.newSizedList(dbList.size());
@@ -65,7 +58,7 @@ public class ValueObjectConverter extends TypeConverter implements SimpleValueCo
             Object v = vo.value();
             Class<?> type = v.getClass();
             if (Map.class.isAssignableFrom(type)) {
-                v = new KVStoreConverter(app).encode(new KVStore((Map) v));
+                v = new KVStoreConverter().encode(new KVStore((Map) v), optionalExtraInfo);
             } else if (List.class.isAssignableFrom(type)) {
                 BasicDBList dbList = new BasicDBList();
                 List<Object> list = (List)v;
@@ -84,4 +77,5 @@ public class ValueObjectConverter extends TypeConverter implements SimpleValueCo
             return vo.value();
         }
     }
+
 }
