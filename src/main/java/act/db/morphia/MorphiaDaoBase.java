@@ -15,6 +15,7 @@ import org.osgl.$;
 import org.osgl.util.C;
 import org.osgl.util.E;
 import org.osgl.util.KVStore;
+import org.osgl.util.S;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -26,6 +27,8 @@ import java.util.Map;
 public class
 MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         extends DaoBase<ID_TYPE, MODEL_TYPE, MorphiaQuery<MODEL_TYPE>> {
+
+    public static final String FIELD_SEP = "[,;:]+";
 
     private Class<MODEL_TYPE> modelType;
     private volatile Datastore ds;
@@ -254,6 +257,11 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
     }
 
     @Override
+    public void deleteBy(String fields, Object... values) throws IllegalArgumentException {
+        ds().delete(q(fields, values).morphiaQuery());
+    }
+
+    @Override
     public void drop() {
         ds().delete(ds().createQuery(modelType()));
     }
@@ -275,7 +283,7 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
     public MorphiaQuery<MODEL_TYPE> q(String keys, Object... values) {
         int len = values.length;
         E.illegalArgumentIf(len == 0, "no values supplied");
-        String[] sa = keys.split("[,;:]+");
+        String[] sa = keys.split(FIELD_SEP);
         E.illegalArgumentIf(sa.length != len, "The number of values does not match the number of fields");
         MorphiaQuery<MODEL_TYPE> q = q();
         for (int i = 0; i < len; ++i) {

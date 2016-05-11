@@ -109,6 +109,14 @@ public class MorphiaDaoBaseTest extends MongoTestBase {
     }
 
     @Test
+    public void testDeleteBy() {
+        dao.deleteBy("firstName, lastName", "Tom", "Black");
+        assertNotNull(dao.findById(tom.getId()));
+        dao.deleteBy("firstName, lastName", "Tom", "White");
+        assertNull(dao.findById(tom.getId()));
+    }
+
+    @Test
     public void testDrop() {
         dao.drop();
         assertEquals(0L, dao.count());
