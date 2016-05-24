@@ -63,7 +63,7 @@ public class ValueObjectConverter extends TypeConverter implements SimpleValueCo
                 BasicDBList dbList = new BasicDBList();
                 List<Object> list = (List)v;
                 for (Object item : list) {
-                    dbList.add(encode(ValueObject.of(item)));
+                    dbList.add(encode(ValueObject.of(item), optionalExtraInfo));
                 }
                 v = dbList;
             } else {
