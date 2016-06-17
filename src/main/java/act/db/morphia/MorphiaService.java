@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import static act.app.App.logger;
+
 @ActComponent
 @Singleton
 public class MorphiaService extends DbService {

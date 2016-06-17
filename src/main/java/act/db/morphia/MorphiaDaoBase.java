@@ -215,6 +215,14 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         for (String key : kvList.keySet()) {
             upOps.set(key, kvList.get(key));
         }
+        if (entity instanceof TimeTrackingModel && entity instanceof Model) {
+            TimeTrackingModel ttm = $.cast(entity);
+            TimestampGenerator tsg = Act.dbManager().timestampGenerator(ttm._timestampType());
+            if (null != tsg) {
+                Object now = tsg.now();
+                upOps.set("_modified", now);
+            }
+        }
         ds().update(q, upOps);
     }
 
