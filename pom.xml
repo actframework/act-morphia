@@ -18,6 +18,8 @@
 ********************************************
 *            version history
 ********************************************
+0.2.1
+  - Update to actframework-0.1.3
 0.2.0
   - #1: add query to distinct operation on MorphiaDao
   - #2: Add _version() function to MorphiaModel
@@ -35,7 +37,7 @@
   <groupId>org.actframework</groupId>
   <artifactId>act-morphia</artifactId>
   <packaging>jar</packaging>
-  <version>0.2.0-SNAPSHOT</version>
+  <version>0.2.1-SNAPSHOT</version>
 
   <name>ACT Morphia</name>
   <description>The Morphia Plugin for Actframework MongoDB access</description>
@@ -132,7 +134,7 @@
     <dependency>
       <groupId>org.actframework</groupId>
       <artifactId>act</artifactId>
-      <version>0.1.2-SNAPSHOT</version>
+      <version>0.1.3-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
 
