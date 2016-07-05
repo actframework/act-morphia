@@ -17,7 +17,7 @@ public class TypeConverterFinder extends SubTypeFinder<TypeConverter> {
     }
 
     @Override
-    protected void found(final Class<TypeConverter> target, final App app) {
+    protected void found(final Class<? extends TypeConverter> target, final App app) {
         if (target.getName().startsWith(SYS_CONVERTER_PKG)) {
             return;
         }
