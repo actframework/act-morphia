@@ -100,7 +100,7 @@ public class MorphiaService extends DbService {
     @Override
     public <DAO extends Dao> DAO newDaoInstance(Class<DAO> daoType) {
         E.illegalArgumentIf(!MorphiaDaoBase.class.isAssignableFrom(daoType), "expected MorphiaDaoBase, found: %s", daoType);
-        MorphiaDaoBase dao = $.cast(app().newInstance(daoType));
+        MorphiaDaoBase dao = $.cast(app().getInstance(daoType));
         dao.ds(ds);
         return (DAO) dao;
     }
