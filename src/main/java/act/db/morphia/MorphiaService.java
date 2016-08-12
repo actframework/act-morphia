@@ -7,7 +7,7 @@ import act.app.event.AppEventId;
 import act.db.Dao;
 import act.db.DbService;
 import act.db.morphia.util.FastJsonObjectIdCodec;
-import act.di.DependencyInjectionBinder;
+import act.inject.DependencyInjectionBinder;
 import act.util.FastJsonIterableSerializer;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializeConfig;
@@ -34,7 +34,6 @@ import java.util.concurrent.ConcurrentMap;
 import static act.app.App.logger;
 
 @ActComponent
-@Singleton
 public class MorphiaService extends DbService {
 
     // the morphia instance - keep track of class mapping
