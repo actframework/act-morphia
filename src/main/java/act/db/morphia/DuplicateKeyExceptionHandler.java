@@ -10,8 +10,14 @@ import org.osgl.mvc.result.Result;
 
 @ActComponent
 public class DuplicateKeyExceptionHandler extends ExceptionInterceptor {
+
     public DuplicateKeyExceptionHandler() {
         super(0, DuplicateKeyException.class);
+    }
+
+    @Override
+    public boolean sessionFree() {
+        return false;
     }
 
     @Override
