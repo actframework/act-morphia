@@ -24,6 +24,7 @@ import org.mongodb.morphia.query.MorphiaIterator;
 import org.osgl.$;
 import org.osgl.util.E;
 import org.osgl.util.S;
+import org.osgl.util.StringValueResolver;
 
 import javax.inject.Singleton;
 import java.lang.annotation.Annotation;
@@ -62,6 +63,12 @@ public class MorphiaService extends DbService {
         delayedEnsureIndexesAndCaps(app);
         registerFastJsonConfig();
         app.registerSingleton(MorphiaService.class, this);
+        app.resolverManager().register(ObjectId.class, new StringValueResolver<ObjectId>() {
+            @Override
+            public ObjectId resolve(String s) {
+                return new ObjectId(s);
+            }
+        });
         app.jobManager().on(AppEventId.DEPENDENCY_INJECTOR_LOADED, new Runnable() {
             @Override
             public void run() {
@@ -93,7 +100,7 @@ public class MorphiaService extends DbService {
         if (MorphiaModel.class.isAssignableFrom(modelType)) {
             return $.cast(new MorphiaDao(modelType, ds));
         }
-        return $.cast(new MorphiaDaoBase(modelType, ds));
+        return $.cast(new MorphiaDaoBase(null, modelType, ds));
     }
 
     @Override

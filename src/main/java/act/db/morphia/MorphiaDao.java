@@ -12,14 +12,16 @@ public class MorphiaDao<MODEL_TYPE>
         extends MorphiaDaoBase<ObjectId, MODEL_TYPE> {
 
     public MorphiaDao(Class<MODEL_TYPE> modelType, Datastore ds) {
-        super(modelType, ds);
+        super(ObjectId.class, modelType, ds);
     }
 
     public MorphiaDao(Class<MODEL_TYPE> modelType) {
-        super(modelType);
+        super(ObjectId.class, modelType);
     }
 
-    public MorphiaDao() {}
+    public MorphiaDao() {
+        super(ObjectId.class, null);
+    }
 
     public MODEL_TYPE findById(String id) {
         return findById(new ObjectId(id));

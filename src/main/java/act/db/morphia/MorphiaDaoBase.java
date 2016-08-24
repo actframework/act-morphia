@@ -15,7 +15,6 @@ import org.osgl.$;
 import org.osgl.util.C;
 import org.osgl.util.E;
 import org.osgl.util.KVStore;
-import org.osgl.util.S;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -30,23 +29,20 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
 
     public static final String FIELD_SEP = "[,;:]+";
 
-    private Class<MODEL_TYPE> modelType;
     private volatile Datastore ds;
     private App app;
 
-    MorphiaDaoBase(Class<MODEL_TYPE> modelType, Datastore ds) {
+    MorphiaDaoBase(Class<ID_TYPE> idType, Class<MODEL_TYPE> modelType, Datastore ds) {
+        //TODO infer the ID_TYPE form model type by checking @Id annotation
+        super(idType, modelType);
         E.NPE(modelType, ds);
         this.modelType = modelType;
         this.ds = ds;
         this.app = App.instance();
     }
 
-    protected MorphiaDaoBase(Class<MODEL_TYPE> modelType) {
-        this.modelType = modelType;
-        this.app = App.instance();
-    }
-
-    public MorphiaDaoBase() {
+    protected MorphiaDaoBase(Class<ID_TYPE> idType, Class<MODEL_TYPE> modelType) {
+        super(idType, modelType);
         this.app = App.instance();
     }
 
