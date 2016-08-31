@@ -8,6 +8,7 @@ import act.db.Dao;
 import act.db.DbService;
 import act.db.morphia.util.FastJsonObjectIdCodec;
 import act.inject.DependencyInjectionBinder;
+import act.inject.DependencyInjector;
 import act.util.FastJsonIterableSerializer;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializeConfig;
@@ -69,23 +70,6 @@ public class MorphiaService extends DbService {
                 return new ObjectId(s);
             }
         });
-        app.jobManager().on(AppEventId.DEPENDENCY_INJECTOR_LOADED, new Runnable() {
-            @Override
-            public void run() {
-                app().eventBus().emit(new DependencyInjectionBinder<Morphia>(this, Morphia.class) {
-                    @Override
-                    public Morphia resolve(App app) {
-                        return MorphiaService.morphia();
-                    }
-                });
-                app().eventBus().emit(new DependencyInjectionBinder<Mapper>(this, Mapper.class) {
-                    @Override
-                    public Mapper resolve(App app) {
-                        return MorphiaService.mapper();
-                    }
-                });
-            }
-        });
     }
 
     @Override
@@ -120,7 +104,7 @@ public class MorphiaService extends DbService {
         return ds;
     }
 
-    static Morphia morphia() {
+    public static Morphia morphia() {
         return morphia;
     }
 
