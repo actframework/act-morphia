@@ -1,11 +1,15 @@
 package act.db.morphia;
 
+import act.data.Versioned;
+import act.data.util.JodaDateTimeResolver;
 import act.db.TimeTrackingModelBase;
 import org.joda.time.DateTime;
 import org.mongodb.morphia.annotations.Indexed;
 import org.mongodb.morphia.annotations.Version;
+import org.osgl.util.S;
 
-public abstract class MorphiaModelBase<ID_TYPE, MODEL_TYPE extends MorphiaModelBase> extends TimeTrackingModelBase<DateTime, ID_TYPE, MODEL_TYPE> {
+public abstract class MorphiaModelBase<ID_TYPE, MODEL_TYPE extends MorphiaModelBase>
+        extends TimeTrackingModelBase<ID_TYPE, MODEL_TYPE, DateTime, JodaDateTimeResolver> implements Versioned {
 
     @Indexed
     private DateTime _created;
@@ -41,6 +45,11 @@ public abstract class MorphiaModelBase<ID_TYPE, MODEL_TYPE extends MorphiaModelB
         return _modified;
     }
 
+    @Override
+    public JodaDateTimeResolver _timestampTypeResolver() {
+        return JodaDateTimeResolver.INSTANCE;
+    }
+
     /**
      * Returns version of the entity. This function should return
      * the value of field {@link #v}. However if the  field `v`
@@ -49,7 +58,11 @@ public abstract class MorphiaModelBase<ID_TYPE, MODEL_TYPE extends MorphiaModelB
      * it shall return `-1`
      * @return the version of the entity
      */
-    public Long _version() {
+    public String _version() {
+        return S.string(_v());
+    }
+
+    private Long _v() {
         if (null != v) {
             return v;
         }
