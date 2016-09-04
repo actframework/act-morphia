@@ -18,6 +18,7 @@ import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Id;
 import org.mongodb.morphia.mapping.DefaultCreator;
 import org.mongodb.morphia.mapping.Mapper;
 import org.mongodb.morphia.mapping.MapperOptions;
@@ -92,7 +93,9 @@ public class MorphiaService extends DbService {
                 return $.cast(new MorphiaDaoBase((Class)((ParameterizedType) type).getActualTypeArguments()[0], modelType, ds));
             }
         }
-        throw new IllegalArgumentException(S.fmt("Cannot find out Dao for model type[%s]: unable to identify the ID type", modelType));
+        Class idType = findModelIdTypeByAnnotation(modelType, Id.class);
+        E.illegalArgumentIf(null == idType, "Cannot find out Dao for model type[%s]: unable to identify the ID type", modelType);
+        return $.cast(new MorphiaDaoBase(idType, modelType, ds));
     }
 
     @Override
