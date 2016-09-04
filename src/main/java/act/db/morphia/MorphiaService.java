@@ -29,6 +29,8 @@ import org.osgl.util.StringValueResolver;
 
 import javax.inject.Singleton;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -84,7 +86,13 @@ public class MorphiaService extends DbService {
         if (MorphiaModel.class.isAssignableFrom(modelType)) {
             return $.cast(new MorphiaDao(modelType, ds));
         }
-        return $.cast(new MorphiaDaoBase(null, modelType, ds));
+        if (MorphiaModelBase.class.isAssignableFrom(modelType)) {
+            Type type = modelType.getGenericSuperclass();
+            if (type instanceof ParameterizedType) {
+                return $.cast(new MorphiaDaoBase((Class)((ParameterizedType) type).getActualTypeArguments()[0], modelType, ds));
+            }
+        }
+        throw new IllegalArgumentException(S.fmt("Cannot find out Dao for model type[%s]: unable to identify the ID type", modelType));
     }
 
     @Override
@@ -156,4 +164,5 @@ public class MorphiaService extends DbService {
     public static Mapper mapper() {
         return morphia.getMapper();
     }
+
 }

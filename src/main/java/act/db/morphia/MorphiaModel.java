@@ -1,5 +1,6 @@
 package act.db.morphia;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.Id;
 import org.osgl.util.E;
@@ -21,6 +22,7 @@ public abstract class MorphiaModel<MODEL_TYPE extends MorphiaModel> extends Morp
         this.id = id;
     }
 
+    @JSONField(serialize = false)
     public String getIdAsStr() {
         return null != id ? id.toString() : null;
     }

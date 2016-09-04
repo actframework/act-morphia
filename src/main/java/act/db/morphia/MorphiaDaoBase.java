@@ -36,7 +36,6 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         //TODO infer the ID_TYPE form model type by checking @Id annotation
         super(idType, modelType);
         E.NPE(modelType, ds);
-        this.modelType = modelType;
         this.ds = ds;
         this.app = App.instance();
     }
