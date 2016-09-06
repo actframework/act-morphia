@@ -1,5 +1,6 @@
 package act.db.morphia.util;
 
+import act.Act;
 import act.app.App;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
@@ -60,7 +61,7 @@ public class KVStoreConverter extends TypeConverter implements SimpleValueConver
 
     @Override
     public Object decode(Class<?> aClass, Object fromDB, MappedField mappedField) {
-        final KVStore store = new KVStore();
+        final KVStore store = (KVStore) Act.app().getInstance(aClass);
         if (null == fromDB) {
             return store;
         }
@@ -90,7 +91,7 @@ public class KVStoreConverter extends TypeConverter implements SimpleValueConver
         if (null == value) {
             return null;
         }
-        KVStore store = (KVStore) value;
+        Map<String, ?> store = (Map) value;
         boolean persistAsList = (this.persistAsList || optionalExtraInfo.hasAnnotation(PersistAsList.class)) && !optionalExtraInfo.hasAnnotation(PersistAsMap.class);
         if (persistAsList) {
             BasicDBList list = new BasicDBList();
@@ -104,7 +105,7 @@ public class KVStoreConverter extends TypeConverter implements SimpleValueConver
             return list;
         } else {
             final Map mapForDb = new HashMap();
-            for (final Map.Entry<String, ValueObject> entry : store.entrySet()) {
+            for (final Map.Entry<String, ?> entry : store.entrySet()) {
                 mapForDb.put(entry.getKey(), valueObjectConverter.encode(ValueObject.of(entry.getValue()), optionalExtraInfo));
             }
             return mapForDb;

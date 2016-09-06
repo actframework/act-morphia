@@ -35,7 +35,7 @@ public class ValueObjectConverter extends TypeConverter implements SimpleValueCo
             String valueType = dbObject.getString(UDF_TYPE);
             Class cls = $.classForName(valueType, App.instance().classLoader());
             if (Map.class.isAssignableFrom(cls)) {
-                return new KVStoreConverter().decode(KVStore.class, dbObject.get(VALUE));
+                return new KVStoreConverter().decode(cls, dbObject.get(VALUE));
             } else if (List.class.isAssignableFrom(cls)) {
                 BasicDBList dbList = $.cast(dbObject.get(VALUE));
                 List list = C.newSizedList(dbList.size());
@@ -58,7 +58,7 @@ public class ValueObjectConverter extends TypeConverter implements SimpleValueCo
             Object v = vo.value();
             Class<?> type = v.getClass();
             if (Map.class.isAssignableFrom(type)) {
-                v = new KVStoreConverter().encode(new KVStore((Map) v), optionalExtraInfo);
+                v = new KVStoreConverter().encode(v, optionalExtraInfo);
             } else if (List.class.isAssignableFrom(type)) {
                 BasicDBList dbList = new BasicDBList();
                 List<Object> list = (List)v;
