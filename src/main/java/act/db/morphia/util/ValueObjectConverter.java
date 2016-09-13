@@ -67,7 +67,7 @@ public class ValueObjectConverter extends TypeConverter implements SimpleValueCo
                 }
                 v = dbList;
             } else {
-                v = v.toString();
+                v = ValueObject.encode(v);
             }
             DBObject dbObject = new BasicDBObject();
             dbObject.put(VALUE, v);
