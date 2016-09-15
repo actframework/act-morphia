@@ -1,14 +1,14 @@
 package act.db.morphia;
 
-import act.ActComponent;
 import act.app.App;
 import act.app.DbServiceManager;
 import act.app.event.AppEventId;
 import act.db.Dao;
 import act.db.DbService;
+import act.db.morphia.event.EntityMapped;
 import act.db.morphia.util.FastJsonObjectIdCodec;
-import act.inject.DependencyInjectionBinder;
-import act.inject.DependencyInjector;
+import act.job.OnAppEvent;
+import act.util.AnnotatedClassFinder;
 import act.util.FastJsonIterableSerializer;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializeConfig;
@@ -28,7 +28,6 @@ import org.osgl.util.E;
 import org.osgl.util.S;
 import org.osgl.util.StringValueResolver;
 
-import javax.inject.Singleton;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -38,7 +37,6 @@ import java.util.concurrent.ConcurrentMap;
 
 import static act.app.App.logger;
 
-@ActComponent
 public class MorphiaService extends DbService {
 
     // the morphia instance - keep track of class mapping
