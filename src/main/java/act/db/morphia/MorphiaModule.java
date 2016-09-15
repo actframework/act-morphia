@@ -21,9 +21,6 @@ public class MorphiaModule extends Module {
     protected void configure() {
         bind(Mapper.class).to(mapper());
         bind(Morphia.class).to(MorphiaService.morphia());
-
-        registerGenericTypedBeanLoader(MorphiaDaoBase.class, new MorphiaDaoBaseLoader());
-        registerGenericTypedBeanLoader(MorphiaDao.class, new MorphiaDaoLoader());
     }
 
     @AnnotatedClassFinder(Entity.class)
