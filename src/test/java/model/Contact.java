@@ -55,10 +55,4 @@ public class Contact extends MorphiaModel<Contact> {
         this.address = address;
     }
 
-    public static class Dao extends MorphiaDao<Contact> {
-        public Dao() {
-            super(Contact.class);
-        }
-    }
-
 }

@@ -1,48 +1,29 @@
 package act.db.morphia;
 
-import act.db.Dao;
-import act.test.util.Fixture;
 import model.Contact;
 import org.bson.types.ObjectId;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.osgl.$;
 import org.osgl.util.C;
 
 import java.util.List;
-import java.util.Map;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
+/**
+ * Test CRUD and search features
+ */
+public class MorphiaDaoTest extends MorphiaDaoTestBase<Contact> {
 
-public class MorphiaDaoBaseTest extends MongoTestBase {
-
-    Contact.Dao dao;
-    Fixture fixture;
     Contact tom;
     Contact peter;
 
-    @Before
-    public void prepareDao() {
-        dao = new Contact.Dao();
-        dao.setDatastore(ds());
-        when(dbServiceManager.dao(any(Class.class))).thenAnswer(new Answer<Dao>() {
-            @Override
-            public Dao answer(InvocationOnMock invocationOnMock) throws Throwable {
-                Object[] args = invocationOnMock.getArguments();
-                Class<?> modelType = $.cast(args[0]);
-                if (Contact.class.isAssignableFrom(modelType)) {
-                    return dao;
-                }
-                return null;
-            }
-        });
-        fixture = new Fixture(app);
-        Map<String, Object> data = fixture.loadYamlFile("/test-data.yaml");
-        tom = (Contact) data.get("tom");
-        peter = (Contact) data.get("peter");
+    @Override
+    protected void postPrepareData() {
+        tom = (Contact) initData.get("tom");
+        peter = (Contact) initData.get("peter");
+    }
+
+    @Override
+    protected Class entityClass() {
+        return Contact.class;
     }
 
     @Test

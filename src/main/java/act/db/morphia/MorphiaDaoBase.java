@@ -1,10 +1,9 @@
 package act.db.morphia;
 
 import act.Act;
-import act.ActComponent;
 import act.app.App;
-import act.app.DbServiceManager;
 import act.db.*;
+import act.db.morphia.util.AggregationResult;
 import act.util.General;
 import com.mongodb.DBCollection;
 import org.mongodb.morphia.Datastore;
@@ -21,7 +20,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-@ActComponent
+import static act.db.morphia.MorphiaService.getService;
+
 @General
 public class
 MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
@@ -31,6 +31,7 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
 
     private volatile Datastore ds;
     private App app;
+    private MorphiaQuery<MODEL_TYPE> defQuery;
 
     MorphiaDaoBase(Class<ID_TYPE> idType, Class<MODEL_TYPE> modelType, Datastore ds) {
         //TODO infer the ID_TYPE form model type by checking @Id annotation
@@ -38,6 +39,7 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         E.NPE(modelType, ds);
         this.ds = ds;
         this.app = App.instance();
+        this.defQuery = new MorphiaQuery(this);
     }
 
     protected MorphiaDaoBase(Class<ID_TYPE> idType, Class<MODEL_TYPE> modelType) {
@@ -61,27 +63,20 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         this.modelType = $.notNull(modelType);
     }
 
-    private MorphiaService getService(String dbId, DbServiceManager mgr) {
-        DbService svc = mgr.dbService(dbId);
-        E.invalidConfigurationIf(null == svc, "Cannot find db service by id: %s", dbId);
-        E.invalidConfigurationIf(!(svc instanceof MorphiaService), "The db service[%s|%s] is not morphia service", dbId, svc.getClass());
-        return $.cast(svc);
-    }
-
     public Datastore ds() {
         if (null != ds) {
             return ds;
         }
         synchronized (this) {
             if (null == ds) {
-                DB db = modelType.getAnnotation(DB.class);
-                String dbId = null == db ? DbServiceManager.DEFAULT : db.value();
-                MorphiaService dbService = getService(dbId, app.dbServiceManager());
-                E.NPE(dbService);
-                ds = dbService.ds();
+                ds = getService(modelType()).ds();
             }
         }
         return ds;
+    }
+
+    public AggregationPipeline aggregationPipeline() {
+        return ds().createAggregation(modelType());
     }
 
     @Override
@@ -271,7 +266,7 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
 
     @Override
     public MorphiaQuery<MODEL_TYPE> q() {
-        return new MorphiaQuery<MODEL_TYPE>(ds(), modelType);
+        return new MorphiaQuery<MODEL_TYPE>(this);
     }
 
     public Class<MODEL_TYPE> modelType() {
@@ -286,13 +281,57 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
     public MorphiaQuery<MODEL_TYPE> q(String keys, Object... values) {
         int len = values.length;
         E.illegalArgumentIf(len == 0, "no values supplied");
-        String[] sa = keys.split(FIELD_SEP);
+        String[] sa = splitKeys(keys);
         E.illegalArgumentIf(sa.length != len, "The number of values does not match the number of fields");
         MorphiaQuery<MODEL_TYPE> q = q();
         for (int i = 0; i < len; ++i) {
             q.filter(sa[i], values[i]);
         }
         return q;
+    }
+
+    public MorphiaQuery.GroupBy groupBy(String... groupKeys) {
+        return defQuery.groupBy(groupKeys);
+    }
+
+    public AggregationResult groupMax(String field, String... groupKeys) {
+        return defQuery.groupMax(field, groupKeys);
+    }
+
+    public Long max(String maxField) {
+        return groupMax(maxField).getDefaultResult();
+    }
+
+    public AggregationResult groupMin(String field, String... groupKeys) {
+        return defQuery.groupMin(field, groupKeys);
+    }
+
+    public Long min(String minField) {
+        return groupMin(minField).getDefaultResult();
+    }
+
+    public AggregationResult groupAverage(String field, String... groupKeys) {
+        return defQuery.groupAverage(field, groupKeys);
+    }
+
+    public Long average(String field) {
+        return groupAverage(field).getDefaultResult();
+    }
+
+    public AggregationResult groupSum(String field, String... groupKeys) {
+        return defQuery.groupSum(field, groupKeys);
+    }
+
+    public Long sum(String field) {
+        return groupSum(field).getDefaultResult();
+    }
+
+    public AggregationResult groupCount(String... groupKeys) {
+        return defQuery.groupCount(groupKeys);
+    }
+
+    public static String[] splitKeys(String keys) {
+        return keys.split(FIELD_SEP);
     }
 
     private Map<String, Object> kvList(String keys, Object... values) {
@@ -306,5 +345,7 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         }
         return kvList;
     }
+
+
 
 }

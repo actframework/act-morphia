@@ -17,3 +17,23 @@ Contact(peter):
   firstName: Peter
   lastName: Black
   address: $addr2
+
+Order(o1):
+  price: 1000
+  region: NSW
+  department: Marketing
+
+Order(o2):
+  price: 1500
+  region: NSW
+  department: Logistics
+
+Order(o3):
+  price: 1200
+  region: QLD
+  department: Marketing
+
+Order(o4):
+  price: 800
+  region: QLD
+  department: Logistics

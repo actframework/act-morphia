@@ -2,13 +2,10 @@ package act.db.morphia;
 
 import act.app.App;
 import act.app.DbServiceManager;
-import act.app.event.AppEventId;
+import act.db.DB;
 import act.db.Dao;
 import act.db.DbService;
-import act.db.morphia.event.EntityMapped;
 import act.db.morphia.util.FastJsonObjectIdCodec;
-import act.job.OnAppEvent;
-import act.util.AnnotatedClassFinder;
 import act.util.FastJsonIterableSerializer;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializeConfig;
@@ -31,6 +28,7 @@ import org.osgl.util.StringValueResolver;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -43,7 +41,11 @@ public class MorphiaService extends DbService {
     private static Morphia morphia;
 
     private Datastore ds;
-    private ConcurrentMap<Class<?>, Dao> daoMap;
+
+    /**
+     * Map from Java object field name to mongodb property name
+     */
+    private Map<Class, Map<String, String>> fieldNameLookup;
 
     public MorphiaService(String id, final App app, Map<String, Object> conf) {
         super(id, app);
@@ -59,7 +61,7 @@ public class MorphiaService extends DbService {
             // the TypeConverterFinder will register it
             // morphia.getMapper().getConverters().addConverter(new DateTimeConverter());
         }
-        daoMap = new ConcurrentHashMap<Class<?>, Dao>();
+        fieldNameLookup = new HashMap<Class, Map<String, String>>();
         $.T2<MongoClientURI, MongoClient> t2 = ClientManager.register(this, conf);
         initDataStore(t2, conf);
         delayedEnsureIndexesAndCaps(app);
@@ -76,6 +78,7 @@ public class MorphiaService extends DbService {
     @Override
     protected void releaseResources() {
         ClientManager.release(this);
+        fieldNameLookup.clear();
         morphia = null;
     }
 
@@ -113,8 +116,8 @@ public class MorphiaService extends DbService {
         return ds;
     }
 
-    public static Morphia morphia() {
-        return morphia;
+    public void registerFieldNameMapping(Class<?> entityClass, Map<String, String> nameMapping) {
+        fieldNameLookup.put(entityClass, nameMapping);
     }
 
     private void initDataStore($.T2<MongoClientURI, MongoClient> t2, Map<String, Object> conf) {
@@ -162,8 +165,31 @@ public class MorphiaService extends DbService {
 
     }
 
+    public static Morphia morphia() {
+        return morphia;
+    }
+
     public static Mapper mapper() {
         return morphia.getMapper();
     }
 
+    static MorphiaService getService(Class<?> modelType) {
+        DB db = modelType.getAnnotation(DB.class);
+        String dbId = null == db ? DbServiceManager.DEFAULT : db.value();
+        return getService(dbId, App.instance().dbServiceManager());
+    }
+
+    public static String mappedName(String fieldName, Class<?> modelType) {
+        MorphiaService service = getService(modelType);
+        Map<String, String> mapping = service.fieldNameLookup.get(modelType);
+        String mappedName = null == mapping ? fieldName : mapping.get(fieldName);
+        return mappedName == null ? fieldName : mappedName;
+    }
+
+    private static MorphiaService getService(String dbId, DbServiceManager mgr) {
+        DbService svc = mgr.dbService(dbId);
+        E.invalidConfigurationIf(null == svc, "Cannot find db service by id: %s", dbId);
+        E.invalidConfigurationIf(!(svc instanceof MorphiaService), "The db service[%s|%s] is not morphia service", dbId, svc.getClass());
+        return $.cast(svc);
+    }
 }

@@ -2,15 +2,18 @@ package act.db.morphia;
 
 import act.app.ActionContext;
 import act.app.App;
+import act.app.data.StringValueResolverManager;
 import act.job.AppJobManager;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.runner.JUnitCore;
+import org.mockito.BDDMockito;
 import org.osgl.$;
 import org.osgl.http.H;
 import org.osgl.util.S;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 
 import static org.mockito.Mockito.mock;
@@ -25,13 +28,17 @@ public abstract class TestBase extends Assert {
     protected H.Session session;
 
     @Before
-    public void prepare() {
+    public void prepare() throws Exception {
         jobManager = mock(AppJobManager.class);
         app = mock(App.class);
         when(app.jobManager()).thenReturn(jobManager);
+        when(app.resolverManager()).thenReturn(mock(StringValueResolverManager.class));
         actionContext = mock(ActionContext.class);
         session = new H.Session();
         when(actionContext.session()).thenReturn(session);
+        Field f = App.class.getDeclaredField("INST");
+        f.setAccessible(true);
+        f.set(null, app);
     }
 
     protected void eq(Object[] a1, Object[] a2) {
@@ -44,6 +51,10 @@ public abstract class TestBase extends Assert {
 
     protected void eq(Object o1, Object o2) {
         assertEquals(o1, o2);
+    }
+
+    protected void eq(Integer n, Long l) {
+        assertEquals(n.intValue(), l.intValue());
     }
 
     protected void ne(Object o1, Object o2) {

@@ -1,0 +1,98 @@
+package act.db.morphia.util;
+
+import act.db.morphia.MorphiaDaoBase;
+import act.db.morphia.MorphiaService;
+import com.mongodb.BasicDBObject;
+import org.osgl.$;
+import org.osgl.util.S;
+
+import java.util.*;
+
+public class AggregationResult {
+    private List<BasicDBObject> result = null;
+    private Class<?> modelType = null;
+    private String field = null;
+
+    public AggregationResult(List<BasicDBObject> r, String aggregationField, Class<?> modelClass) {
+        if (null == r || null == aggregationField) throw new NullPointerException();
+        result = r;
+        modelType = modelClass;
+        field = aggregationField;
+    }
+
+    public Long getDefaultResult() {
+        return result.size() > 0 ? result.get(0).getLong(field) : null;
+    }
+
+    public Long getResult(Object ... groupValues) {
+        if (groupValues.length == 0) {
+            return getDefaultResult();
+        }
+        int len = groupValues.length;
+        for (BasicDBObject r : result) {
+            int i = 0;
+            boolean found = true;
+            for (Map.Entry<String, Object> entry : r.entrySet()) {
+                if (i < len) {
+                    if ($.ne(entry.getValue(), groupValues[i++])) {
+                        found = false;
+                        break;
+                    }
+                }
+            }
+            if (found) {
+                return r.getLong(field);
+            }
+        }
+        return null;
+    }
+
+    public Long getResultByGroupKeys(String groupKeys, Object... groupValues) {
+        if (S.empty(groupKeys)) {
+            if (groupValues.length == 0) return getDefaultResult();
+            throw new IllegalArgumentException("the number of group keys does not match the number of group values");
+        }
+        String[] sa = MorphiaDaoBase.splitKeys(groupKeys);
+        if (sa.length != groupValues.length) throw new IllegalArgumentException("the number of group keys does not match the number of group values");
+        Set<String> mappedKeys = new HashSet<String>();
+        for (String key : sa) {
+            mappedKeys.add(mappedName(key));
+        }
+        for (BasicDBObject r: result) {
+            boolean found = true;
+            for (int i = 0; i < sa.length; ++i) {
+                String groupKey = sa[i];
+                String mappedGroupKey = mappedName(groupKey);
+                Object groupValue = groupValues[i];
+                if ($.ne(r.get(groupKey), groupValue) && $.ne(r.get(mappedGroupKey), groupValue)) {
+                    found = false;
+                    break;
+                }
+            }
+            if (found) return r.getLong(this.field);
+        }
+        return null;
+    }
+
+    public Map<String, Long> asNumberMap() {
+        Map<String, Long> m = new HashMap(result.size());
+        for (BasicDBObject r : result) {
+            Collection<?> c = r.values();
+            Iterator itr = c.iterator();
+            String k = itr.next().toString();
+            String s = itr.next().toString();
+            float f = Float.parseFloat(s);
+            long l = (long)f;
+            m.put(k, l);
+        }
+        return m;
+    }
+    
+    public List<BasicDBObject> raw() {
+        return result;
+    }
+
+    private String mappedName(String field) {
+        return MorphiaService.mappedName(field, modelType);
+    }
+}

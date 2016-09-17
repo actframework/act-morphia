@@ -4,14 +4,11 @@ import model.Contact;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ObjectIdMorphiaModelBaseTest extends MongoTestBase {
+public class ObjectIdMorphiaModelBaseTest extends MorphiaDaoTestBase<Contact> {
 
-    Contact.Dao dao;
-
-    @Before
-    public void prepareDao() {
-        dao = new Contact.Dao();
-        dao.setDatastore(ds());
+    @Override
+    protected Class<Contact> entityClass() {
+        return Contact.class;
     }
 
     @Test
