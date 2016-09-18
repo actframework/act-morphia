@@ -12,6 +12,8 @@ import java.util.Map;
  */
 public class AggregationTest extends MorphiaDaoTestBase<Order> {
 
+    AggregationResult result;
+
     @Override
     protected Class<Order> entityClass() {
         return Order.class;
@@ -41,35 +43,35 @@ public class AggregationTest extends MorphiaDaoTestBase<Order> {
 
     @Test
     public void testGroupSum() {
-        AggregationResult result = dao.groupSum("price", "department");
+        result = dao.groupBy("region, dep").on("price").sum();
+        eq(1200, result.get("QLD", "Marketing"));
 
-        eq(2200, result.getResultByGroupKeys("department", "Marketing"));
-        eq(2200, result.getResult("Marketing"));
-        eq(2300, result.getResultByGroupKeys("department", "Logistics"));
-        eq(2300, result.getResult("Logistics"));
+        result = dao.groupSum("price", "department");
+
+        eq(2200, result.getByGroupKeys("department", "Marketing"));
+        eq(2200, result.get("Marketing"));
+        eq(2300, result.getByGroupKeys("department", "Logistics"));
+        eq(2300, result.get("Logistics"));
 
         result = dao.groupSum("price", "department", "region");
-        eq(1200, result.getResultByGroupKeys("region,department", "QLD", "Marketing"));
-        eq(1500, result.getResult("Logistics", "NSW"));
-
-        result = dao.groupBy("region, dep").on("price").sum();
-        eq(1200, result.getResult("QLD", "Marketing"));
+        eq(1200, result.getByGroupKeys("region,department", "QLD", "Marketing"));
+        eq(1500, result.get("Logistics", "NSW"));
     }
 
     @Test
     public void testGroupMax() {
-        AggregationResult result = dao.groupMax("price", "department");
-        eq(1200, result.getResultByGroupKeys("dep", "Marketing"));
-        eq(1500, result.getResultByGroupKeys("department", "Logistics"));
-        eq(1200, result.getResult("Marketing"));
+        result = dao.groupMax("price", "department");
+        eq(1200, result.getByGroupKeys("dep", "Marketing"));
+        eq(1500, result.getByGroupKeys("department", "Logistics"));
+        eq(1200, result.get("Marketing"));
     }
 
     @Test
     public void testGroupMin() {
-        AggregationResult result = dao.groupMin("price", "department");
-        eq(1000, result.getResultByGroupKeys("dep", "Marketing"));
-        eq(800, result.getResultByGroupKeys("department", "Logistics"));
-        eq(800, result.getResult("Logistics"));
+        result = dao.groupMin("price", "department");
+        eq(1000, result.getByGroupKeys("dep", "Marketing"));
+        eq(800, result.getByGroupKeys("department", "Logistics"));
+        eq(800, result.get("Logistics"));
     }
 
     @Test
@@ -84,24 +86,24 @@ public class AggregationTest extends MorphiaDaoTestBase<Order> {
 
     @Test
     public void testGroupCount() {
-        AggregationResult result = dao.groupCount("dep");
-        eq(2, result.getResult("Marketing"));
-        eq(2, result.getResultByGroupKeys("department", "Logistics"));
+        result = dao.groupCount("dep");
+        eq(2, result.get("Marketing"));
+        eq(2, result.getByGroupKeys("department", "Logistics"));
 
         result = dao.groupCount("dep", "region");
-        eq(1, result.getResult("Marketing", "NSW"));
+        eq(1, result.get("Marketing", "NSW"));
 
-        assertNull(result.getResult("Marketing", "SA"));
+        assertNull(result.get("Marketing", "SA"));
 
         result = dao.q("region", "NSW").groupCount("dep");
-        eq(1, result.getResult("Marketing"));
-        eq(1, result.getResultByGroupKeys("dep", "Logistics"));
+        eq(1, result.get("Marketing"));
+        eq(1, result.getByGroupKeys("dep", "Logistics"));
     }
 
     @Test
     public void testGroupAverage() {
-        AggregationResult result = dao.groupAverage("price", "dep");
-        eq(1100, result.getResult("Marketing"));
+        result = dao.groupAverage("price", "dep");
+        eq(1100, result.get("Marketing"));
     }
 
 }

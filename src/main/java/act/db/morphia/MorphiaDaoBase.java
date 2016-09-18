@@ -299,7 +299,7 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
     }
 
     public Long max(String maxField) {
-        return groupMax(maxField).getDefaultResult();
+        return groupMax(maxField).getDefault();
     }
 
     public AggregationResult groupMin(String field, String... groupKeys) {
@@ -307,7 +307,7 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
     }
 
     public Long min(String minField) {
-        return groupMin(minField).getDefaultResult();
+        return groupMin(minField).getDefault();
     }
 
     public AggregationResult groupAverage(String field, String... groupKeys) {
@@ -315,7 +315,7 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
     }
 
     public Long average(String field) {
-        return groupAverage(field).getDefaultResult();
+        return groupAverage(field).getDefault();
     }
 
     public AggregationResult groupSum(String field, String... groupKeys) {
@@ -323,7 +323,7 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
     }
 
     public Long sum(String field) {
-        return groupSum(field).getDefaultResult();
+        return groupSum(field).getDefault();
     }
 
     public AggregationResult groupCount(String... groupKeys) {

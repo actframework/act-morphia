@@ -12,7 +12,6 @@ import org.mongodb.morphia.Key;
 import org.mongodb.morphia.query.*;
 import org.osgl.$;
 import org.osgl.util.C;
-import org.osgl.util.E;
 import org.osgl.util.S;
 
 import java.util.ArrayList;
@@ -348,7 +347,7 @@ public class MorphiaQuery<MODEL_TYPE> implements Dao.Query<MODEL_TYPE, MorphiaQu
     }
 
     public Long max(String maxField) {
-        return groupMax(maxField).getDefaultResult();
+        return groupMax(maxField).getDefault();
     }
 
     public AggregationResult groupMin(String field, String... groupKeys) {
@@ -356,7 +355,7 @@ public class MorphiaQuery<MODEL_TYPE> implements Dao.Query<MODEL_TYPE, MorphiaQu
     }
 
     public Long min(String minField) {
-        return groupMin(minField).getDefaultResult();
+        return groupMin(minField).getDefault();
     }
 
     public AggregationResult groupAverage(String field, String... groupKeys) {
@@ -364,7 +363,7 @@ public class MorphiaQuery<MODEL_TYPE> implements Dao.Query<MODEL_TYPE, MorphiaQu
     }
 
     public Long average(String field) {
-        return groupAverage(field).getDefaultResult();
+        return groupAverage(field).getDefault();
     }
 
     public AggregationResult groupSum(String field, String... groupKeys) {
@@ -372,7 +371,7 @@ public class MorphiaQuery<MODEL_TYPE> implements Dao.Query<MODEL_TYPE, MorphiaQu
     }
 
     public Long sum(String field) {
-        return groupSum(field).getDefaultResult();
+        return groupSum(field).getDefault();
     }
 
     public AggregationResult groupCount(String... groupKeys) {

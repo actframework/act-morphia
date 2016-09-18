@@ -20,13 +20,13 @@ public class AggregationResult {
         field = aggregationField;
     }
 
-    public Long getDefaultResult() {
+    public Long getDefault() {
         return result.size() > 0 ? result.get(0).getLong(field) : null;
     }
 
-    public Long getResult(Object ... groupValues) {
+    public Long get(Object ... groupValues) {
         if (groupValues.length == 0) {
-            return getDefaultResult();
+            return getDefault();
         }
         int len = groupValues.length;
         for (BasicDBObject r : result) {
@@ -47,9 +47,9 @@ public class AggregationResult {
         return null;
     }
 
-    public Long getResultByGroupKeys(String groupKeys, Object... groupValues) {
+    public Long getByGroupKeys(String groupKeys, Object... groupValues) {
         if (S.empty(groupKeys)) {
-            if (groupValues.length == 0) return getDefaultResult();
+            if (groupValues.length == 0) return getDefault();
             throw new IllegalArgumentException("the number of group keys does not match the number of group values");
         }
         String[] sa = MorphiaDaoBase.splitKeys(groupKeys);
