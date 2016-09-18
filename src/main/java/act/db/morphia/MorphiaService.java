@@ -184,7 +184,7 @@ public class MorphiaService extends DbService {
         return keys.split(GROUP_SEP);
     }
 
-    static MorphiaService getService(Class<?> modelType) {
+    public static MorphiaService getService(Class<?> modelType) {
         DB db = modelType.getAnnotation(DB.class);
         String dbId = null == db ? DbServiceManager.DEFAULT : db.value();
         return getService(dbId, App.instance().dbServiceManager());
