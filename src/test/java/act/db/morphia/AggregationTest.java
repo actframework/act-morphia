@@ -37,6 +37,16 @@ public class AggregationTest extends MorphiaDaoTestBase<Order> {
     }
 
     @Test
+    public void testMin() {
+        eq(800, dao.min("price"));
+    }
+
+    @Test
+    public void testMax() {
+        eq(1500, dao.max("price"));
+    }
+
+    @Test
     public void testSumWithCriteria() {
         eq(2200, dao.q("department", "Marketing").sum("price"));
     }
@@ -53,8 +63,12 @@ public class AggregationTest extends MorphiaDaoTestBase<Order> {
         eq(2300, result.getByGroupKeys("department", "Logistics"));
         eq(2300, result.get("Logistics"));
 
+        result = dao.groupBy("department, region").on("price").sum();
+        eq(1200, result.getByGroupKeys("region, department", "QLD", "Marketing"));
+        eq(1500, result.get("Logistics", "NSW"));
+
         result = dao.groupSum("price", "department", "region");
-        eq(1200, result.getByGroupKeys("region,department", "QLD", "Marketing"));
+        eq(1200, result.getByGroupKeys("region, department", "QLD", "Marketing"));
         eq(1500, result.get("Logistics", "NSW"));
     }
 
@@ -70,18 +84,9 @@ public class AggregationTest extends MorphiaDaoTestBase<Order> {
     public void testGroupMin() {
         result = dao.groupMin("price", "department");
         eq(1000, result.getByGroupKeys("dep", "Marketing"));
+
         eq(800, result.getByGroupKeys("department", "Logistics"));
         eq(800, result.get("Logistics"));
-    }
-
-    @Test
-    public void testMin() {
-        eq(800, dao.min("price"));
-    }
-
-    @Test
-    public void testMax() {
-        eq(1500, dao.max("price"));
     }
 
     @Test
@@ -104,6 +109,17 @@ public class AggregationTest extends MorphiaDaoTestBase<Order> {
     public void testGroupAverage() {
         result = dao.groupAverage("price", "dep");
         eq(1100, result.get("Marketing"));
+
+        result = dao.groupBy("region").on("price").average();
+        eq(1250, result.get("NSW"));
+        eq(1000, result.get("QLD"));
+    }
+
+    @Test
+    public void testGroupAverageWithCriteria() {
+        result = dao.q("price >", 900).groupBy("region").on("price").average();
+        eq(1250, result.get("NSW"));
+        eq(1200, result.get("QLD"));
     }
 
 }

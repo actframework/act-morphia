@@ -27,8 +27,6 @@ public class
 MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         extends DaoBase<ID_TYPE, MODEL_TYPE, MorphiaQuery<MODEL_TYPE>> {
 
-    public static final String FIELD_SEP = "[,;:]+";
-
     private volatile Datastore ds;
     private App app;
     private MorphiaQuery<MODEL_TYPE> defQuery;
@@ -281,7 +279,7 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
     public MorphiaQuery<MODEL_TYPE> q(String keys, Object... values) {
         int len = values.length;
         E.illegalArgumentIf(len == 0, "no values supplied");
-        String[] sa = splitKeys(keys);
+        String[] sa = MorphiaService.splitQueryKeys(keys);
         E.illegalArgumentIf(sa.length != len, "The number of values does not match the number of fields");
         MorphiaQuery<MODEL_TYPE> q = q();
         for (int i = 0; i < len; ++i) {
@@ -328,10 +326,6 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
 
     public AggregationResult groupCount(String... groupKeys) {
         return defQuery.groupCount(groupKeys);
-    }
-
-    public static String[] splitKeys(String keys) {
-        return keys.split(FIELD_SEP);
     }
 
     private Map<String, Object> kvList(String keys, Object... values) {

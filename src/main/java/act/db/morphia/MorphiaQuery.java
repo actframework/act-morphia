@@ -12,6 +12,7 @@ import org.mongodb.morphia.Key;
 import org.mongodb.morphia.query.*;
 import org.osgl.$;
 import org.osgl.util.C;
+import org.osgl.util.E;
 import org.osgl.util.S;
 
 import java.util.ArrayList;
@@ -385,19 +386,14 @@ public class MorphiaQuery<MODEL_TYPE> implements Dao.Query<MODEL_TYPE, MorphiaQu
             initial = new BasicDBObject();
         }
         initial.put(mappedField, initVal);
-        String[] mappedGroupKeys = new String[groupKeys.length];
-        for (int i = 0; i < groupKeys.length; ++i) {
-            String groupKey = groupKeys[i];
-            mappedGroupKeys[i] = mappedName(groupKey);
-        }
-        return new AggregationResult(group(S.join(",", mappedGroupKeys), initial, reduce, finalize), mappedField, modelType);
+        return new AggregationResult(group(S.join(",", groupKeys), initial, reduce, finalize), mappedField, modelType);
     }
 
-    public List<BasicDBObject> group(String groupKeys, DBObject initial,
+    private List<BasicDBObject> group(String groupKeys, DBObject initial,
                                      String reduce, String finalize) {
         DBObject key = new BasicDBObject();
         if (!S.empty(groupKeys)) {
-            String[] sa = MorphiaDaoBase.splitKeys(groupKeys);
+            String[] sa = MorphiaService.splitGroupKeys(groupKeys);
             for (String s : sa) {
                 key.put(s, true);
             }
@@ -518,6 +514,7 @@ public class MorphiaQuery<MODEL_TYPE> implements Dao.Query<MODEL_TYPE, MorphiaQu
         }
 
         private AggregationResult aggregate(Aggregation type) {
+            E.illegalArgumentIf(null == field, "It must specify the field on which aggregation will be calculated");
             return aggregate_(field,
                     type._initial(),
                     type._initVal(),
@@ -529,7 +526,7 @@ public class MorphiaQuery<MODEL_TYPE> implements Dao.Query<MODEL_TYPE, MorphiaQu
         private String[] canonicalGroupKeys(String... keys) {
             List<String> list = new ArrayList<String>();
             for (String key : keys) {
-                String[] sa = key.split("[,;:\\s]+");
+                String[] sa = MorphiaService.splitGroupKeys(key);
                 for (String s: sa) {
                     list.add(mappedName(s));
                 }

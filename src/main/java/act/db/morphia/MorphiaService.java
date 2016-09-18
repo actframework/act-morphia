@@ -37,6 +37,9 @@ import static act.app.App.logger;
 
 public class MorphiaService extends DbService {
 
+    public static final String QUERY_SEP = "[,;:]+";
+    public static final String GROUP_SEP = S.COMMON_SEP;
+
     // the morphia instance - keep track of class mapping
     private static Morphia morphia;
 
@@ -171,6 +174,14 @@ public class MorphiaService extends DbService {
 
     public static Mapper mapper() {
         return morphia.getMapper();
+    }
+
+    public static String[] splitQueryKeys(String keys) {
+        return keys.split(QUERY_SEP);
+    }
+
+    public static String[] splitGroupKeys(String keys) {
+        return keys.split(GROUP_SEP);
     }
 
     static MorphiaService getService(Class<?> modelType) {

@@ -52,7 +52,7 @@ public class AggregationResult {
             if (groupValues.length == 0) return getDefault();
             throw new IllegalArgumentException("the number of group keys does not match the number of group values");
         }
-        String[] sa = MorphiaDaoBase.splitKeys(groupKeys);
+        String[] sa = groupKeys.split("[\\s,;:]+");
         if (sa.length != groupValues.length) throw new IllegalArgumentException("the number of group keys does not match the number of group values");
         Set<String> mappedKeys = new HashSet<String>();
         for (String key : sa) {
