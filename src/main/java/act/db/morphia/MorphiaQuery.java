@@ -342,7 +342,6 @@ public class MorphiaQuery<MODEL_TYPE> implements Dao.Query<MODEL_TYPE, MorphiaQu
         return this;
     }
 
-
     public AggregationResult groupMax(String field, String... groupKeys) {
         return groupBy(groupKeys).on(field).max();
     }
@@ -363,16 +362,18 @@ public class MorphiaQuery<MODEL_TYPE> implements Dao.Query<MODEL_TYPE, MorphiaQu
         return groupBy(groupKeys).on(field).average();
     }
 
-    public Long average(String field) {
-        return groupAverage(field).getDefault();
+    public long average(String field) {
+        Long L = groupAverage(field).getDefault();
+        return null == L ? 0L : L;
     }
 
     public AggregationResult groupSum(String field, String... groupKeys) {
         return groupBy(groupKeys).on(field).sum();
     }
 
-    public Long sum(String field) {
-        return groupSum(field).getDefault();
+    public long sum(String field) {
+        Long L = groupSum(field).getDefault();
+        return null == L ? 0L : L;
     }
 
     public AggregationResult groupCount(String... groupKeys) {
