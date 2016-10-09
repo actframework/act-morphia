@@ -31,13 +31,24 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
     private App app;
     private MorphiaQuery<MODEL_TYPE> defQuery;
 
+    protected MorphiaDaoBase() {
+        this.app = App.instance();
+    }
+
+    MorphiaDaoBase(Datastore ds) {
+        this.ds = ds;
+        this.app = App.instance();
+        this.defQuery = new MorphiaQuery<MODEL_TYPE>(this);
+    }
+
+    @Deprecated
     MorphiaDaoBase(Class<ID_TYPE> idType, Class<MODEL_TYPE> modelType, Datastore ds) {
         //TODO infer the ID_TYPE form model type by checking @Id annotation
         super(idType, modelType);
         E.NPE(modelType, ds);
         this.ds = ds;
         this.app = App.instance();
-        this.defQuery = new MorphiaQuery(this);
+        this.defQuery = new MorphiaQuery<MODEL_TYPE>(this);
     }
 
     protected MorphiaDaoBase(Class<ID_TYPE> idType, Class<MODEL_TYPE> modelType) {

@@ -11,16 +11,17 @@ import org.mongodb.morphia.Datastore;
 public class MorphiaDao<MODEL_TYPE>
         extends MorphiaDaoBase<ObjectId, MODEL_TYPE> {
 
+    @Deprecated
     public MorphiaDao(Class<MODEL_TYPE> modelType, Datastore ds) {
         super(ObjectId.class, modelType, ds);
     }
 
+    @Deprecated
     public MorphiaDao(Class<MODEL_TYPE> modelType) {
         super(ObjectId.class, modelType);
     }
 
     public MorphiaDao() {
-        super(ObjectId.class, null);
     }
 
     public MODEL_TYPE findById(String id) {
