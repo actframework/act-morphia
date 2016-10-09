@@ -41,7 +41,6 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         this.defQuery = new MorphiaQuery<MODEL_TYPE>(this);
     }
 
-    @Deprecated
     MorphiaDaoBase(Class<ID_TYPE> idType, Class<MODEL_TYPE> modelType, Datastore ds) {
         //TODO infer the ID_TYPE form model type by checking @Id annotation
         super(idType, modelType);
