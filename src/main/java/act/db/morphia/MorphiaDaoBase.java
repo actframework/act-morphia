@@ -89,7 +89,7 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
 
     @Override
     public MODEL_TYPE findById(ID_TYPE id) {
-        return ds().get(modelType, id);
+        return ds().get(modelType(), id);
     }
 
     @Override
@@ -207,9 +207,9 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         Object id = getId(entity);
         E.illegalArgumentIf(null == id, "Cannot get ID of the entity specified: %s", entity);
         Map<String, Object> kvList = kvList(fields, values);
-        org.mongodb.morphia.query.Query<MODEL_TYPE> q = ds().createQuery(modelType);
+        org.mongodb.morphia.query.Query<MODEL_TYPE> q = ds().createQuery(modelType());
         q.filter("_id", id);
-        UpdateOperations<MODEL_TYPE> upOps = ds().createUpdateOperations(modelType);
+        UpdateOperations<MODEL_TYPE> upOps = ds().createUpdateOperations(modelType());
         for (String key : kvList.keySet()) {
             upOps.set(key, kvList.get(key));
         }
@@ -275,10 +275,6 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
     @Override
     public MorphiaQuery<MODEL_TYPE> q() {
         return new MorphiaQuery<MODEL_TYPE>(this);
-    }
-
-    public Class<MODEL_TYPE> modelType() {
-        return modelType;
     }
 
     public DBCollection collection() {

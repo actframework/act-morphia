@@ -43,6 +43,13 @@ public class MorphiaDaoTest extends MorphiaDaoTestBase<Contact> {
     }
 
     @Test
+    public void fetchedObjectShallReturnCorrectModelType() {
+        ObjectId id = tom.getId();
+        Contact contact1 = dao.findById(id);
+        eq(Contact.class, contact1.modelType());
+    }
+
+    @Test
     public void deletedObjectShallNotBeFoundById() {
         ObjectId id = tom.getId();
         dao.delete(tom);

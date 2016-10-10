@@ -1,6 +1,5 @@
 package model;
 
-import act.db.morphia.MorphiaDao;
 import act.db.morphia.MorphiaModel;
 import org.mongodb.morphia.annotations.Entity;
 import org.osgl.$;
@@ -53,6 +52,10 @@ public class Contact extends MorphiaModel<Contact> {
 
     public void setAddress(Address address) {
         this.address = address;
+    }
+
+    public Class<Contact> modelType() {
+        return super.modelType();
     }
 
 }
