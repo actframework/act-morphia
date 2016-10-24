@@ -3,6 +3,7 @@ package act.db.morphia;
 import act.data.Versioned;
 import act.data.util.JodaDateTimeResolver;
 import act.db.TimeTrackingModelBase;
+import act.inject.param.NoBind;
 import org.joda.time.DateTime;
 import org.mongodb.morphia.annotations.Indexed;
 import org.mongodb.morphia.annotations.Version;
@@ -12,12 +13,15 @@ public abstract class MorphiaModelBase<ID_TYPE, MODEL_TYPE extends MorphiaModelB
         extends TimeTrackingModelBase<ID_TYPE, MODEL_TYPE, DateTime, JodaDateTimeResolver> implements Versioned {
 
     @Indexed
+    @NoBind
     private DateTime _created;
 
     @Indexed
+    @NoBind
     private DateTime _modified;
 
     @Version
+    @NoBind
     private Long v;
 
     @Override
