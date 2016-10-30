@@ -3,6 +3,7 @@ package act.db.morphia;
 import act.app.ActionContext;
 import act.app.App;
 import act.app.data.StringValueResolverManager;
+import act.event.EventBus;
 import act.job.AppJobManager;
 import org.junit.Assert;
 import org.junit.Before;
@@ -26,12 +27,15 @@ public abstract class TestBase extends Assert {
     protected ActionContext actionContext;
     protected AppJobManager jobManager;
     protected H.Session session;
+    protected EventBus eventBus;
 
     @Before
     public void prepare() throws Exception {
         jobManager = mock(AppJobManager.class);
+        eventBus = mock(EventBus.class);
         app = mock(App.class);
         when(app.jobManager()).thenReturn(jobManager);
+        when(app.eventBus()).thenReturn(eventBus);
         when(app.resolverManager()).thenReturn(mock(StringValueResolverManager.class));
         actionContext = mock(ActionContext.class);
         session = new H.Session();

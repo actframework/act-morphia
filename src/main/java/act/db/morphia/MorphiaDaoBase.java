@@ -4,6 +4,7 @@ import act.Act;
 import act.app.App;
 import act.db.*;
 import act.db.morphia.util.AggregationResult;
+import act.event.EventBus;
 import act.util.General;
 import com.mongodb.DBCollection;
 import org.mongodb.morphia.Datastore;
@@ -250,7 +251,8 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
     @Override
     public void delete(MODEL_TYPE entity) {
         ds().delete(entity);
-        app.eventBus().trigger(new DeleteEvent<MODEL_TYPE>(entity));
+        EventBus eventBus = app.eventBus();
+        eventBus.trigger(new DeleteEvent<MODEL_TYPE>(entity));
     }
 
     @Override

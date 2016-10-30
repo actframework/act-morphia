@@ -1,11 +1,13 @@
 package act.db.morphia;
 
+import act.app.App;
 import act.db.Dao;
 import act.test.util.Fixture;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.osgl.$;
 
+import java.lang.reflect.Field;
 import java.util.Map;
 
 import static org.mockito.Matchers.any;
