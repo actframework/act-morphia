@@ -250,6 +250,7 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
     @Override
     public void delete(MODEL_TYPE entity) {
         ds().delete(entity);
+        app.eventBus().trigger(new DeleteEvent<MODEL_TYPE>(entity));
     }
 
     @Override
