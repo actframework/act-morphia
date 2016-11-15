@@ -1,5 +1,6 @@
 package act.db.morphia;
 
+import act.Act;
 import act.app.App;
 import act.app.DbServiceManager;
 import act.db.DB;
@@ -11,6 +12,7 @@ import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import com.mongodb.MongoInterruptedException;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
@@ -146,7 +148,15 @@ public class MorphiaService extends DbService {
         app.jobManager().beforeAppStart(new Runnable() {
             @Override
             public void run() {
-                ensureIndexesAndCaps();
+                try {
+                    ensureIndexesAndCaps();
+                } catch (MongoInterruptedException e) {
+                    if (Act.isDev()) {
+                        // ignore the case caused by hot reload
+                    } else {
+                        logger.warn(e, "Error calling ensure indexes and caps operation");
+                    }
+                }
             }
         });
     }
