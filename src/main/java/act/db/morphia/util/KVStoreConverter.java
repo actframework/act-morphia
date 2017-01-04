@@ -61,9 +61,10 @@ public class KVStoreConverter extends TypeConverter implements SimpleValueConver
 
     @Override
     public Object decode(Class<?> aClass, Object fromDB, MappedField mappedField) {
-        final KVStore store = (KVStore) Act.app().getInstance(aClass);
+        final KVStore store = new KVStore();
+        boolean isStore = aClass.isInstance(store);
         if (null == fromDB) {
-            return store;
+            return isStore ? store : Act.app().getInstance(aClass);
         }
         if (fromDB instanceof BasicDBList) {
             BasicDBList dbList = (BasicDBList) fromDB;
@@ -83,7 +84,12 @@ public class KVStoreConverter extends TypeConverter implements SimpleValueConver
                 }
             });
         }
-        return store;
+        if (isStore) {
+            return store;
+        }
+        Map retVal = (Map) Act.app().getInstance(aClass);
+        retVal.putAll(store.toMap());
+        return retVal;
     }
 
     @Override
