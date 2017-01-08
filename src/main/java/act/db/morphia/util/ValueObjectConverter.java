@@ -1,6 +1,7 @@
 package act.db.morphia.util;
 
 import act.app.App;
+import com.alibaba.fastjson.JSONObject;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -53,6 +54,9 @@ public class ValueObjectConverter extends TypeConverter implements SimpleValueCo
 
     @Override
     public Object encode(Object value, MappedField optionalExtraInfo) {
+        if (!(value instanceof ValueObject)) {
+            return value;
+        }
         ValueObject vo = (ValueObject) value;
         if (vo.isUDF()) {
             Object v = vo.value();
@@ -71,7 +75,11 @@ public class ValueObjectConverter extends TypeConverter implements SimpleValueCo
             }
             DBObject dbObject = new BasicDBObject();
             dbObject.put(VALUE, v);
-            dbObject.put(UDF_TYPE, type.getName());
+            String typeName = type.getName();
+            if (JSONObject.class.getName().equals(typeName)) {
+                typeName = KVStore.class.getName();
+            }
+            dbObject.put(UDF_TYPE, typeName);
             return dbObject;
         } else {
             return vo.value();

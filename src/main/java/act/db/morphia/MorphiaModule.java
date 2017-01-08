@@ -4,6 +4,7 @@ import act.app.event.AppEventId;
 import act.db.morphia.event.EntityMapped;
 import act.job.OnAppEvent;
 import act.util.AnnotatedClassFinder;
+import org.mongodb.morphia.EntityInterceptor;
 import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Property;
@@ -11,6 +12,7 @@ import org.mongodb.morphia.mapping.Mapper;
 import org.osgl.$;
 import org.osgl.inject.Module;
 
+import javax.inject.Inject;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +24,9 @@ import static act.db.morphia.MorphiaService.mapper;
 
 @SuppressWarnings("unused")
 public class MorphiaModule extends Module {
+
+    @Inject
+    private List<EntityInterceptor> interceptors;
 
     @Override
     protected void configure() {
@@ -42,6 +47,9 @@ public class MorphiaModule extends Module {
     @SuppressWarnings("unused")
     public void raiseMappedEvent() {
         app().eventBus().emit(new EntityMapped(mapper()));
+        for (EntityInterceptor interceptor : interceptors) {
+            mapper().addInterceptor(interceptor);
+        }
     }
 
     private void registerFieldNameMapping(Class<?> clz) {

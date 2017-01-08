@@ -97,12 +97,12 @@ public class KVStoreConverter extends TypeConverter implements SimpleValueConver
         if (null == value) {
             return null;
         }
-        Map<String, ?> store = (Map) value;
-        boolean persistAsList = (this.persistAsList || optionalExtraInfo.hasAnnotation(PersistAsList.class)) && !optionalExtraInfo.hasAnnotation(PersistAsMap.class);
+        Map<String, Object> map = (Map) value;
+        boolean persistAsList = this.persistAsList || (null != optionalExtraInfo && optionalExtraInfo.hasAnnotation(PersistAsList.class) && !optionalExtraInfo.hasAnnotation(PersistAsMap.class));
         if (persistAsList) {
             BasicDBList list = new BasicDBList();
-            for (String key : store.keySet()) {
-                ValueObject vo = ValueObject.of(store.get(key));
+            for (String key : map.keySet()) {
+                ValueObject vo = ValueObject.of(map.get(key));
                 BasicDBObject dbObject = new BasicDBObject();
                 dbObject.put(KEY, key);
                 dbObject.put(VALUE, valueObjectConverter.encode(vo, optionalExtraInfo));
@@ -110,12 +110,16 @@ public class KVStoreConverter extends TypeConverter implements SimpleValueConver
             }
             return list;
         } else {
-            final Map mapForDb = new HashMap();
-            for (final Map.Entry<String, ?> entry : store.entrySet()) {
-                mapForDb.put(entry.getKey(), valueObjectConverter.encode(ValueObject.of(entry.getValue()), optionalExtraInfo));
-            }
-            return mapForDb;
+            return encodeAsMap(map);
         }
+    }
+
+    public Map<String, Object> encodeAsMap(Map<String, ?> map) {
+        final Map<String, Object> mapForDb = new HashMap();
+        for (final Map.Entry<String, ?> entry : map.entrySet()) {
+            mapForDb.put(entry.getKey(), valueObjectConverter.encode(entry.getValue(), null));
+        }
+        return mapForDb;
     }
 
 }
