@@ -93,6 +93,76 @@ public class MorphiaQuery<MODEL_TYPE> implements Dao.Query<MODEL_TYPE, MorphiaQu
         return this;
     }
 
+    @Override
+    public Map<String, Object> explain(FindOptions findOptions) {
+        return mq.explain(findOptions);
+    }
+
+    @Override
+    public Query<MODEL_TYPE> order(Meta meta) {
+        return mq.order(meta);
+    }
+
+    @Override
+    public Query<MODEL_TYPE> order(Sort... sorts) {
+        return mq.order(sorts);
+    }
+
+    @Override
+    public Query<MODEL_TYPE> project(String s, boolean b) {
+        return mq.project(s, b);
+    }
+
+    @Override
+    public Query<MODEL_TYPE> project(String s, ArraySlice arraySlice) {
+        return mq.project(s, arraySlice);
+    }
+
+    @Override
+    public Query<MODEL_TYPE> project(Meta meta) {
+        return mq.project(meta);
+    }
+
+    @Override
+    public List<Key<MODEL_TYPE>> asKeyList(FindOptions findOptions) {
+        return mq.asKeyList(findOptions);
+    }
+
+    @Override
+    public List<MODEL_TYPE> asList(FindOptions findOptions) {
+        return mq.asList(findOptions);
+    }
+
+    @Override
+    public long count(CountOptions countOptions) {
+        return mq.count(countOptions);
+    }
+
+    @Override
+    public MorphiaIterator<MODEL_TYPE, MODEL_TYPE> fetch(FindOptions findOptions) {
+        return mq.fetch(findOptions);
+    }
+
+    @Override
+    public MorphiaIterator<MODEL_TYPE, MODEL_TYPE> fetchEmptyEntities(FindOptions findOptions) {
+        return mq.fetchEmptyEntities(findOptions);
+    }
+
+    @Override
+    public MorphiaKeyIterator<MODEL_TYPE> fetchKeys(FindOptions findOptions) {
+        return mq.fetchKeys(findOptions);
+    }
+
+    @Override
+    public MODEL_TYPE get(FindOptions findOptions) {
+        return mq.get(findOptions);
+    }
+
+    @Override
+    public Key<MODEL_TYPE> getKey(FindOptions findOptions) {
+        return mq.getKey(findOptions);
+    }
+
     public MorphiaQuery enableSnapshotMode() {
         mq.enableSnapshotMode();
         return this;

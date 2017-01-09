@@ -1,12 +1,10 @@
 package act.db.morphia;
 
 import act.Act;
-import act.app.App;
 import act.db.ActiveRecord;
 import act.db.morphia.util.KVStoreConverter;
 import act.db.morphia.util.ValueObjectConverter;
 import act.inject.param.NoBind;
-import act.plugin.AppServicePlugin;
 import com.mongodb.DBObject;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.AbstractEntityInterceptor;
@@ -14,17 +12,13 @@ import org.mongodb.morphia.annotations.Transient;
 import org.mongodb.morphia.mapping.Mapper;
 import org.mongodb.morphia.utils.IterHelper;
 import org.osgl.$;
-import org.osgl.Osgl;
-import org.osgl.exception.NotAppliedException;
-import org.osgl.util.*;
+import org.osgl.util.C;
+import org.osgl.util.KVStore;
+import org.osgl.util.S;
+import org.osgl.util.ValueObject;
 import relocated.morphia.org.apache.commons.collections.DefaultMapEntry;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Implement {@link ActiveRecord} in Morphia
@@ -36,7 +30,7 @@ public abstract class MorphiaActiveRecord<MODEL_TYPE extends MorphiaActiveRecord
     private KVStore kv = new KVStore();
 
     @Transient
-    private transient volatile MetaInfo metaInfo;
+    private transient volatile ActiveRecord.MetaInfo metaInfo;
 
     // --- implement KV
     @Override
@@ -69,7 +63,7 @@ public abstract class MorphiaActiveRecord<MODEL_TYPE extends MorphiaActiveRecord
 
     @Override
     public boolean containsKey(String key) {
-        return kv.containsKey(key) || metaInfo().fieldNames.contains(key);
+        return kv.containsKey(key) || metaInfo().fieldTypes.containsKey(key);
     }
 
     @Override
@@ -91,7 +85,7 @@ public abstract class MorphiaActiveRecord<MODEL_TYPE extends MorphiaActiveRecord
         if (!hasFields()) {
             return kv.keySet();
         }
-        Set<String> set = new HashSet<String>(fieldNames());
+        Set<String> set = new HashSet<String>(metaInfo().fieldTypes.keySet());
         set.addAll(kv.keySet());
         return set;
     }
@@ -126,7 +120,7 @@ public abstract class MorphiaActiveRecord<MODEL_TYPE extends MorphiaActiveRecord
 
             @Override
             public boolean containsKey(Object key) {
-                return kv.containsKey(key) || metaInfo().fieldNames.contains(key);
+                return kv.containsKey(key) || metaInfo().fieldTypes.containsKey(key);
             }
 
             @Override
@@ -197,157 +191,29 @@ public abstract class MorphiaActiveRecord<MODEL_TYPE extends MorphiaActiveRecord
     }
 
     private int fieldsSize() {
-        return fieldNames().size();
+        return metaInfo().fields.size();
     }
 
     private boolean hasFields() {
-        return !fieldNames().isEmpty();
+        return !metaInfo().fields.isEmpty();
     }
 
-    protected MetaInfo metaInfo() {
+    @Override
+    public ActiveRecord.MetaInfo metaInfo() {
         if (null == metaInfo) {
             synchronized (this) {
                 if (null == metaInfo) {
-                    MetaInfo.Repository r = Act.appServicePluginManager().get(MetaInfo.Repository.class);
-                    metaInfo = r.get(getClass());
+                    ActiveRecord.MetaInfo.Repository r = Act.appServicePluginManager().get(ActiveRecord.MetaInfo.Repository.class);
+                    metaInfo = r.get(getClass(), new $.Transformer<Class<? extends ActiveRecord>, ActiveRecord.MetaInfo>() {
+                        @Override
+                        public ActiveRecord.MetaInfo transform(Class<? extends ActiveRecord> aClass) {
+                            return new ActiveRecord.MetaInfo(aClass, Transient.class);
+                        }
+                    });
                 }
             }
         }
         return metaInfo;
-    }
-
-    protected Set<String> fieldNames() {
-        return metaInfo().fieldNames;
-    }
-
-    protected Set<Field> fields() {
-        return metaInfo().fields;
-    }
-
-    public static class MetaInfo {
-        private Class<? extends MorphiaActiveRecord> arClass;
-        private String className;
-        private Set<Field> fields;
-        private Set<String> fieldNames;
-        private Map<String, $.Function> fieldGetters;
-        private Map<String, $.Func2> fieldSetters;
-
-        private MetaInfo(Class<? extends MorphiaActiveRecord> clazz) {
-            this.className = clazz.getName();
-            this.arClass = clazz;
-            this.discoverFields(clazz);
-        }
-
-        public String className() {
-            return className;
-        }
-
-        private void discoverFields(Class<? extends MorphiaActiveRecord> clazz) {
-            List<Field> list = $.fieldsOf(arClass, MorphiaModelBase.class, $.F.NON_STATIC_FIELD.and($.F.fieldWithAnnotation(Transient.class)).negate());
-            fields = new HashSet<Field>();
-            fieldNames = new HashSet<String>();
-            fieldGetters = new HashMap<String, Osgl.Function>();
-            fieldSetters = new HashMap<String, Osgl.Func2>();
-            for (Field f : list) {
-                if (!f.isAnnotationPresent(Transient.class)) {
-                    fields.add(f);
-                    fieldNames.add(f.getName());
-                    fieldGetters.put(f.getName(), fieldGetter(f, clazz));
-                    fieldSetters.put(f.getName(), fieldSetter(f, clazz));
-                }
-            }
-        }
-
-        private $.Func2 fieldSetter(final Field f, final Class<?> clz) {
-            final String setterName = setterName(f);
-            try {
-                final Method m = clz.getMethod(setterName, f.getDeclaringClass());
-                return new $.Func2() {
-                    @Override
-                    public Object apply(Object host, Object value) throws NotAppliedException, Osgl.Break {
-                        try {
-                            m.invoke(host, value);
-                            return null;
-                        } catch (IllegalAccessException e) {
-                            throw E.unexpected("Class.getMethod(String) return a method[%s] that is not accessible?", m);
-                        } catch (InvocationTargetException e) {
-                            throw E.unexpected(e.getTargetException(), "Error invoke setter method on %s::%s", clz.getName(), setterName);
-                        }
-                    }
-                };
-            } catch (NoSuchMethodException e) {
-                f.setAccessible(true);
-                return new $.Func2() {
-                    @Override
-                    public Object apply(Object host, Object value) throws NotAppliedException, Osgl.Break {
-                        try {
-                            f.set(host, value);
-                            return null;
-                        } catch (IllegalAccessException e1) {
-                            throw E.unexpected("Field[%s] is not accessible?", f);
-                        }
-                    }
-                };
-            }
-        }
-
-
-        private $.Function fieldGetter(final Field f, final Class<?> clz) {
-            final String getterName = getterName(f);
-            try {
-                final Method m = clz.getMethod(getterName);
-                return new $.Function() {
-                    @Override
-                    public Object apply(Object o) throws NotAppliedException, Osgl.Break {
-                        try {
-                            return m.invoke(o);
-                        } catch (IllegalAccessException e) {
-                            throw E.unexpected("Class.getMethod(String) return a method[%s] that is not accessible?", m);
-                        } catch (InvocationTargetException e) {
-                            throw E.unexpected(e.getTargetException(), "Error invoke getter method on %s::%s", clz.getName(), getterName);
-                        }
-                    }
-                };
-            } catch (NoSuchMethodException e) {
-                f.setAccessible(true);
-                return new $.Function() {
-                    @Override
-                    public Object apply(Object o) throws NotAppliedException, Osgl.Break {
-                        try {
-                            return f.get(o);
-                        } catch (IllegalAccessException e1) {
-                            throw E.unexpected("Field[%s] is not accessible?", f);
-                        }
-                    }
-                };
-            }
-        }
-
-        private String getterName(Field field) {
-            boolean isBoolean = field.getType() == Boolean.class || field.getType() == boolean.class;
-            return (isBoolean ? "is" : "get") + S.capFirst(field.getName());
-        }
-
-        private String setterName(Field field) {
-            return "set" + S.capFirst(field.getName());
-        }
-
-        public static class Repository extends AppServicePlugin {
-            @Override
-            protected void applyTo(App app) {
-            }
-
-            private ConcurrentMap<Class<?>, MetaInfo> map = new ConcurrentHashMap<Class<?>, MetaInfo>();
-
-            public MetaInfo get(Class<? extends MorphiaActiveRecord> clazz) {
-                MetaInfo info = map.get(clazz);
-                if (null == info) {
-                    info = new MetaInfo(clazz);
-                    map.putIfAbsent(clazz, info);
-                }
-                return info;
-            }
-        }
     }
 
     public static class ActiveRecordMappingInterceptor extends AbstractEntityInterceptor {
@@ -379,15 +245,15 @@ public abstract class MorphiaActiveRecord<MODEL_TYPE extends MorphiaActiveRecord
             if (MorphiaActiveRecord.class.isAssignableFrom(c)) {
                 MorphiaActiveRecord ar = $.cast(ent);
                 final KVStore kv = ar.kv;
-                final MetaInfo metaInfo = ar.metaInfo();
+                final ActiveRecord.MetaInfo metaInfo = ar.metaInfo();
                 new IterHelper<Object, Object>().loopMap(dbObj, new IterHelper.MapIterCallback<Object, Object>() {
                     @Override
                     public void eval(final Object k, final Object val) {
                         final String key = S.string(k);
-                        if (BUILT_IN_PROPS.contains(key) || metaInfo.fieldNames.contains(key)) {
+                        if (BUILT_IN_PROPS.contains(key) || metaInfo.fieldTypes.containsKey(key)) {
                             return;
                         }
-                        if (!metaInfo.fieldNames.contains(key)) {
+                        if (!metaInfo.fieldTypes.containsKey(key)) {
                             kv.putValue(key, valueObjectConverter.decode(ValueObject.class, val));
                         }
                     }
