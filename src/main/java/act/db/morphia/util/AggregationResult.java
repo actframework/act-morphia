@@ -1,6 +1,5 @@
 package act.db.morphia.util;
 
-import act.db.morphia.MorphiaDaoBase;
 import act.db.morphia.MorphiaService;
 import com.mongodb.BasicDBObject;
 import org.osgl.$;

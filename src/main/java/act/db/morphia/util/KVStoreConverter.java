@@ -8,11 +8,11 @@ import org.mongodb.morphia.converters.SimpleValueConverter;
 import org.mongodb.morphia.converters.TypeConverter;
 import org.mongodb.morphia.mapping.MappedField;
 import org.mongodb.morphia.utils.IterHelper;
+import org.osgl.util.KV;
 import org.osgl.util.KVStore;
 import org.osgl.util.S;
 import org.osgl.util.ValueObject;
 
-import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,7 +51,7 @@ public class KVStoreConverter extends TypeConverter implements SimpleValueConver
     private boolean persistAsList;
 
     public KVStoreConverter() {
-        setSupportedTypes(new Class[] {KVStore.class});
+        setSupportedTypes(new Class[] {KVStore.class, KV.class});
         this.valueObjectConverter = new ValueObjectConverter();
         Object o = App.instance().config().get("morphia.kvstore.persist.structure");
         if (null != o) {
@@ -61,7 +61,7 @@ public class KVStoreConverter extends TypeConverter implements SimpleValueConver
 
     @Override
     public Object decode(Class<?> aClass, Object fromDB, MappedField mappedField) {
-        final KVStore store = new KVStore();
+        final KV store = new KVStore();
         boolean isStore = aClass.isInstance(store);
         if (null == fromDB) {
             return isStore ? store : Act.app().getInstance(aClass);

@@ -3,12 +3,10 @@ package act.db.morphia.util;
 import act.app.App;
 import act.app.DbServiceManager;
 import act.db.morphia.MorphiaDao;
-import act.db.morphia.MorphiaDaoBase;
 import org.osgl.inject.BeanSpec;
 import org.osgl.inject.GenericTypedBeanLoader;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.lang.reflect.Type;
 import java.util.List;
 

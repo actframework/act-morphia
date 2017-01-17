@@ -13,7 +13,6 @@ import org.osgl.util.C;
 import org.osgl.util.KVStore;
 import org.osgl.util.ValueObject;
 
-import javax.inject.Inject;
 import java.util.List;
 import java.util.Map;
 
