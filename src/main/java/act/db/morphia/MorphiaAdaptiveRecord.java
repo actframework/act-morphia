@@ -1,7 +1,7 @@
 package act.db.morphia;
 
 import act.Act;
-import act.db.ActiveRecord;
+import act.db.AdaptiveRecord;
 import act.db.morphia.util.KVStoreConverter;
 import act.db.morphia.util.ValueObjectConverter;
 import act.inject.param.NoBind;
@@ -21,16 +21,16 @@ import relocated.morphia.org.apache.commons.collections.DefaultMapEntry;
 import java.util.*;
 
 /**
- * Implement {@link ActiveRecord} in Morphia
+ * Implement {@link AdaptiveRecord} in Morphia
  */
-public abstract class MorphiaActiveRecord<MODEL_TYPE extends MorphiaActiveRecord> extends MorphiaModel<MODEL_TYPE> implements ActiveRecord<ObjectId, MODEL_TYPE> {
+public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRecord> extends MorphiaModel<MODEL_TYPE> implements AdaptiveRecord<ObjectId, MODEL_TYPE> {
 
     @Transient
     @NoBind
     private KVStore kv = new KVStore();
 
     @Transient
-    private transient volatile ActiveRecord.MetaInfo metaInfo;
+    private transient volatile AdaptiveRecord.MetaInfo metaInfo;
 
     // --- implement KV
     @Override
@@ -105,7 +105,7 @@ public abstract class MorphiaActiveRecord<MODEL_TYPE extends MorphiaActiveRecord
     }
 
     public Map<String, Object> asMap() {
-        final ActiveRecord ar = this;
+        final AdaptiveRecord ar = this;
         // TODO: should we check the field value on size, remove, containsXxx etc methods?
         return new Map<String, Object>() {
             @Override
@@ -199,15 +199,15 @@ public abstract class MorphiaActiveRecord<MODEL_TYPE extends MorphiaActiveRecord
     }
 
     @Override
-    public ActiveRecord.MetaInfo metaInfo() {
+    public AdaptiveRecord.MetaInfo metaInfo() {
         if (null == metaInfo) {
             synchronized (this) {
                 if (null == metaInfo) {
-                    ActiveRecord.MetaInfo.Repository r = Act.appServicePluginManager().get(ActiveRecord.MetaInfo.Repository.class);
-                    metaInfo = r.get(getClass(), new $.Transformer<Class<? extends ActiveRecord>, ActiveRecord.MetaInfo>() {
+                    AdaptiveRecord.MetaInfo.Repository r = Act.appServicePluginManager().get(AdaptiveRecord.MetaInfo.Repository.class);
+                    metaInfo = r.get(getClass(), new $.Transformer<Class<? extends AdaptiveRecord>, AdaptiveRecord.MetaInfo>() {
                         @Override
-                        public ActiveRecord.MetaInfo transform(Class<? extends ActiveRecord> aClass) {
-                            return new ActiveRecord.MetaInfo(aClass, Transient.class);
+                        public AdaptiveRecord.MetaInfo transform(Class<? extends AdaptiveRecord> aClass) {
+                            return new AdaptiveRecord.MetaInfo(aClass, Transient.class);
                         }
                     });
                 }
@@ -216,7 +216,7 @@ public abstract class MorphiaActiveRecord<MODEL_TYPE extends MorphiaActiveRecord
         return metaInfo;
     }
 
-    public static class ActiveRecordMappingInterceptor extends AbstractEntityInterceptor {
+    public static class AdaptiveRecordMappingInterceptor extends AbstractEntityInterceptor {
 
         private KVStoreConverter kvStoreConverter = new KVStoreConverter();
         private ValueObjectConverter valueObjectConverter = new ValueObjectConverter();
@@ -227,8 +227,8 @@ public abstract class MorphiaActiveRecord<MODEL_TYPE extends MorphiaActiveRecord
                 return;
             }
             Class<?> c = ent.getClass();
-            if (MorphiaActiveRecord.class.isAssignableFrom(c)) {
-                MorphiaActiveRecord ar = $.cast(ent);
+            if (MorphiaAdaptiveRecord.class.isAssignableFrom(c)) {
+                MorphiaAdaptiveRecord ar = $.cast(ent);
                 KVStore kv = ar.kv;
                 Map<String, Object> converted = kvStoreConverter.encodeAsMap(kv);
                 for (Map.Entry<String, Object> entry : converted.entrySet()) {
@@ -242,10 +242,10 @@ public abstract class MorphiaActiveRecord<MODEL_TYPE extends MorphiaActiveRecord
         @Override
         public void postLoad(Object ent, DBObject dbObj, Mapper mapper) {
             Class<?> c = ent.getClass();
-            if (MorphiaActiveRecord.class.isAssignableFrom(c)) {
-                MorphiaActiveRecord ar = $.cast(ent);
+            if (MorphiaAdaptiveRecord.class.isAssignableFrom(c)) {
+                MorphiaAdaptiveRecord ar = $.cast(ent);
                 final KVStore kv = ar.kv;
-                final ActiveRecord.MetaInfo metaInfo = ar.metaInfo();
+                final AdaptiveRecord.MetaInfo metaInfo = ar.metaInfo();
                 new IterHelper<Object, Object>().loopMap(dbObj, new IterHelper.MapIterCallback<Object, Object>() {
                     @Override
                     public void eval(final Object k, final Object val) {
