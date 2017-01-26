@@ -13,6 +13,7 @@ import org.osgl.util.C;
 import org.osgl.util.KVStore;
 import org.osgl.util.ValueObject;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -31,21 +32,30 @@ public class ValueObjectConverter extends TypeConverter implements SimpleValueCo
     @Override
     public Object decode(Class<?> aClass, Object o, MappedField mappedField) {
         if (o instanceof DBObject) {
-            BasicDBObject dbObject = (BasicDBObject) o;
-            String valueType = dbObject.getString(UDF_TYPE);
-            Class cls = $.classForName(valueType, App.instance().classLoader());
-            if (Map.class.isAssignableFrom(cls)) {
-                return new KVStoreConverter().decode(cls, dbObject.get(VALUE));
-            } else if (List.class.isAssignableFrom(cls)) {
-                BasicDBList dbList = $.cast(dbObject.get(VALUE));
-                List list = C.newSizedList(dbList.size());
-                for (Object item : dbList) {
-                    list.add(ValueObject.of(decode(ValueObject.class, item)));
+            if (o instanceof BasicDBObject) {
+                BasicDBObject dbObject = (BasicDBObject) o;
+                String valueType = dbObject.getString(UDF_TYPE);
+                Class cls = $.classForName(valueType, App.instance().classLoader());
+                if (Map.class.isAssignableFrom(cls)) {
+                    return new KVStoreConverter().decode(cls, dbObject.get(VALUE));
+                } else if (List.class.isAssignableFrom(cls)) {
+                    BasicDBList dbList = $.cast(dbObject.get(VALUE));
+                    List list = C.newSizedList(dbList.size());
+                    for (Object item : dbList) {
+                        list.add(ValueObject.of(decode(ValueObject.class, item)));
+                    }
+                    return list;
+                } else {
+                    String valueString = dbObject.getString(VALUE);
+                    o = ValueObject.decode(valueString, cls);
+                }
+            } else if (o instanceof BasicDBList) {
+                BasicDBList dbList = (BasicDBList) o;
+                List<ValueObject> list = new ArrayList<ValueObject>();
+                for (Object element : dbList) {
+                    list.add(ValueObject.of(element));
                 }
                 return list;
-            } else {
-                String valueString = dbObject.getString(VALUE);
-                o = ValueObject.decode(valueString, cls);
             }
         }
         return ValueObject.of(o);

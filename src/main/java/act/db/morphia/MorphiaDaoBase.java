@@ -271,6 +271,11 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
     }
 
     @Override
+    public void deleteAll() {
+        ds().delete(q());
+    }
+
+    @Override
     public void drop() {
         ds().delete(ds().createQuery(modelType()));
     }
@@ -278,6 +283,11 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
     @Override
     public MorphiaQuery<MODEL_TYPE> q() {
         return new MorphiaQuery<MODEL_TYPE>(this);
+    }
+
+    @Override
+    public MorphiaQuery<MODEL_TYPE> createQuery() {
+        return q();
     }
 
     public DBCollection collection() {
@@ -295,6 +305,11 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
             q.filter(sa[i], values[i]);
         }
         return q;
+    }
+
+    @Override
+    public MorphiaQuery<MODEL_TYPE> createQuery(String s, Object... objects) {
+        return q(s, objects);
     }
 
     public MorphiaQuery.GroupBy groupBy(String... groupKeys) {
