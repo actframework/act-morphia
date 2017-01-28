@@ -312,6 +312,14 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         return q(s, objects);
     }
 
+    public UpdateOperations<MODEL_TYPE> updates() {
+        return ds().createUpdateOperations(modelType());
+    }
+
+    public UpdateOperations<MODEL_TYPE> createUpdateOperations() {
+        return updates();
+    }
+
     public MorphiaQuery.GroupBy groupBy(String... groupKeys) {
         return defQuery.groupBy(groupKeys);
     }
