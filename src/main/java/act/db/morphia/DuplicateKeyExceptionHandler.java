@@ -1,6 +1,5 @@
 package act.db.morphia;
 
-import act.ActComponent;
 import act.app.ActionContext;
 import act.handler.builtin.controller.ActionHandlerInvoker;
 import act.handler.builtin.controller.ExceptionInterceptor;
@@ -8,7 +7,6 @@ import act.view.ActConflict;
 import com.mongodb.DuplicateKeyException;
 import org.osgl.mvc.result.Result;
 
-@ActComponent
 public class DuplicateKeyExceptionHandler extends ExceptionInterceptor {
 
     public DuplicateKeyExceptionHandler() {
