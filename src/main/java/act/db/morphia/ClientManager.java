@@ -14,6 +14,7 @@ class ClientManager {
     public static final String DEF_HOST = "localhost";
     public static final int DEF_PORT = 27017;
     public static final String CONF_URI = "uri";
+    public static final String CONF_URL = "url";
     public static final String CONF_HOST = "host";
     public static final String CONF_PORT = "port";
     public static final String CONF_USERNAME = "username";
@@ -44,7 +45,10 @@ class ClientManager {
     }
 
     private static MongoClientURI create(Map<String, Object> conf) {
-        String uri = getStr(CONF_URI, conf, null);
+        String uri = getStr(CONF_URL, conf, null);
+        if (null == uri) {
+            uri = getStr(CONF_URI, conf, null);
+        }
         if (null == uri) {
             String host = getStr(CONF_HOST, conf, DEF_HOST);
             int port;
