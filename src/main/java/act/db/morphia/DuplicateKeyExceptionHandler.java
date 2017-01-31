@@ -15,7 +15,7 @@ public class DuplicateKeyExceptionHandler extends ExceptionInterceptor {
 
     @Override
     public boolean sessionFree() {
-        return false;
+        return true;
     }
 
     @Override
@@ -23,7 +23,10 @@ public class DuplicateKeyExceptionHandler extends ExceptionInterceptor {
         // do nothing
     }
 
-
+    @Override
+    public boolean express() {
+        return true;
+    }
 
     @Override
     protected Result internalHandle(Exception e, ActionContext actionContext) throws Exception {
