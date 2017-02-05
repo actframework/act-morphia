@@ -188,7 +188,7 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
 
     @Override
     @SuppressWarnings("unchecked")
-    public void save(MODEL_TYPE entity) {
+    public MODEL_TYPE save(MODEL_TYPE entity) {
         if (entity instanceof TimeTrackingModel && entity instanceof Model) {
             TimeTrackingModel ttm = $.cast(entity);
             TimestampGenerator tsg = Act.dbManager().timestampGenerator(ttm._timestampType());
@@ -201,6 +201,7 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
             }
         }
         ds().save(entity);
+        return entity;
     }
 
     @Override
