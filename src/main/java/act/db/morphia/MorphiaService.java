@@ -91,6 +91,9 @@ public class MorphiaService extends DbService {
         if (MorphiaModel.class.isAssignableFrom(modelType)) {
             return $.cast(new MorphiaDao(modelType, ds));
         }
+        if (MorphiaModelWithLongId.class.isAssignableFrom(modelType)) {
+            return $.cast(new MorphiaDaoWithLongId(modelType, ds()));
+        }
         if (MorphiaModelBase.class.isAssignableFrom(modelType)) {
             Type type = modelType.getGenericSuperclass();
             if (type instanceof ParameterizedType) {
