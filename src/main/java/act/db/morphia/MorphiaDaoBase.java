@@ -5,6 +5,7 @@ import act.app.App;
 import act.db.*;
 import act.db.morphia.util.AggregationResult;
 import act.event.EventBus;
+import act.inject.param.NoBind;
 import act.util.General;
 import com.mongodb.DBCollection;
 import org.mongodb.morphia.Datastore;
@@ -24,6 +25,7 @@ import java.util.Map;
 import static act.db.morphia.MorphiaService.getService;
 
 @General
+@NoBind
 public class
 MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         extends DaoBase<ID_TYPE, MODEL_TYPE, MorphiaQuery<MODEL_TYPE>> {
