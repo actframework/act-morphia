@@ -9,19 +9,17 @@ import org.mongodb.morphia.annotations.Indexed;
 import org.mongodb.morphia.annotations.Version;
 import org.osgl.util.S;
 
+@NoBind
 public abstract class MorphiaModelBase<ID_TYPE, MODEL_TYPE extends MorphiaModelBase>
         extends TimeTrackingModelBase<ID_TYPE, MODEL_TYPE, DateTime, JodaDateTimeResolver> implements Versioned {
 
     @Indexed
-    @NoBind
     private DateTime _created;
 
     @Indexed
-    @NoBind
     private DateTime _modified;
 
     @Version
-    @NoBind
     private Long v;
 
     @Override

@@ -31,8 +31,11 @@ public class MorphiaQuery<MODEL_TYPE> implements Dao.Query<MODEL_TYPE, MorphiaQu
     public MorphiaQuery(MorphiaDaoBase<?, MODEL_TYPE> dao) {
         this.ds = dao.ds();
         this.modelType = dao.modelType();
-        this.mq = ds.createQuery(modelType);
         this.dao = dao;
+        this.mq = ds.createQuery(modelType);
+        if (dao.isAdaptive()) {
+            this.mq = this.mq.disableValidation();
+        }
     }
 
     public MorphiaQuery<MODEL_TYPE> filter(String key, Object val) {

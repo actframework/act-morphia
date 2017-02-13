@@ -12,12 +12,15 @@ import org.mongodb.morphia.annotations.Transient;
 import org.mongodb.morphia.mapping.Mapper;
 import org.mongodb.morphia.utils.IterHelper;
 import org.osgl.$;
+import org.osgl.Osgl;
+import org.osgl.inject.BeanSpec;
 import org.osgl.util.C;
 import org.osgl.util.KVStore;
 import org.osgl.util.S;
 import org.osgl.util.ValueObject;
 import relocated.morphia.org.apache.commons.collections.DefaultMapEntry;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 /**
@@ -92,12 +95,25 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
 
     @Override
     public Set<Map.Entry<String, Object>> entrySet() {
+        return entrySet(null);
+    }
+
+    @Override
+    public Set<Map.Entry<String, Object>> entrySet(Osgl.Function<BeanSpec, Boolean> function) {
         if (!hasFields()) {
             return kv.toMap().entrySet();
         }
         Set<Map.Entry<String, Object>> set = new HashSet<Map.Entry<String, Object>>(kv.toMap().entrySet());
-        for (Map.Entry<String, $.Function> entry: metaInfo().fieldGetters.entrySet()) {
+        AdaptiveRecord.MetaInfo metaInfo = metaInfo();
+        boolean filter = null != function;
+        for (Map.Entry<String, $.Function> entry: metaInfo.fieldGetters.entrySet()) {
             String fieldName = entry.getKey();
+            if (filter) {
+                BeanSpec field = metaInfo.fieldSpecs.get(fieldName);
+                if (!function.apply(field)) {
+                    continue;
+                }
+            }
             $.Function getter = entry.getValue();
             set.add(new DefaultMapEntry(fieldName, getter.apply(this)));
         }
@@ -191,14 +207,15 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
     }
 
     private int fieldsSize() {
-        return metaInfo().fields.size();
+        return metaInfo().fieldSpecs.size();
     }
 
     private boolean hasFields() {
-        return !metaInfo().fields.isEmpty();
+        return !metaInfo().fieldSpecs.isEmpty();
     }
 
     @Override
+    @java.beans.Transient
     public AdaptiveRecord.MetaInfo metaInfo() {
         if (null == metaInfo) {
             synchronized (this) {
@@ -246,7 +263,7 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
                 MorphiaAdaptiveRecord ar = $.cast(ent);
                 final KVStore kv = ar.kv;
                 final AdaptiveRecord.MetaInfo metaInfo = ar.metaInfo();
-                new IterHelper<Object, Object>().loopMap(dbObj, new IterHelper.MapIterCallback<Object, Object>() {
+                new IterHelper<>().loopMap(dbObj, new IterHelper.MapIterCallback<Object, Object>() {
                     @Override
                     public void eval(final Object k, final Object val) {
                         final String key = S.string(k);

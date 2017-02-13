@@ -33,15 +33,18 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
     private volatile Datastore ds;
     private App app;
     private MorphiaQuery<MODEL_TYPE> defQuery;
+    private boolean isAdaptive;
 
     protected MorphiaDaoBase() {
         this.app = App.instance();
+        probeAdaptive();
     }
 
     MorphiaDaoBase(Datastore ds) {
         this.ds = ds;
         this.app = App.instance();
         this.defQuery = new MorphiaQuery<MODEL_TYPE>(this);
+        probeAdaptive();
     }
 
     MorphiaDaoBase(Class<ID_TYPE> idType, Class<MODEL_TYPE> modelType, Datastore ds) {
@@ -51,11 +54,17 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         this.ds = ds;
         this.app = App.instance();
         this.defQuery = new MorphiaQuery<MODEL_TYPE>(this);
+        probeAdaptive();
     }
 
     protected MorphiaDaoBase(Class<ID_TYPE> idType, Class<MODEL_TYPE> modelType) {
         super(idType, modelType);
         this.app = App.instance();
+        probeAdaptive();
+    }
+
+    private void probeAdaptive() {
+        this.isAdaptive = AdaptiveRecord.class.isAssignableFrom(this.modelType());
     }
 
     protected App app() {
@@ -84,6 +93,10 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
             }
         }
         return ds;
+    }
+
+    public boolean isAdaptive() {
+        return isAdaptive;
     }
 
     public AggregationPipeline aggregationPipeline() {
