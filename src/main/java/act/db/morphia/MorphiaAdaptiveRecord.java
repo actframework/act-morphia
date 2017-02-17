@@ -5,6 +5,7 @@ import act.db.AdaptiveRecord;
 import act.db.morphia.util.KVStoreConverter;
 import act.db.morphia.util.ValueObjectConverter;
 import act.inject.param.NoBind;
+import com.alibaba.fastjson.JSONObject;
 import com.mongodb.DBObject;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.AbstractEntityInterceptor;
@@ -48,6 +49,18 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
     }
 
     @Override
+    public MODEL_TYPE mergeValue(String key, Object val) {
+        $.Func2 merger = metaInfo().fieldMergers.get(key);
+        if (null != merger) {
+            merger.apply(this, val);
+        } else {
+            Object v0 = kv.getValue(key);
+            kv.putValue(key, AdaptiveRecord.MetaInfo.merge(v0, val));
+        }
+        return null;
+    }
+
+    @Override
     public <T> T getValue(String key) {
         $.Function getter = metaInfo().fieldGetters.get(key);
         if (null != getter) {
@@ -57,9 +70,17 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
     }
 
     @Override
-    public MODEL_TYPE putValues(Map<String, Object> kvMap) {
-        for (Map.Entry<String, Object> entry: kvMap.entrySet()) {
+    public MODEL_TYPE putValues(Map<String, Object> map) {
+        for (Map.Entry<String, Object> entry: map.entrySet()) {
             putValue(entry.getKey(), entry.getValue());
+        }
+        return _me();
+    }
+
+    @Override
+    public MODEL_TYPE mergeValues(Map<String, Object> map) {
+        for (Map.Entry<String, Object> entry: map.entrySet()) {
+            mergeValue(entry.getKey(), entry.getValue());
         }
         return _me();
     }
@@ -108,6 +129,9 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
         boolean filter = null != function;
         for (Map.Entry<String, $.Function> entry: metaInfo.fieldGetters.entrySet()) {
             String fieldName = entry.getKey();
+            if ("kv".equals(fieldName)) {
+                continue;
+            }
             if (filter) {
                 BeanSpec field = metaInfo.fieldSpecs.get(fieldName);
                 if (!function.apply(field)) {
@@ -235,9 +259,6 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
 
     public static class AdaptiveRecordMappingInterceptor extends AbstractEntityInterceptor {
 
-        private KVStoreConverter kvStoreConverter = new KVStoreConverter();
-        private ValueObjectConverter valueObjectConverter = new ValueObjectConverter();
-
         @Override
         public void prePersist(Object ent, DBObject dbObj, Mapper mapper) {
             if (null == ent) {
@@ -247,9 +268,8 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
             if (MorphiaAdaptiveRecord.class.isAssignableFrom(c)) {
                 MorphiaAdaptiveRecord ar = $.cast(ent);
                 KVStore kv = ar.kv;
-                Map<String, Object> converted = kvStoreConverter.encodeAsMap(kv);
-                for (Map.Entry<String, Object> entry : converted.entrySet()) {
-                    dbObj.put(entry.getKey(), entry.getValue());
+                for (Map.Entry<String, ValueObject> entry : kv.entrySet()) {
+                    dbObj.put(entry.getKey(), entry.getValue().value());
                 }
             }
         }
@@ -271,7 +291,7 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
                             return;
                         }
                         if (!metaInfo.fieldTypes.containsKey(key)) {
-                            kv.putValue(key, valueObjectConverter.decode(ValueObject.class, val));
+                            kv.putValue(key, JSONObject.toJSON(val));
                         }
                     }
                 });
