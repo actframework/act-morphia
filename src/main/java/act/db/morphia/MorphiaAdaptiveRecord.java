@@ -2,7 +2,6 @@ package act.db.morphia;
 
 import act.Act;
 import act.db.AdaptiveRecord;
-import act.db.morphia.util.KVStoreConverter;
 import act.db.morphia.util.ValueObjectConverter;
 import act.inject.param.NoBind;
 import com.alibaba.fastjson.JSONObject;
@@ -18,10 +17,8 @@ import org.osgl.inject.BeanSpec;
 import org.osgl.util.C;
 import org.osgl.util.KVStore;
 import org.osgl.util.S;
-import org.osgl.util.ValueObject;
 import relocated.morphia.org.apache.commons.collections.DefaultMapEntry;
 
-import java.lang.reflect.Field;
 import java.util.*;
 
 /**
@@ -31,7 +28,7 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
 
     @Transient
     @NoBind
-    private KVStore kv = new KVStore();
+    private JSONObject kv = new JSONObject();
 
     @Transient
     private transient volatile AdaptiveRecord.MetaInfo metaInfo;
@@ -43,7 +40,7 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
         if (null != setter) {
             setter.apply(this, val);
         } else {
-            kv.putValue(key, val);
+            kv.put(key, val);
         }
         return _me();
     }
@@ -54,8 +51,8 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
         if (null != merger) {
             merger.apply(this, val);
         } else {
-            Object v0 = kv.getValue(key);
-            kv.putValue(key, AdaptiveRecord.MetaInfo.merge(v0, val));
+            Object v0 = kv.get(key);
+            kv.put(key, AdaptiveRecord.MetaInfo.merge(v0, val));
         }
         return null;
     }
@@ -66,7 +63,7 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
         if (null != getter) {
             return (T) getter.apply(this);
         }
-        return kv.getValue(key);
+        return (T) kv.get(key);
     }
 
     @Override
@@ -92,7 +89,7 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
 
     @Override
     public Map<String, Object> toMap() {
-        Map<String, Object> map = kv.toMap();
+        Map<String, Object> map = new HashMap<>(kv);
         for (Map.Entry<String, $.Function> entry : metaInfo().fieldGetters.entrySet()) {
             map.put(entry.getKey(), entry.getValue().apply(this));
         }
@@ -122,9 +119,9 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
     @Override
     public Set<Map.Entry<String, Object>> entrySet(Osgl.Function<BeanSpec, Boolean> function) {
         if (!hasFields()) {
-            return kv.toMap().entrySet();
+            return kv.entrySet();
         }
-        Set<Map.Entry<String, Object>> set = new HashSet<Map.Entry<String, Object>>(kv.toMap().entrySet());
+        Set<Map.Entry<String, Object>> set = new HashSet<Map.Entry<String, Object>>(kv.entrySet());
         AdaptiveRecord.MetaInfo metaInfo = metaInfo();
         boolean filter = null != function;
         for (Map.Entry<String, $.Function> entry: metaInfo.fieldGetters.entrySet()) {
@@ -171,7 +168,7 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
             @Override
             public Object get(Object key) {
                 $.Function getter = metaInfo().fieldGetters.get(key);
-                return null != getter ? getter.apply(this) : kv.getValue((String)key);
+                return null != getter ? getter.apply(this) : kv.get((String)key);
             }
 
             @Override
@@ -182,7 +179,7 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
                     setter.apply(this, value);
                     return o;
                 }
-                return kv.putValue(key, value);
+                return kv.put(key, value);
             }
 
             @Override
@@ -191,7 +188,7 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
                 if (null != getter) {
                     return null;
                 } else {
-                    return kv.remove(key).value();
+                    return kv.remove(key);
                 }
             }
 
@@ -214,9 +211,7 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
             @Override
             public Collection<Object> values() {
                 List<Object> list = new ArrayList<Object>();
-                for (ValueObject vo : kv.values()) {
-                    list.add(vo.value());
-                }
+                list.addAll(kv.values());
                 for ($.Function getter : metaInfo().fieldGetters.values()) {
                     list.add(getter.apply(this));
                 }
@@ -248,7 +243,7 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
                     metaInfo = r.get(getClass(), new $.Transformer<Class<? extends AdaptiveRecord>, AdaptiveRecord.MetaInfo>() {
                         @Override
                         public AdaptiveRecord.MetaInfo transform(Class<? extends AdaptiveRecord> aClass) {
-                            return new AdaptiveRecord.MetaInfo(aClass, Transient.class);
+                            return new AdaptiveRecord.MetaInfo(aClass);
                         }
                     });
                 }
@@ -267,9 +262,9 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
             Class<?> c = ent.getClass();
             if (MorphiaAdaptiveRecord.class.isAssignableFrom(c)) {
                 MorphiaAdaptiveRecord ar = $.cast(ent);
-                KVStore kv = ar.kv;
-                for (Map.Entry<String, ValueObject> entry : kv.entrySet()) {
-                    dbObj.put(entry.getKey(), entry.getValue().value());
+                JSONObject kv = ar.kv;
+                for (Map.Entry<String, Object> entry : kv.entrySet()) {
+                    dbObj.put(entry.getKey(), ValueObjectConverter.INSTANCE.encode(entry.getValue()));
                 }
             }
         }
@@ -281,7 +276,7 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
             Class<?> c = ent.getClass();
             if (MorphiaAdaptiveRecord.class.isAssignableFrom(c)) {
                 MorphiaAdaptiveRecord ar = $.cast(ent);
-                final KVStore kv = ar.kv;
+                final JSONObject kv = ar.kv;
                 final AdaptiveRecord.MetaInfo metaInfo = ar.metaInfo();
                 new IterHelper<>().loopMap(dbObj, new IterHelper.MapIterCallback<Object, Object>() {
                     @Override
@@ -291,7 +286,7 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
                             return;
                         }
                         if (!metaInfo.fieldTypes.containsKey(key)) {
-                            kv.putValue(key, JSONObject.toJSON(val));
+                            kv.put(key, JSONObject.toJSON(val));
                         }
                     }
                 });

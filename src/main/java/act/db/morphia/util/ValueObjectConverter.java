@@ -13,6 +13,7 @@ import org.osgl.util.C;
 import org.osgl.util.KVStore;
 import org.osgl.util.ValueObject;
 
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,10 @@ import static act.db.morphia.util.KVStoreConverter.VALUE;
 /**
  * The {@link org.osgl.util.ValueObject} converter
  */
+@Singleton
 public class ValueObjectConverter extends TypeConverter implements SimpleValueConverter {
+
+    public static final ValueObjectConverter INSTANCE = new ValueObjectConverter();
 
     public ValueObjectConverter() {
         setSupportedTypes(new Class[]{ValueObject.class});
