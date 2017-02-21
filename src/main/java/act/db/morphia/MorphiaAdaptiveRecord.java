@@ -84,7 +84,7 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
 
     @Override
     public boolean containsKey(String key) {
-        return kv.containsKey(key) || metaInfo().fieldTypes.containsKey(key);
+        return kv.containsKey(key) || metaInfo().getterFieldSpecs.containsKey(key);
     }
 
     @Override
@@ -106,7 +106,7 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
         if (!hasFields()) {
             return kv.keySet();
         }
-        Set<String> set = new HashSet<String>(metaInfo().fieldTypes.keySet());
+        Set<String> set = new HashSet<String>(metaInfo().getterFieldSpecs.keySet());
         set.addAll(kv.keySet());
         return set;
     }
@@ -130,7 +130,7 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
                 continue;
             }
             if (filter) {
-                BeanSpec field = metaInfo.fieldSpecs.get(fieldName);
+                BeanSpec field = metaInfo.getterFieldSpecs.get(fieldName);
                 if (!function.apply(field)) {
                     continue;
                 }
@@ -157,7 +157,7 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
 
             @Override
             public boolean containsKey(Object key) {
-                return kv.containsKey(key) || metaInfo().fieldTypes.containsKey(key);
+                return kv.containsKey(key) || metaInfo().getterFieldSpecs.containsKey(key);
             }
 
             @Override
@@ -226,11 +226,11 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
     }
 
     private int fieldsSize() {
-        return metaInfo().fieldSpecs.size();
+        return metaInfo().getterFieldSpecs.size();
     }
 
     private boolean hasFields() {
-        return !metaInfo().fieldSpecs.isEmpty();
+        return !metaInfo().getterFieldSpecs.isEmpty();
     }
 
     @Override
@@ -282,12 +282,10 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
                     @Override
                     public void eval(final Object k, final Object val) {
                         final String key = S.string(k);
-                        if (BUILT_IN_PROPS.contains(key) || metaInfo.fieldTypes.containsKey(key)) {
+                        if (BUILT_IN_PROPS.contains(key) || metaInfo.setterFieldSpecs.containsKey(key)) {
                             return;
                         }
-                        if (!metaInfo.fieldTypes.containsKey(key)) {
-                            kv.put(key, JSONObject.toJSON(val));
-                        }
+                        kv.put(key, JSONObject.toJSON(val));
                     }
                 });
             }
