@@ -242,10 +242,10 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
     }
 
     @Override
-    public void save(Iterable<MODEL_TYPE> entities) {
+    public List<MODEL_TYPE> save(Iterable<MODEL_TYPE> entities) {
         C.List<MODEL_TYPE> list = C.list(entities);
         if (list.isEmpty()) {
-            return;
+            return list;
         }
         MODEL_TYPE e0 = list.get(0);
         if (e0 instanceof TimeTrackingModel && e0 instanceof Model) {
@@ -262,13 +262,14 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
             }
         }
         ds().save(entities);
+        return list;
     }
 
     @Override
     public void delete(MODEL_TYPE entity) {
         ds().delete(entity);
         EventBus eventBus = app.eventBus();
-        eventBus.trigger(new DeleteEvent<MODEL_TYPE>(entity));
+        eventBus.trigger(new DeleteEvent<>(entity));
     }
 
     @Override
