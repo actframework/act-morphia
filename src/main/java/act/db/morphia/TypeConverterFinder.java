@@ -24,7 +24,6 @@ public class TypeConverterFinder extends SubTypeFinder<TypeConverter> {
         app.jobManager().on(AppEventId.DEPENDENCY_INJECTOR_PROVISIONED, new Runnable() {
             @Override
             public void run() {
-                Act.LOGGER.error("Adding converter: %s", target.getName());
                 MorphiaService.mapper().getConverters().addConverter(app.getInstance(target));
             }
         });
