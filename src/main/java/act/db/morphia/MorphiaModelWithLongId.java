@@ -45,11 +45,6 @@ public abstract class MorphiaModelWithLongId<MODEL_TYPE extends MorphiaModelWith
         return _me();
     }
 
-    @Override
-    public String toString() {
-        return S.builder().append(getClass().getName()).append("[").append(id).append("]").toString();
-    }
-
     @PrePersist
     private void populateId() {
         if (null == id) {

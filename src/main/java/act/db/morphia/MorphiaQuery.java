@@ -64,7 +64,7 @@ public class MorphiaQuery<MODEL_TYPE> implements Dao.Query<MODEL_TYPE, MorphiaQu
     @Override
     public MorphiaQuery<MODEL_TYPE> orderBy(String... fieldList) {
         C.List<String> spec = C.listOf(fieldList).flatMap(S.F.SPLIT);
-        StringBuilder sb = S.builder();
+        S.Buffer sb = S.newBuffer();
         for (String s: spec) {
             if (s.startsWith("+")) {
                 s = s.substring(1);

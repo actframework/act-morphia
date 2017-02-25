@@ -3,7 +3,6 @@ package act.db.morphia;
 import act.db.AdaptiveRecord;
 import act.inject.param.NoBind;
 import com.alibaba.fastjson.JSONObject;
-import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.Transient;
 import org.osgl.Osgl;
 import org.osgl.inject.BeanSpec;
@@ -14,7 +13,7 @@ import java.util.Set;
 /**
  * Implement {@link AdaptiveRecord} in Morphia
  */
-public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRecord> extends MorphiaModel<MODEL_TYPE> implements AdaptiveRecord<ObjectId, MODEL_TYPE> {
+public abstract class MorphiaAdaptiveRecordWithLongId<MODEL_TYPE extends MorphiaAdaptiveRecordWithLongId> extends MorphiaModelWithLongId<MODEL_TYPE> implements AdaptiveRecord<Long, MODEL_TYPE> {
 
     @Transient
     @NoBind

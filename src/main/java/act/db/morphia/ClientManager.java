@@ -60,7 +60,7 @@ class ClientManager {
             }
             String username = getStr(CONF_USERNAME, conf, null);
             String password = null != username ? getStr(CONF_PASSWORD, conf, null) : null;
-            StringBuilder sb = S.builder().append(SCHEME);
+            S.Buffer sb = S.newBuffer(SCHEME);
             if (null != username && null != password) {
                 sb.append(username).append(":").append(password).append("@");
             }

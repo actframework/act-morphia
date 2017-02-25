@@ -43,8 +43,4 @@ public abstract class MorphiaModel<MODEL_TYPE extends MorphiaModel> extends Morp
         return _me();
     }
 
-    @Override
-    public String toString() {
-        return S.builder().append(getClass().getName()).append("[").append(id).append("]").toString();
-    }
 }
