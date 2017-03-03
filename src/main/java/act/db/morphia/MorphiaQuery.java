@@ -1,6 +1,7 @@
 package act.db.morphia;
 
 import act.db.Dao;
+import act.db.morphia.annotation.NoQueryValidation;
 import act.db.morphia.util.AggregationResult;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
@@ -33,7 +34,7 @@ public class MorphiaQuery<MODEL_TYPE> implements Dao.Query<MODEL_TYPE, MorphiaQu
         this.modelType = dao.modelType();
         this.dao = dao;
         this.mq = ds.createQuery(modelType);
-        if (dao.isAdaptive()) {
+        if (dao.isAdaptive() || modelType.isAnnotationPresent(NoQueryValidation.class)) {
             this.mq = this.mq.disableValidation();
         }
     }

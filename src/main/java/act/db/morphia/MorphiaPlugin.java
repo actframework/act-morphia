@@ -3,8 +3,8 @@ package act.db.morphia;
 import act.app.App;
 import act.db.DbPlugin;
 import act.db.DbService;
-import act.db.morphia.util.PersistAsList;
-import act.db.morphia.util.PersistAsMap;
+import act.db.morphia.annotation.PersistAsList;
+import act.db.morphia.annotation.PersistAsMap;
 import org.mongodb.morphia.logging.MorphiaLoggerFactory;
 import org.mongodb.morphia.mapping.MappedField;
 

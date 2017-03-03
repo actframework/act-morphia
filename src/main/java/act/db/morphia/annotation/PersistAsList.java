@@ -1,4 +1,4 @@
-package act.db.morphia.util;
+package act.db.morphia.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,9 +7,10 @@ import java.lang.annotation.Target;
 
 /**
  * Mark a {@link org.osgl.util.KVStore} typed field indicate the
- * data should be persisted as a Map instead of (K,V) pair list
+ * data should be persisted as a list of {Key, Value} pairs instead
+ * of an Object map
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.FIELD})
-public @interface PersistAsMap {
+public @interface PersistAsList {
 }

@@ -2,6 +2,8 @@ package act.db.morphia.util;
 
 import act.Act;
 import act.app.App;
+import act.db.morphia.annotation.PersistAsList;
+import act.db.morphia.annotation.PersistAsMap;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import org.mongodb.morphia.converters.SimpleValueConverter;
