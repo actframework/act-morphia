@@ -38,6 +38,14 @@ public class AdaptiveRecordMappingInterceptor extends AbstractEntityInterceptor 
             for (Map.Entry<String, Object> entry : kv.entrySet()) {
                 dbObj.put(entry.getKey(), ValueObjectConverter.INSTANCE.encode(entry.getValue()));
             }
+            Object o = kv.get("v");
+            Long v = null;
+            if (null != o && o instanceof Number) {
+                v = ((Number) o).longValue();
+            }
+            if (null != v) {
+                dbObj.put("v", v);
+            }
         }
     }
 
@@ -58,6 +66,7 @@ public class AdaptiveRecordMappingInterceptor extends AbstractEntityInterceptor 
                     kv.put(key, JSONObject.toJSON(val));
                 }
             });
+            kv.put("v", dbObj.get("v"));
         }
     }
 
