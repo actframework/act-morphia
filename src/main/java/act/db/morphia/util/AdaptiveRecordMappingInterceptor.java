@@ -8,9 +8,11 @@ import org.mongodb.morphia.annotations.Property;
 import org.mongodb.morphia.mapping.Mapper;
 import org.mongodb.morphia.utils.IterHelper;
 import org.osgl.$;
+import org.osgl.cache.CacheService;
 import org.osgl.util.C;
 import org.osgl.util.S;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.lang.reflect.Field;
 import java.util.HashSet;
@@ -25,6 +27,9 @@ public class AdaptiveRecordMappingInterceptor extends AbstractEntityInterceptor 
 
     private final Set<String> BUILT_IN_PROPS = C.setOf("_id,className,_created,_modified,v".split(","));
     private final ConcurrentMap<Class<?>, Set<String>> mappedPropertiesLookup = new ConcurrentHashMap<>();
+
+    @Inject
+    private CacheService cacheService;
 
     @Override
     public void prePersist(Object ent, DBObject dbObj, Mapper mapper) {
@@ -45,6 +50,7 @@ public class AdaptiveRecordMappingInterceptor extends AbstractEntityInterceptor 
             }
             if (null != v) {
                 dbObj.put("v", v);
+                $.setProperty(cacheService, ent, v, "v");
             }
         }
     }
