@@ -73,7 +73,7 @@ public class MorphiaService extends DbService {
         app.resolverManager().register(ObjectId.class, new StringValueResolver<ObjectId>() {
             @Override
             public ObjectId resolve(String s) {
-                return new ObjectId(s);
+                return S.blank(s) ? null : new ObjectId(s);
             }
         });
     }
