@@ -5,6 +5,7 @@ import act.db.DbService;
 import act.db.di.DaoInjectionListenerBase;
 import org.osgl.$;
 import org.osgl.inject.BeanSpec;
+import org.osgl.util.Generics;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -14,12 +15,15 @@ public class MorphiaDaoInjectionListener extends DaoInjectionListenerBase {
 
     @Override
     public Class[] listenTo() {
-        return new Class[] {MorphiaDao.class, MorphiaDaoBase.class};
+        return new Class[] {MorphiaDaoBase.class};
     }
 
     @Override
     public void onInjection(Object bean, BeanSpec spec) {
         List<Type> typeParams = spec.typeParams();
+        if (typeParams.isEmpty()) {
+            typeParams = Generics.typeParamImplementations(spec.rawType(), MorphiaDaoBase.class);
+        }
         if (typeParams.isEmpty()) {
             logger.warn("No type parameter information provided");
             return;
