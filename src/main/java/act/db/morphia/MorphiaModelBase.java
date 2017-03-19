@@ -64,6 +64,16 @@ public abstract class MorphiaModelBase<ID_TYPE, MODEL_TYPE extends MorphiaModelB
         return S.string(_v());
     }
 
+    // For JSON serialization
+    public Long getV() {
+        return v;
+    }
+
+    // For JSON deserialization
+    public void setV(Number v) {
+        this.v = null == v ? null : v.longValue();
+    }
+
     private Long _v() {
         if (null != v) {
             return v;

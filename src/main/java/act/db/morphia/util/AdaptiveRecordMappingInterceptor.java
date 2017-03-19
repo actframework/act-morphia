@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentMap;
 @Singleton
 public class AdaptiveRecordMappingInterceptor extends AbstractEntityInterceptor {
 
-    private final Set<String> BUILT_IN_PROPS = C.setOf("_id,className,_created,_modified,v".split(","));
+    private final Set<String> BUILT_IN_PROPS = C.setOf("_id,className,_created,_modified".split(","));
     private final ConcurrentMap<Class<?>, Set<String>> mappedPropertiesLookup = new ConcurrentHashMap<>();
 
     @Inject
@@ -42,15 +42,6 @@ public class AdaptiveRecordMappingInterceptor extends AbstractEntityInterceptor 
             Map<String, Object> kv = ar.internalMap();
             for (Map.Entry<String, Object> entry : kv.entrySet()) {
                 dbObj.put(entry.getKey(), ValueObjectConverter.INSTANCE.encode(entry.getValue()));
-            }
-            Object o = kv.get("v");
-            Long v = null;
-            if (null != o && o instanceof Number) {
-                v = ((Number) o).longValue();
-            }
-            if (null != v) {
-                dbObj.put("v", v);
-                $.setProperty(cacheService, ent, v, "v");
             }
         }
     }
@@ -72,7 +63,6 @@ public class AdaptiveRecordMappingInterceptor extends AbstractEntityInterceptor 
                     kv.put(key, JSONObject.toJSON(val));
                 }
             });
-            kv.put("v", dbObj.get("v"));
         }
     }
 
