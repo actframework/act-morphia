@@ -62,10 +62,16 @@
   <artifactId>act-morphia</artifactId>
   <packaging>jar</packaging>
   <version>1.0.2-SNAPSHOT</version>
+  <inceptionYear>2015</inceptionYear>
 
   <name>ACT Morphia</name>
   <description>The Morphia Plugin for Actframework MongoDB access</description>
   <url>http://actframework.org/plugin/morphia</url>
+
+  <organization>
+    <name>ActFramework</name>
+    <url>http://actframework.org</url>
+  </organization>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -107,8 +113,31 @@
       </resource>
     </resources>
 
-    <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>license-maven-plugin</artifactId>
+          <version>1.12</version>
+          <configuration>
+            <verbose>false</verbose>
+          </configuration>
+          <executions>
+            <execution>
+              <id>first</id>
+              <goals>
+                <goal>update-file-header</goal>
+              </goals>
+              <phase>process-sources</phase>
+              <configuration>
+                <licenseName>apache_v2</licenseName>
+                <roots>
+                  <root>src/main/java</root>
+                  <root>src/test</root>
+                </roots>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
@@ -160,7 +189,6 @@
           </executions>
         </plugin>
       </plugins>
-    </pluginManagement>
   </build>
 
   <dependencies>
