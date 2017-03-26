@@ -18,6 +18,9 @@
 ********************************************
 *            version history
 ********************************************
+1.0.3
+- Take out version range from pom.xml. See https://issues.apache.org/jira/browse/MNG-3092
+
 1.0.2
 - Fix #5 Act controller not return correct @version "v" for save method when MorphiaDao return the value
 
@@ -77,7 +80,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <git.url>git@github.com:actframework/act-morphia.git</git.url>
-    <act.version>[1.0,2.0)</act.version>
+    <act.version>1.0.5</act.version>
     <act-test.version>[0.7.0,2.0.0)</act-test.version>
     <mockito.version>2.7.0</mockito.version>
     <fongo.version>2.0.12</fongo.version>
