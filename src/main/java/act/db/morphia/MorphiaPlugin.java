@@ -45,7 +45,7 @@ public class MorphiaPlugin extends DbPlugin {
         MappedField.addInterestingAnnotation(PersistAsMap.class);
     }
 
-    public DbService initDbService(String id, App app, Map<String, Object> conf) {
+    public DbService initDbService(String id, App app, Map<String, String> conf) {
         return new MorphiaService(id, app, conf);
     }
 

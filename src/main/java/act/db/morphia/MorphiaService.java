@@ -53,6 +53,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
+import static act.app.App.LOGGER;
 import static act.app.App.logger;
 
 public class MorphiaService extends DbService {
@@ -70,7 +71,7 @@ public class MorphiaService extends DbService {
      */
     private Map<Class, Map<String, String>> fieldNameLookup;
 
-    public MorphiaService(String id, final App app, Map<String, Object> conf) {
+    public MorphiaService(String id, final App app, Map<String, String> conf) {
         super(id, app);
         if (null == morphia) {
             morphia = new Morphia();
@@ -146,7 +147,7 @@ public class MorphiaService extends DbService {
         fieldNameLookup.put(entityClass, nameMapping);
     }
 
-    private void initDataStore($.T2<MongoClientURI, MongoClient> t2, Map<String, Object> conf) {
+    private void initDataStore($.T2<MongoClientURI, MongoClient> t2, Map<String, String> conf) {
         MongoClientURI uri = t2._1;
         MongoClient client = t2._2;
         String db = uri.getDatabase();
@@ -156,9 +157,9 @@ public class MorphiaService extends DbService {
                 db = id();
                 if (DbServiceManager.DEFAULT.equals(db)) {
                     db = "test";
-                    logger.warn("No \"db\" (database name) configured. Will use \"test\" as database name for the default service");
+                    LOGGER.warn("No \"db\" (database name) configured. Will use \"test\" as database name for the default service");
                 } else {
-                    logger.warn("No \"db\" (database name) configured. Will use service id \"%s\" as database name", db);
+                    LOGGER.warn("No \"db\" (database name) configured. Will use service id \"%s\" as database name", db);
                 }
             }
         }

@@ -25,7 +25,6 @@ import act.app.DbServiceManager;
 import act.db.DbManager;
 import act.db.morphia.util.JodaDateTimeConverter;
 import act.db.util.JodaDateTimeTsGenerator;
-import com.github.fakemongo.Fongo;
 import com.mongodb.MongoClient;
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -65,7 +64,7 @@ public abstract class MongoTestBase extends TestBase {
         //ds = morphia.createDatastore(new Fongo(DB_NAME).getMongo(), DB_NAME);
         ds = morphia.createDatastore(new MongoClient(), DB_NAME);
         dbServiceManager = mock(DbServiceManager.class);
-        morphiaService = new MorphiaService("default", app, new HashMap<String, Object>());
+        morphiaService = new MorphiaService("default", app, new HashMap<String, String>());
         when(app.dbServiceManager()).thenReturn(dbServiceManager);
         when(dbServiceManager.dbService("default")).thenReturn(morphiaService);
         dbManager = mock(DbManager.class);
