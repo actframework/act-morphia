@@ -18,6 +18,9 @@
 ********************************************
 *            version history
 ********************************************
+1.2.0
+* update to act-1.4.0
+
 1.1.0
 - Update to act-1.1.0, using the new DB plugin architecture
 
@@ -67,8 +70,8 @@
   <groupId>org.actframework</groupId>
   <artifactId>act-morphia</artifactId>
   <packaging>jar</packaging>
-  <version>1.1.1-SNAPSHOT</version>
-  <inceptionYear>2015</inceptionYear>
+  <version>1.2.0-SNAPSHOT</version>
+  <inceptionYear>2017</inceptionYear>
 
   <name>ACT Morphia</name>
   <description>The Morphia Plugin for Actframework MongoDB access</description>
@@ -83,10 +86,10 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <git.url>git@github.com:actframework/act-morphia.git</git.url>
-    <act.version>1.1.0</act.version>
+    <act.version>1.4.0-SNAPSHOT</act.version>
     <act-test.version>[0.7.0,2.0.0)</act-test.version>
     <mockito.version>2.7.0</mockito.version>
-    <fongo.version>2.0.12</fongo.version>
+    <fongo.version>2.1.0</fongo.version>
     <morphia.version>1.3.2</morphia.version>
     <slf4j-simple.version>1.7.22</slf4j-simple.version>
   </properties>
