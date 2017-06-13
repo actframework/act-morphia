@@ -82,7 +82,7 @@ class ClientManager {
             String password = null != username ? getStr(CONF_PASSWORD, conf, null) : null;
             S.Buffer sb = S.newBuffer(SCHEME);
             if (null != username && null != password) {
-                sb.append(username).append(":").append(password).append("@");
+                sb.append(username).append(":").append(S.urlEncode(password)).append("@");
             }
             sb.append(host).append(":").append(port);
             uri = sb.toString();
