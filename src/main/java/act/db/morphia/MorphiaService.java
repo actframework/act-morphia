@@ -1,5 +1,25 @@
 package act.db.morphia;
 
+/*-
+ * #%L
+ * ACT Morphia
+ * %%
+ * Copyright (C) 2015 - 2017 ActFramework
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+
 import act.Act;
 import act.app.App;
 import act.app.DbServiceManager;
@@ -33,7 +53,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
-import static act.app.App.logger;
+import static act.app.App.LOGGER;
 
 public class MorphiaService extends DbService {
 
@@ -45,12 +65,14 @@ public class MorphiaService extends DbService {
 
     private Datastore ds;
 
+    private boolean initialized;
+
     /**
      * Map from Java object field name to mongodb property name
      */
     private Map<Class, Map<String, String>> fieldNameLookup;
 
-    public MorphiaService(String id, final App app, Map<String, Object> conf) {
+    public MorphiaService(String id, final App app, Map<String, String> conf) {
         super(id, app);
         if (null == morphia) {
             morphia = new Morphia();
@@ -64,7 +86,7 @@ public class MorphiaService extends DbService {
             // the TypeConverterFinder will register it
             // morphia.getMapper().getConverters().addConverter(new DateTimeConverter());
         }
-        fieldNameLookup = new HashMap<Class, Map<String, String>>();
+        fieldNameLookup = new HashMap<>();
         $.T2<MongoClientURI, MongoClient> t2 = ClientManager.register(this, conf);
         initDataStore(t2, conf);
         delayedEnsureIndexesAndCaps(app);
@@ -76,6 +98,12 @@ public class MorphiaService extends DbService {
                 return S.blank(s) ? null : new ObjectId(s);
             }
         });
+        initialized = true;
+    }
+
+    @Override
+    public boolean initialized() {
+        return initialized;
     }
 
     @Override
@@ -83,6 +111,9 @@ public class MorphiaService extends DbService {
         ClientManager.release(this);
         fieldNameLookup.clear();
         morphia = null;
+        if (_logger.isDebugEnabled()) {
+            _logger.debug("Morphia shutdown: %s", id());
+        }
     }
 
     @Override
@@ -126,7 +157,7 @@ public class MorphiaService extends DbService {
         fieldNameLookup.put(entityClass, nameMapping);
     }
 
-    private void initDataStore($.T2<MongoClientURI, MongoClient> t2, Map<String, Object> conf) {
+    private void initDataStore($.T2<MongoClientURI, MongoClient> t2, Map<String, String> conf) {
         MongoClientURI uri = t2._1;
         MongoClient client = t2._2;
         String db = uri.getDatabase();
@@ -136,9 +167,9 @@ public class MorphiaService extends DbService {
                 db = id();
                 if (DbServiceManager.DEFAULT.equals(db)) {
                     db = "test";
-                    logger.warn("No \"db\" (database name) configured. Will use \"test\" as database name for the default service");
+                    LOGGER.warn("No \"db\" (database name) configured. Will use \"test\" as database name for the default service");
                 } else {
-                    logger.warn("No \"db\" (database name) configured. Will use service id \"%s\" as database name", db);
+                    LOGGER.warn("No \"db\" (database name) configured. Will use service id \"%s\" as database name", db);
                 }
             }
         }
@@ -155,7 +186,7 @@ public class MorphiaService extends DbService {
                     if (Act.isDev()) {
                         // ignore the case caused by hot reload
                     } else {
-                        logger.warn(e, "Error calling ensure indexes and caps operation");
+                        LOGGER.warn(e, "Error calling ensure indexes and caps operation");
                     }
                 }
             }

@@ -1,5 +1,25 @@
 package act.db.morphia.util;
 
+/*-
+ * #%L
+ * ACT Morphia
+ * %%
+ * Copyright (C) 2015 - 2017 ActFramework
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+
 import act.db.AdaptiveRecord;
 import com.alibaba.fastjson.JSONObject;
 import com.mongodb.DBObject;
@@ -25,7 +45,7 @@ import java.util.concurrent.ConcurrentMap;
 @Singleton
 public class AdaptiveRecordMappingInterceptor extends AbstractEntityInterceptor {
 
-    private final Set<String> BUILT_IN_PROPS = C.setOf("_id,className,_created,_modified,v".split(","));
+    private final Set<String> BUILT_IN_PROPS = C.setOf("_id,className,_created,_modified".split(","));
     private final ConcurrentMap<Class<?>, Set<String>> mappedPropertiesLookup = new ConcurrentHashMap<>();
 
     @Inject
@@ -42,15 +62,6 @@ public class AdaptiveRecordMappingInterceptor extends AbstractEntityInterceptor 
             Map<String, Object> kv = ar.internalMap();
             for (Map.Entry<String, Object> entry : kv.entrySet()) {
                 dbObj.put(entry.getKey(), ValueObjectConverter.INSTANCE.encode(entry.getValue()));
-            }
-            Object o = kv.get("v");
-            Long v = null;
-            if (null != o && o instanceof Number) {
-                v = ((Number) o).longValue();
-            }
-            if (null != v) {
-                dbObj.put("v", v);
-                $.setProperty(cacheService, ent, v, "v");
             }
         }
     }
@@ -72,7 +83,6 @@ public class AdaptiveRecordMappingInterceptor extends AbstractEntityInterceptor 
                     kv.put(key, JSONObject.toJSON(val));
                 }
             });
-            kv.put("v", dbObj.get("v"));
         }
     }
 

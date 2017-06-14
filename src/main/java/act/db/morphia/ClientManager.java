@@ -1,5 +1,25 @@
 package act.db.morphia;
 
+/*-
+ * #%L
+ * ACT Morphia
+ * %%
+ * Copyright (C) 2015 - 2017 ActFramework
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import org.osgl.$;
@@ -23,7 +43,7 @@ class ClientManager {
 
     private static final Map<MorphiaService, MongoClient> clients = C.newMap();
 
-    public static $.T2<MongoClientURI, MongoClient> register(MorphiaService service, Map<String, Object> conf) {
+    public static $.T2<MongoClientURI, MongoClient> register(MorphiaService service, Map<String, String> conf) {
         if (clients.containsKey(service)) {
             throw E.invalidConfiguration("Mongo client has already been registered for service[%]", service.id());
         }
@@ -44,7 +64,7 @@ class ClientManager {
         }
     }
 
-    private static MongoClientURI create(Map<String, Object> conf) {
+    private static MongoClientURI create(Map<String, String> conf) {
         String uri = getStr(CONF_URL, conf, null);
         if (null == uri) {
             uri = getStr(CONF_URI, conf, null);
@@ -62,7 +82,7 @@ class ClientManager {
             String password = null != username ? getStr(CONF_PASSWORD, conf, null) : null;
             S.Buffer sb = S.newBuffer(SCHEME);
             if (null != username && null != password) {
-                sb.append(username).append(":").append(password).append("@");
+                sb.append(username).append(":").append(S.urlEncode(password)).append("@");
             }
             sb.append(host).append(":").append(port);
             uri = sb.toString();
@@ -74,13 +94,13 @@ class ClientManager {
         return new MongoClientURI(uri);
     }
 
-    private static String getStr(String key, Map<String, Object> conf, String def) {
-        Object val = conf.get(key);
-        return null == val ? def : val.toString();
+    private static String getStr(String key, Map<String, String> conf, String def) {
+        String val = conf.get(key);
+        return null == val ? def : val;
     }
 
-    private static int getInt(String key, Map<String, Object> conf, int def) {
-        Object val = conf.get(key);
-        return null == val ? def : Integer.parseInt(val.toString());
+    private static int getInt(String key, Map<String, String> conf, int def) {
+        String val = conf.get(key);
+        return null == val ? def : Integer.parseInt(val);
     }
 }
