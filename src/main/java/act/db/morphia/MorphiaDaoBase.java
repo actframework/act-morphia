@@ -201,7 +201,8 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         } else if (entity instanceof Model) {
             return (ID_TYPE) ((Model) entity)._id();
         } else {
-            return (ID_TYPE) MorphiaService.mapper().getId(entity);
+            MorphiaService service = MorphiaService.findByModelClass(entity.getClass());
+            return null == service ? null : (ID_TYPE) service.mapper().getId(entity);
         }
     }
 

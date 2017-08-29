@@ -20,6 +20,8 @@ package act.db.morphia;
  * #L%
  */
 
+import static act.app.App.LOGGER;
+
 import act.Act;
 import act.app.App;
 import act.app.DbServiceManager;
@@ -51,9 +53,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
-import static act.app.App.LOGGER;
 
 public class MorphiaService extends DbService {
 
@@ -61,7 +62,7 @@ public class MorphiaService extends DbService {
     public static final String GROUP_SEP = S.COMMON_SEP;
 
     // the morphia instance - keep track of class mapping
-    private static Morphia morphia;
+    private Morphia morphia;
 
     private Datastore ds;
 
@@ -74,18 +75,16 @@ public class MorphiaService extends DbService {
 
     public MorphiaService(String id, final App app, Map<String, String> conf) {
         super(id, app);
-        if (null == morphia) {
-            morphia = new Morphia();
-            MapperOptions options = morphia.getMapper().getOptions();
-            options.setObjectFactory(new DefaultCreator(){
-                @Override
-                protected ClassLoader getClassLoaderForClass() {
-                    return app.classLoader();
-                }
-            });
-            // the TypeConverterFinder will register it
-            // morphia.getMapper().getConverters().addConverter(new DateTimeConverter());
-        }
+        morphia = new Morphia();
+        MapperOptions options = morphia.getMapper().getOptions();
+        options.setObjectFactory(new DefaultCreator(){
+            @Override
+            protected ClassLoader getClassLoaderForClass() {
+                return app.classLoader();
+            }
+        });
+        // the TypeConverterFinder will register it
+        // morphia.getMapper().getConverters().addConverter(new DateTimeConverter());
         fieldNameLookup = new HashMap<>();
         $.T2<MongoClientURI, MongoClient> t2 = ClientManager.register(this, conf);
         initDataStore(t2, conf);
@@ -111,8 +110,8 @@ public class MorphiaService extends DbService {
         ClientManager.release(this);
         fieldNameLookup.clear();
         morphia = null;
-        if (_logger.isDebugEnabled()) {
-            _logger.debug("Morphia shutdown: %s", id());
+        if (logger.isDebugEnabled()) {
+            logger.debug("Morphia shutdown: %s", id());
         }
     }
 
@@ -210,12 +209,23 @@ public class MorphiaService extends DbService {
 
     }
 
-    public static Morphia morphia() {
+    public Morphia morphia() {
         return morphia;
     }
 
-    public static Mapper mapper() {
+    public Mapper mapper() {
         return morphia.getMapper();
+    }
+
+    public static MorphiaService findByModelClass(Class<?> modelClass) {
+        DB db = modelClass.getAnnotation(DB.class);
+        String serviceId = null == db ? "default" : db.value();
+        DbService service = Act.app().dbServiceManager().dbService(serviceId);
+        return service instanceof MorphiaService ? (MorphiaService) service : null;
+    }
+
+    public static List<MorphiaService> allMorphiaServices() {
+        return Act.app().dbServiceManager().dbServicesByClass(MorphiaService.class);
     }
 
     public static String[] splitQueryKeys(String keys) {

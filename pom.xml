@@ -18,6 +18,9 @@
 ********************************************
 *            version history
 ********************************************
+1.3.0
+* #9 It generates useless empty collections in datasource
+
 1.2.0
 * update to act-1.4.0
 * #8 Special characters in password triggers IllegalArgumentException
@@ -71,7 +74,7 @@
   <groupId>org.actframework</groupId>
   <artifactId>act-morphia</artifactId>
   <packaging>jar</packaging>
-  <version>1.2.1-SNAPSHOT</version>
+  <version>1.3.0-SNAPSHOT</version>
   <inceptionYear>2017</inceptionYear>
 
   <name>ACT Morphia</name>
@@ -87,7 +90,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <git.url>git@github.com:actframework/act-morphia.git</git.url>
-    <act.version>1.4.0</act.version>
+    <act.version>1.4.11-SNAPSHOT</act.version>
     <act-test.version>[0.7.0,2.0.0)</act-test.version>
     <mockito.version>2.7.0</mockito.version>
     <fongo.version>2.1.0</fongo.version>

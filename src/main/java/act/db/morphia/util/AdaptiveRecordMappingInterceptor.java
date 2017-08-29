@@ -25,12 +25,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.mongodb.DBObject;
 import org.mongodb.morphia.AbstractEntityInterceptor;
 import org.mongodb.morphia.annotations.Property;
+import org.mongodb.morphia.converters.Converters;
 import org.mongodb.morphia.mapping.Mapper;
 import org.mongodb.morphia.utils.IterHelper;
 import org.osgl.$;
 import org.osgl.cache.CacheService;
 import org.osgl.util.C;
 import org.osgl.util.S;
+import org.osgl.util.ValueObject;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -61,7 +63,10 @@ public class AdaptiveRecordMappingInterceptor extends AbstractEntityInterceptor 
             AdaptiveRecord ar = $.cast(ent);
             Map<String, Object> kv = ar.internalMap();
             for (Map.Entry<String, Object> entry : kv.entrySet()) {
-                dbObj.put(entry.getKey(), ValueObjectConverter.INSTANCE.encode(entry.getValue()));
+                Object value = entry.getValue();
+                Converters converters = mapper.getConverters();
+                value = value instanceof ValueObject ? ValueObjectConverter.INSTANCE.encode(value) : converters.hasSimpleValueConverter(value) ? converters.encode(value) : value;
+                dbObj.put(entry.getKey(), value);
             }
         }
     }

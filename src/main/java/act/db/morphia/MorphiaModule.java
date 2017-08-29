@@ -21,16 +21,18 @@ package act.db.morphia;
  */
 
 import act.app.event.AppEventId;
+import act.db.DB;
 import act.db.morphia.event.EntityMapped;
 import act.job.OnAppEvent;
 import act.util.AnnotatedClassFinder;
 import org.mongodb.morphia.EntityInterceptor;
-import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Property;
 import org.mongodb.morphia.mapping.Mapper;
 import org.osgl.$;
-import org.osgl.inject.Module;
+import org.osgl.logging.LogManager;
+import org.osgl.logging.Logger;
+import org.osgl.util.S;
 
 import javax.inject.Inject;
 import java.lang.reflect.Field;
@@ -40,24 +42,24 @@ import java.util.Map;
 
 import static act.Act.app;
 import static act.db.morphia.MorphiaService.getService;
-import static act.db.morphia.MorphiaService.mapper;
 
 @SuppressWarnings("unused")
-public class MorphiaModule extends Module {
+public class MorphiaModule {
+
+    private static final Logger LOGGER = LogManager.get(MorphiaModule.class);
 
     @Inject
     private List<EntityInterceptor> interceptors;
 
-    @Override
-    protected void configure() {
-        bind(Mapper.class).to(mapper());
-        bind(Morphia.class).to(MorphiaService.morphia());
-    }
-
     @AnnotatedClassFinder(Entity.class)
     @SuppressWarnings("unused")
     public void autoMapEntity(Class<?> clz) {
-        Mapper mapper = mapper();
+        MorphiaService service = MorphiaService.findByModelClass(clz);
+        if (null == service) {
+            LOGGER.warn("Cannot find MorphiaService for entity class: %s", clz);
+            return;
+        }
+        Mapper mapper = service.mapper();
         mapper.addMappedClass(clz);
 
         registerFieldNameMapping(clz);
@@ -66,9 +68,14 @@ public class MorphiaModule extends Module {
     @OnAppEvent(AppEventId.PRE_START)
     @SuppressWarnings("unused")
     public void raiseMappedEvent() {
-        app().eventBus().emit(new EntityMapped(mapper()));
-        for (EntityInterceptor interceptor : interceptors) {
-            mapper().addInterceptor(interceptor);
+        for (MorphiaService service : MorphiaService.allMorphiaServices()) {
+            app().eventBus().emit(new EntityMapped(service.mapper()));
+            for (EntityInterceptor interceptor : interceptors) {
+                DB db = interceptor.getClass().getAnnotation(DB.class);
+                if (null == db || S.eq(db.value(), service.id())) {
+                    service.mapper().addInterceptor(interceptor);
+                }
+            }
         }
     }
 
