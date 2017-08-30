@@ -83,14 +83,12 @@ public class MorphiaService extends DbService {
                 return app.classLoader();
             }
         });
-        // the TypeConverterFinder will register it
-        // morphia.getMapper().getConverters().addConverter(new DateTimeConverter());
         fieldNameLookup = new HashMap<>();
         $.T2<MongoClientURI, MongoClient> t2 = ClientManager.register(this, conf);
         initDataStore(t2, conf);
         delayedEnsureIndexesAndCaps(app);
+        delayedMapExternalModels(app);
         registerFastJsonConfig();
-        app.registerSingleton(MorphiaService.class, this);
         app.resolverManager().register(ObjectId.class, new StringValueResolver<ObjectId>() {
             @Override
             public ObjectId resolve(String s) {
@@ -192,9 +190,22 @@ public class MorphiaService extends DbService {
         });
     }
 
+    private void delayedMapExternalModels(App app) {
+        app.jobManager().beforeAppStart(new Runnable() {
+            @Override
+            public void run() {
+                mapExternalModels();
+            }
+        });
+    }
+
     private void ensureIndexesAndCaps() {
         ds.ensureIndexes();
         ds.ensureCaps();
+    }
+
+    private void mapExternalModels() {
+        ExternalModelAdaptor.applyAdaptorFor(this);
     }
 
     private void registerFastJsonConfig() {
