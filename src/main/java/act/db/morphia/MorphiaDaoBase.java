@@ -20,6 +20,8 @@ package act.db.morphia;
  * #L%
  */
 
+import static act.db.morphia.MorphiaService.getService;
+
 import act.Act;
 import act.app.App;
 import act.db.*;
@@ -42,8 +44,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static act.db.morphia.MorphiaService.getService;
-
 @General
 @NoBind
 public class
@@ -61,9 +61,8 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
     }
 
     MorphiaDaoBase(Datastore ds) {
-        this.ds = ds;
         this.app = App.instance();
-        this.defQuery = new MorphiaQuery<MODEL_TYPE>(this);
+        this.ds(ds);
         probeAdaptive();
     }
 
@@ -71,9 +70,8 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         //TODO infer the ID_TYPE form model type by checking @Id annotation
         super(idType, modelType);
         E.NPE(modelType, ds);
-        this.ds = ds;
+        this.ds(ds);
         this.app = App.instance();
-        this.defQuery = new MorphiaQuery<MODEL_TYPE>(this);
         probeAdaptive();
     }
 
@@ -92,11 +90,12 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
     }
 
     public void setDatastore(Datastore ds) {
-        this.ds = ds;
+        this.ds(ds);
     }
 
     void ds(Datastore ds) {
         this.ds = $.notNull(ds);
+        this.defQuery = new MorphiaQuery<>(this);
     }
 
     public void modelType(Class<MODEL_TYPE> modelType) {
@@ -109,7 +108,7 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         }
         synchronized (this) {
             if (null == ds) {
-                ds = getService(modelType()).ds();
+                ds(getService(modelType()).ds());
             }
         }
         return ds;
