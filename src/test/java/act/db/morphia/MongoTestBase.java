@@ -38,7 +38,7 @@ import java.util.HashMap;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public abstract class MongoTestBase extends TestBase {
+public abstract class MongoTestBase extends MorphiaTestBase {
 
     private static final String DB_NAME = "act_test";
 

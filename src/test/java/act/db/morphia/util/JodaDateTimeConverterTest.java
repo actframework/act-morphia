@@ -20,14 +20,14 @@ package act.db.morphia.util;
  * #L%
  */
 
-import act.db.morphia.TestBase;
+import act.db.morphia.MorphiaTestBase;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.junit.Test;
 import org.osgl.$;
 
-public class JodaDateTimeConverterTest extends TestBase {
+public class JodaDateTimeConverterTest extends MorphiaTestBase {
     @Test
     public void testDateTime() {
         long ts = $.ms();

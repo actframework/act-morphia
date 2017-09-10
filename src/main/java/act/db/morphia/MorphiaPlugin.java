@@ -27,10 +27,13 @@ import act.db.morphia.annotation.PersistAsList;
 import act.db.morphia.annotation.PersistAsMap;
 import org.mongodb.morphia.logging.MorphiaLoggerFactory;
 import org.mongodb.morphia.mapping.MappedField;
+import org.osgl.bootstrap.Version;
 
 import java.util.Map;
 
 public class MorphiaPlugin extends DbPlugin {
+
+    public static final Version VERSION = Version.of(MorphiaPlugin.class);
 
     /**
      * The key to fetch the {@link act.db.morphia.util.SequenceNumberGenerator}

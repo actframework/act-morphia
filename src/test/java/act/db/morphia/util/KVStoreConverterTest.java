@@ -20,12 +20,12 @@ package act.db.morphia.util;
  * #L%
  */
 
-import act.db.morphia.TestBase;
+import act.db.morphia.MorphiaTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
 // TBD
-public class KVStoreConverterTest extends TestBase {
+public class KVStoreConverterTest extends MorphiaTestBase {
 
     @Before
     public void before() {

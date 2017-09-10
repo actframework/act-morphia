@@ -20,8 +20,6 @@ package act.db.morphia;
  * #L%
  */
 
-import static act.app.App.LOGGER;
-
 import act.Act;
 import act.app.App;
 import act.app.DbServiceManager;
@@ -45,6 +43,7 @@ import org.mongodb.morphia.mapping.Mapper;
 import org.mongodb.morphia.mapping.MapperOptions;
 import org.mongodb.morphia.query.MorphiaIterator;
 import org.osgl.$;
+import org.osgl.bootstrap.Version;
 import org.osgl.util.E;
 import org.osgl.util.S;
 import org.osgl.util.StringValueResolver;
@@ -57,6 +56,8 @@ import java.util.List;
 import java.util.Map;
 
 public class MorphiaService extends DbService {
+
+    public static final Version VERSION = MorphiaPlugin.VERSION;
 
     public static final String QUERY_SEP = "[,;:]+";
     public static final String GROUP_SEP = S.COMMON_SEP;
@@ -164,9 +165,9 @@ public class MorphiaService extends DbService {
                 db = id();
                 if (DbServiceManager.DEFAULT.equals(db)) {
                     db = "test";
-                    LOGGER.warn("No \"db\" (database name) configured. Will use \"test\" as database name for the default service");
+                    warn("No \"db\" (database name) configured. Will use \"test\" as database name for the default service");
                 } else {
-                    LOGGER.warn("No \"db\" (database name) configured. Will use service id \"%s\" as database name", db);
+                    warn("No \"db\" (database name) configured. Will use service id \"%s\" as database name", db);
                 }
             }
         }
@@ -183,7 +184,7 @@ public class MorphiaService extends DbService {
                     if (Act.isDev()) {
                         // ignore the case caused by hot reload
                     } else {
-                        LOGGER.warn(e, "Error calling ensure indexes and caps operation");
+                        warn(e, "Error calling ensure indexes and caps operation");
                     }
                 }
             }
