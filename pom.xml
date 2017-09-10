@@ -86,8 +86,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <git.url>git@github.com:actframework/act-morphia.git</git.url>
-    <act.version>1.3.14-LTS-SNAPSHOT</act.version>
-    <act-test.version>[0.7.0,2.0.0)</act-test.version>
+    <act.version>1.3.14-LTS</act.version>
+    <act-test.version>0.9.0-BETA-1</act-test.version>
     <mockito.version>2.7.0</mockito.version>
     <fongo.version>2.0.12</fongo.version>
     <morphia.version>1.3.2</morphia.version>
