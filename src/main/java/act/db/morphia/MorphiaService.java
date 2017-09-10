@@ -53,9 +53,6 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
-import static act.app.App.LOGGER;
-import static act.app.App.logger;
-
 public class MorphiaService extends DbService {
 
     public static final String QUERY_SEP = "[,;:]+";
@@ -157,9 +154,9 @@ public class MorphiaService extends DbService {
                 db = id();
                 if (DbServiceManager.DEFAULT.equals(db)) {
                     db = "test";
-                    LOGGER.warn("No \"db\" (database name) configured. Will use \"test\" as database name for the default service");
+                    warn("No \"db\" (database name) configured. Will use \"test\" as database name for the default service");
                 } else {
-                    LOGGER.warn("No \"db\" (database name) configured. Will use service id \"%s\" as database name", db);
+                    warn("No \"db\" (database name) configured. Will use service id \"%s\" as database name", db);
                 }
             }
         }
