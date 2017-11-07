@@ -81,7 +81,9 @@ public abstract class MorphiaModelBase<ID_TYPE, MODEL_TYPE extends MorphiaModelB
      * @return the version of the entity
      */
     public String _version() {
-        return S.string(_v());
+        // we must add _id() to _v().
+        // see https://github.com/actframework/act-morphia/issues/17
+        return S.concat(_v(), _id());
     }
 
     // For JSON serialization

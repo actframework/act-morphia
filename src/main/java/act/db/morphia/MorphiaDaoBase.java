@@ -145,6 +145,14 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         return q.first();
     }
 
+    public MODEL_TYPE findLatest() {
+        return q().orderBy("-_created").get();
+    }
+
+    public MODEL_TYPE findLastModified() {
+        return q().orderBy("-_modified").get();
+    }
+
     @Override
     public Iterable<MODEL_TYPE> findAll() {
         return q().fetch();
@@ -334,8 +342,14 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
     @Override
     public MorphiaQuery<MODEL_TYPE> q(String keys, Object... values) {
         int len = values.length;
-        E.illegalArgumentIf(len == 0, "no values supplied");
         String[] sa = MorphiaService.splitQueryKeys(keys);
+        if (0 == len) {
+            // check if it is `dao.q("_id in", ids);` case
+            // see https://github.com/actframework/act-morphia/issues/16
+            boolean xInArray = 1 == sa.length && keys.trim().endsWith(" in");
+            E.illegalArgumentIf(!xInArray, "no values supplied");
+            return q().filter(keys, values);
+        }
         E.illegalArgumentIf(sa.length != len, "The number of values does not match the number of fields");
         MorphiaQuery<MODEL_TYPE> q = q();
         for (int i = 0; i < len; ++i) {

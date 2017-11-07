@@ -1,5 +1,10 @@
 # act-morphia CHANGE LOG
 
+1.2.2 (2017-11-08)
+* Add `findLatest()` and `findLastModified()` to `MorphiaDaoBase` class #18
+* `MorphiaModelBase._version()` implementation fault #17
+* java.lang.IllegalArgumentException: no values supplied #16
+
 1.2.1 (2017-09-10)
 * Implement Versioning with osgl-bootstrap #15
 * Improve maven build process #14
