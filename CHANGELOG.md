@@ -1,5 +1,8 @@
 # act-morphia CHANGE LOG
 
+1.3.0
+* Catchup to act-1.6.x
+
 1.2.2 (2017-11-08)
 * Add `findLatest()` and `findLastModified()` to `MorphiaDaoBase` class #18
 * `MorphiaModelBase._version()` implementation fault #17

@@ -21,7 +21,7 @@
   <groupId>org.actframework</groupId>
   <artifactId>act-morphia</artifactId>
   <packaging>jar</packaging>
-  <version>1.2.3-SNAPSHOT</version>
+  <version>1.3.0-BETA-1-SNAPSHOT</version>
 
   <name>ACT Morphia</name>
   <description>The Morphia Plugin for Actframework MongoDB access</description>
@@ -64,7 +64,7 @@
     <fongo.version>2.1.0</fongo.version>
     <morphia.version>1.3.2</morphia.version>
 
-    <act.version>1.4.11</act.version>
+    <act.version>1.6.0-BETA-1</act.version>
     <act-test.version>0.9.0-BETA-1</act-test.version>
 
   </properties>
