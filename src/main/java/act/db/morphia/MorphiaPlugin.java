@@ -27,7 +27,7 @@ import act.db.morphia.annotation.PersistAsList;
 import act.db.morphia.annotation.PersistAsMap;
 import org.mongodb.morphia.logging.MorphiaLoggerFactory;
 import org.mongodb.morphia.mapping.MappedField;
-import org.osgl.bootstrap.Version;
+import osgl.version.Version;
 
 import java.util.Map;
 

@@ -31,7 +31,7 @@ import act.job.AppJobManager;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.osgl.http.H;
-import org.osgl.ut.TestBase;
+import osgl.ut.TestBase;
 
 import java.lang.reflect.Field;
 

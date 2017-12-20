@@ -43,10 +43,10 @@ import org.mongodb.morphia.mapping.Mapper;
 import org.mongodb.morphia.mapping.MapperOptions;
 import org.mongodb.morphia.query.MorphiaIterator;
 import org.osgl.$;
-import org.osgl.bootstrap.Version;
 import org.osgl.util.E;
 import org.osgl.util.S;
 import org.osgl.util.StringValueResolver;
+import osgl.version.Version;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
