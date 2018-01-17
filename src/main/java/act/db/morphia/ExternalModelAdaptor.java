@@ -21,10 +21,10 @@ package act.db.morphia;
  */
 
 import act.app.DbServiceManager;
-import act.app.event.AppEventId;
+import act.app.event.SysEventId;
 import act.db.DB;
 import act.db.DbService;
-import act.job.OnAppEvent;
+import act.job.OnSysEvent;
 import act.util.SimpleBean;
 import act.util.SubClassFinder;
 import org.mongodb.morphia.annotations.Entity;
@@ -119,7 +119,7 @@ public abstract class ExternalModelAdaptor<MODEL_TYPE> implements SimpleBean {
         }
     }
 
-    @OnAppEvent(AppEventId.POST_START)
+    @OnSysEvent(SysEventId.POST_START)
     static void applyAdaptorForDefaultService(DbServiceManager dbServiceManager) {
         if (adaptorRegistry.isEmpty()) {
             return;

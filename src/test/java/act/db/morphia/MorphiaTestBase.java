@@ -27,7 +27,7 @@ import act.app.ActionContext;
 import act.app.App;
 import act.app.data.StringValueResolverManager;
 import act.event.EventBus;
-import act.job.AppJobManager;
+import act.job.JobManager;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.osgl.http.H;
@@ -40,13 +40,13 @@ public abstract class MorphiaTestBase extends TestBase {
 
     protected App app;
     protected ActionContext actionContext;
-    protected AppJobManager jobManager;
+    protected JobManager jobManager;
     protected H.Session session;
     protected EventBus eventBus;
 
     @Before
     public void prepare() throws Exception {
-        jobManager = mock(AppJobManager.class);
+        jobManager = mock(JobManager.class);
         eventBus = mock(EventBus.class);
         app = mock(App.class);
         when(app.jobManager()).thenReturn(jobManager);

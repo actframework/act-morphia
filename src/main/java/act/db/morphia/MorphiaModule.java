@@ -20,10 +20,10 @@ package act.db.morphia;
  * #L%
  */
 
-import act.app.event.AppEventId;
+import act.app.event.SysEventId;
 import act.db.DB;
 import act.db.morphia.event.EntityMapped;
-import act.job.OnAppEvent;
+import act.job.OnSysEvent;
 import act.util.AnnotatedClassFinder;
 import org.mongodb.morphia.EntityInterceptor;
 import org.mongodb.morphia.annotations.Entity;
@@ -65,7 +65,7 @@ public class MorphiaModule {
         registerFieldNameMapping(clz);
     }
 
-    @OnAppEvent(AppEventId.PRE_START)
+    @OnSysEvent(SysEventId.PRE_START)
     @SuppressWarnings("unused")
     public void raiseMappedEvent() {
         for (MorphiaService service : MorphiaService.allMorphiaServices()) {

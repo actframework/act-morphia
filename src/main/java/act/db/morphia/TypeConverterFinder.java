@@ -21,7 +21,7 @@ package act.db.morphia;
  */
 
 import act.app.App;
-import act.app.event.AppEventId;
+import act.app.event.SysEventId;
 import act.util.SubTypeFinder;
 import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.converters.TypeConverter;
@@ -40,7 +40,7 @@ public class TypeConverterFinder extends SubTypeFinder<TypeConverter> {
         if (target.getName().startsWith(SYS_CONVERTER_PKG)) {
             return;
         }
-        app.jobManager().on(AppEventId.DEPENDENCY_INJECTOR_PROVISIONED, new Runnable() {
+        app.jobManager().on(SysEventId.DEPENDENCY_INJECTOR_PROVISIONED, new Runnable() {
             @Override
             public void run() {
                 for (MorphiaService service : MorphiaService.allMorphiaServices()) {
