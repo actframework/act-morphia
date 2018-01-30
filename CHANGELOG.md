@@ -1,5 +1,8 @@
 # act-morphia CHANGE LOG
 
+1.4.0
+* Catch up to act-1.7.x
+
 1.3.0
 * Catchup to act-1.6.x
 

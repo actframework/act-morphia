@@ -28,9 +28,11 @@ import act.db.morphia.annotation.PersistAsMap;
 import org.mongodb.morphia.logging.MorphiaLoggerFactory;
 import org.mongodb.morphia.mapping.MappedField;
 import osgl.version.Version;
+import osgl.version.Versioned;
 
 import java.util.Map;
 
+@Versioned
 public class MorphiaPlugin extends DbPlugin {
 
     public static final Version VERSION = Version.of(MorphiaPlugin.class);
