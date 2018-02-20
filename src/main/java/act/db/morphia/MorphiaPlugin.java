@@ -21,16 +21,21 @@ package act.db.morphia;
  */
 
 import act.app.App;
+import act.app.event.SysEventId;
 import act.db.DbPlugin;
 import act.db.DbService;
 import act.db.morphia.annotation.PersistAsList;
 import act.db.morphia.annotation.PersistAsMap;
+import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.logging.MorphiaLoggerFactory;
 import org.mongodb.morphia.mapping.MappedField;
 import osgl.version.Version;
 import osgl.version.Versioned;
 
+import java.lang.annotation.Annotation;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 @Versioned
 public class MorphiaPlugin extends DbPlugin {
@@ -42,6 +47,26 @@ public class MorphiaPlugin extends DbPlugin {
      * db service ID configuration
      */
     public static final String CONF_KEY_SEQ_SVC_ID = "act_morphia_seqgen_svc_id";
+
+    @Override
+    protected void applyTo(final App app) {
+        super.applyTo(app);
+        app.jobManager().on(SysEventId.PRE_START, new Runnable() {
+            @Override
+            public void run() {
+                MorphiaService.MorphiaServiceProvider provider = app.getInstance(MorphiaService.MorphiaServiceProvider.class);
+                app.injector().registerProvider(MorphiaService.class, provider);
+                app.injector().registerNamedProvider(MorphiaService.class, provider);
+            }
+        });
+    }
+
+    @Override
+    public Set<Class<? extends Annotation>> entityAnnotations() {
+        Set<Class<? extends Annotation>> annoTypes = new HashSet<>();
+        annoTypes.add(Entity.class);
+        return annoTypes;
+    }
 
     public MorphiaPlugin() {
         MorphiaLoggerFactory.reset();

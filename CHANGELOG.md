@@ -2,6 +2,7 @@
 
 1.4.0
 * Catch up to act-1.7.x
+* Support inject `Morphia` directly
 
 1.3.0
 * Catchup to act-1.6.x

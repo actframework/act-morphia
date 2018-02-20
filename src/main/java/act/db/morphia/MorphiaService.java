@@ -28,6 +28,7 @@ import act.db.Dao;
 import act.db.DbService;
 import act.db.morphia.util.FastJsonObjectIdCodec;
 import act.util.FastJsonIterableSerializer;
+import act.util.Stateless;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.mongodb.MongoClient;
@@ -43,6 +44,7 @@ import org.mongodb.morphia.mapping.Mapper;
 import org.mongodb.morphia.mapping.MapperOptions;
 import org.mongodb.morphia.query.MorphiaIterator;
 import org.osgl.$;
+import org.osgl.inject.NamedProvider;
 import org.osgl.util.E;
 import org.osgl.util.S;
 import org.osgl.util.StringValueResolver;
@@ -54,6 +56,8 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.inject.Inject;
+import javax.inject.Provider;
 
 public class MorphiaService extends DbService {
 
@@ -61,6 +65,24 @@ public class MorphiaService extends DbService {
 
     public static final String QUERY_SEP = "[,;:]+";
     public static final String GROUP_SEP = S.COMMON_SEP;
+
+    @Stateless
+    public static class MorphiaServiceProvider implements NamedProvider<MorphiaService>, Provider<MorphiaService> {
+
+        @Inject
+        private DbServiceManager dbServiceManager;
+
+        @Override
+        public MorphiaService get() {
+            return get(DB.DEFAULT);
+        }
+
+        @Override
+        public MorphiaService get(String name) {
+            return getService(name, dbServiceManager);
+        }
+    }
+
 
     // the morphia instance - keep track of class mapping
     private Morphia morphia;

@@ -30,13 +30,13 @@
   <parent>
     <groupId>org.actframework</groupId>
     <artifactId>parent</artifactId>
-    <version>1.7.0-SNAPSHOT</version>
+    <version>1.7.0</version>
   </parent>
 
   <properties>
     <scm.url>git@github.com:actframework/act-morphia.git</scm.url>
 
-    <fongo.version>2.1.0</fongo.version>
+    <fongo.version>2.1.1</fongo.version>
     <morphia.version>1.3.2</morphia.version>
 
     <act-test.version>0.9.0-BETA-1</act-test.version>
