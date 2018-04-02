@@ -1,6 +1,9 @@
 # act-morphia CHANGE LOG
 
 1.4.2
+* update act to 1.8.5
+
+1.4.1
 * update act to 1.8.2
 * update fongo to 2.2.0-RC1
 
