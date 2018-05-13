@@ -1,5 +1,10 @@
 # act-morphia CHANGE LOG
 
+1.5.0
+* Register Type converter between ObjectId and String
+* update to act-1.8.8-RC4
+* add copy,deepCopy,merge and map method to MorphiaBaseModel
+
 1.4.2
 * update act to 1.8.5
 

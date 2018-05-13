@@ -26,9 +26,12 @@ import act.db.DbPlugin;
 import act.db.DbService;
 import act.db.morphia.annotation.PersistAsList;
 import act.db.morphia.annotation.PersistAsMap;
+import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.logging.MorphiaLoggerFactory;
 import org.mongodb.morphia.mapping.MappedField;
+import org.osgl.$;
+import org.osgl.util.converter.TypeConverterRegistry;
 import osgl.version.Version;
 import osgl.version.Versioned;
 
@@ -73,6 +76,18 @@ public class MorphiaPlugin extends DbPlugin {
         MorphiaLoggerFactory.registerLogger(ActMorphiaLogger.Factory.class);
         MappedField.addInterestingAnnotation(PersistAsList.class);
         MappedField.addInterestingAnnotation(PersistAsMap.class);
+        TypeConverterRegistry.INSTANCE.register(new $.TypeConverter<ObjectId, String>() {
+            @Override
+            public String convert(ObjectId o) {
+                return o.toHexString();
+            }
+        }).register(new $.TypeConverter<String, ObjectId>() {
+            @Override
+            public ObjectId convert(String s) {
+                return new ObjectId(s);
+            }
+        })
+        ;
     }
 
     public DbService initDbService(String id, App app, Map<String, String> conf) {

@@ -27,6 +27,7 @@ import act.inject.param.NoBind;
 import org.joda.time.DateTime;
 import org.mongodb.morphia.annotations.Indexed;
 import org.mongodb.morphia.annotations.Version;
+import org.osgl.$;
 import org.osgl.util.S;
 
 @NoBind
@@ -103,4 +104,52 @@ public abstract class MorphiaModelBase<ID_TYPE, MODEL_TYPE extends MorphiaModelB
         return null == _modified ? -1L : _modified.getMillis();
     }
 
+    /**
+     * Returns a copy stage with `rootClass` specified as `MorphiaModelBase`.
+     *
+     * @param model
+     *      the model to be copied
+     * @return
+     *      a mapping stage with copy semantic
+     */
+    public static $._MappingStage copy(MorphiaModelBase model) {
+        return $.copy(model).rootClass(MorphiaModelBase.class);
+    }
+
+    /**
+     * Returns a copy stage with `rootClass` specified as `MorphiaModelBase`.
+     *
+     * @param model
+     *      the model to be copied
+     * @return
+     *      a mapping stage with deep copy semantic
+     */
+    public static $._MappingStage deepCopy(MorphiaModelBase model) {
+        return $.deepCopy(model).rootClass(MorphiaModelBase.class);
+    }
+
+    /**
+     * Returns a merge stage with `rootClass` specified as `MorphiaModelBase`.
+     *
+     * @param model
+     *      the model to be copied
+     * @return
+     *      a mapping stage with merge semantic
+     */
+    public static $._MappingStage merge(MorphiaModelBase model) {
+        return $.merge(model).rootClass(MorphiaModelBase.class);
+    }
+
+
+    /**
+     * Returns a mapping stage with `rootClass` specified as `MorphiaModelBase`.
+     *
+     * @param model
+     *      the model to be copied
+     * @return
+     *      a mapping stage with mapping semantic
+     */
+    public static $._MappingStage map(MorphiaModelBase model) {
+        return $.map(model).rootClass(MorphiaModelBase.class);
+    }
 }
