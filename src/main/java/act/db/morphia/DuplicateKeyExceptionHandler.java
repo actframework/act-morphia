@@ -44,6 +44,11 @@ public class DuplicateKeyExceptionHandler extends ExceptionInterceptor {
     }
 
     @Override
+    public boolean skipEvents() {
+        return true;
+    }
+
+    @Override
     public boolean express() {
         return true;
     }
