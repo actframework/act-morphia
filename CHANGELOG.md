@@ -1,5 +1,8 @@
 # act-morphia CHANGE LOG
 
+1.5.2 10/Jun/2018
+* update act to 1.8.8-RC9
+
 1.5.1 19/May/2018
 * update act to 1.8.8-RC5
 
