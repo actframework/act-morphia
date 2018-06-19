@@ -1,5 +1,9 @@
 # act-morphia CHANGE LOG
 
+1.6.0 19/Jun/2018
+* update act to 1.8.8-RC10
+* Support act-aaa easy integration model #19
+
 1.5.2 10/Jun/2018
 * update act to 1.8.8-RC9
 
