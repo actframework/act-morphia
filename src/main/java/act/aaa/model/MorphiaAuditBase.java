@@ -20,40 +20,19 @@ package act.aaa.model;
  * #L%
  */
 
-import act.db.Model;
-import act.db.morphia.MorphiaAdaptiveRecord;
-import org.osgl.aaa.Auditor;
+import org.bson.types.ObjectId;
+import org.mongodb.morphia.annotations.Id;
 import org.osgl.aaa.Principal;
-import org.osgl.util.S;
 
-public abstract class MorphiaAuditBase<T extends MorphiaAuditBase> extends MorphiaAdaptiveRecord<T> {
+public abstract class MorphiaAuditBase extends AuditBase {
 
-    public String message;
-    public String target;
-    public String principal;
-    public String privilege;
-    public boolean success;
-    public String permission;
+    @Id
+    public ObjectId id;
 
     public MorphiaAuditBase() {}
 
     public MorphiaAuditBase(Object aTarget, Principal aPrincipal, String aPermission, String aPrivilege, boolean theSuccess, String aMessage) {
-        this.message = aMessage;
-        this.target = targetStr(aTarget);
-        this.principal = aPrincipal.getName();
-        this.permission = aPermission;
-        this.privilege = aPrivilege;
-        this.success = theSuccess;
-    }
-
-    private String targetStr(Object target) {
-        if (target instanceof Auditor.Target) {
-            return ((Auditor.Target) target).auditTag();
-        } else if (target instanceof Model) {
-            return S.concat(target.getClass().getSimpleName(), "[", S.string(((Model) target)._id()), "]");
-        } else {
-            return S.string(target);
-        }
+        super(aTarget, aPrincipal, aPermission, aPrivilege, theSuccess, aMessage);
     }
 
 }

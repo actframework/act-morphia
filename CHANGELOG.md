@@ -1,5 +1,9 @@
 # act-morphia CHANGE LOG
 
+1.6.1 20/Jun/2018
+* `MorphiaAuditBase` shall extends from `AuditBase` #21
+* `MorphiaUserBase` - need a `setPassword(String)` method #20
+
 1.6.0 19/Jun/2018
 * update act to 1.8.8-RC10
 * Support act-aaa easy integration model #19

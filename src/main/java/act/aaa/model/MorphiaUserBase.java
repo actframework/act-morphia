@@ -26,6 +26,7 @@ import act.aaa.util.AAALookup;
 import act.aaa.util.PrivilegeCache;
 import act.db.morphia.MorphiaAdaptiveRecord;
 import act.validation.Password;
+import org.osgl.$;
 import org.osgl.aaa.Permission;
 import org.osgl.aaa.Principal;
 import org.osgl.aaa.Privilege;
@@ -49,6 +50,11 @@ public class MorphiaUserBase<T extends MorphiaUserBase> extends MorphiaAdaptiveR
 
     @Password
     private char[] password;
+
+    public void setPassword(char[] password) {
+        this.password = Act.crypto().passwordHash(password);
+        $.resetArray(password);
+    }
 
     @PasswordVerifier
     public boolean verifyPassword(char[] password) {
