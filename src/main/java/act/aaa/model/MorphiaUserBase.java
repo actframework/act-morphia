@@ -24,6 +24,8 @@ import act.Act;
 import act.aaa.PasswordVerifier;
 import act.aaa.util.AAALookup;
 import act.aaa.util.PrivilegeCache;
+import act.apidoc.SampleData;
+import act.apidoc.SampleDataCategory;
 import act.db.morphia.MorphiaAdaptiveRecord;
 import act.validation.Password;
 import org.osgl.$;
@@ -37,15 +39,18 @@ import java.util.List;
 import java.util.Set;
 import javax.validation.constraints.NotNull;
 
-public class MorphiaUserBase<T extends MorphiaUserBase> extends MorphiaAdaptiveRecord<T> implements Principal, UserLinked {
+public abstract class MorphiaUserBase<T extends MorphiaUserBase> extends MorphiaAdaptiveRecord<T> implements Principal, UserLinked {
 
     @NotNull
     public String email;
 
+    @SampleData.Category(SampleDataCategory.PRIVILEGE)
     public int privilege;
 
+    @SampleData.Category(SampleDataCategory.PERMISSIONS)
     public String permissions;
 
+    @SampleData.Category(SampleDataCategory.ROLES)
     public String roles;
 
     @Password

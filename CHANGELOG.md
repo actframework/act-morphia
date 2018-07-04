@@ -1,5 +1,9 @@
 # act-morphia CHANGE LOG
 
+1.6.2
+* Update `MorphiaUserBase` - catch up `UserBase` changes in act-aaa-plugin #23
+* Add sample data provider for ObjectId #22   
+
 1.6.1 20/Jun/2018
 * `MorphiaAuditBase` shall extends from `AuditBase` #21
 * `MorphiaUserBase` - need a `setPassword(String)` method #20

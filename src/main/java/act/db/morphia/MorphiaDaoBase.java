@@ -94,12 +94,12 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
     }
 
     void ds(Datastore ds) {
-        this.ds = $.notNull(ds);
+        this.ds = $.requireNotNull(ds);
         this.defQuery = new MorphiaQuery<>(this);
     }
 
     public void modelType(Class<MODEL_TYPE> modelType) {
-        this.modelType = $.notNull(modelType);
+        this.modelType = $.requireNotNull(modelType);
     }
 
     public Datastore ds() {
