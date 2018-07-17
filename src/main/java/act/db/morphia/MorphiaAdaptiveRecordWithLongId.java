@@ -22,10 +22,11 @@ package act.db.morphia;
 
 import act.db.AdaptiveRecord;
 import act.inject.param.NoBind;
+import act.util.EnhancedAdaptiveMap;
 import com.alibaba.fastjson.JSONObject;
 import org.mongodb.morphia.annotations.Transient;
-import org.osgl.Osgl;
-import org.osgl.inject.BeanSpec;
+import org.osgl.Lang;
+import org.osgl.util.BeanInfo;
 
 import java.util.Map;
 import java.util.Set;
@@ -40,7 +41,7 @@ public abstract class MorphiaAdaptiveRecordWithLongId<MODEL_TYPE extends Morphia
     private JSONObject kv = new JSONObject();
 
     @Transient
-    private transient volatile AdaptiveRecord.MetaInfo metaInfo;
+    private transient volatile EnhancedAdaptiveMap.MetaInfo metaInfo;
 
     @Override
     public Map<String, Object> internalMap() {
@@ -103,7 +104,7 @@ public abstract class MorphiaAdaptiveRecordWithLongId<MODEL_TYPE extends Morphia
     }
 
     @Override
-    public Set<Map.Entry<String, Object>> entrySet(Osgl.Function<BeanSpec, Boolean> function) {
+    public Set<Map.Entry<String, Object>> entrySet(Lang.Function<BeanInfo, Boolean> function) {
         return Util.entrySet(this, function);
     }
 
@@ -113,7 +114,7 @@ public abstract class MorphiaAdaptiveRecordWithLongId<MODEL_TYPE extends Morphia
 
     @Override
     @java.beans.Transient
-    public AdaptiveRecord.MetaInfo metaInfo() {
+    public EnhancedAdaptiveMap.MetaInfo metaInfo() {
         if (null == metaInfo) {
             synchronized (this) {
                 if (null == metaInfo) {

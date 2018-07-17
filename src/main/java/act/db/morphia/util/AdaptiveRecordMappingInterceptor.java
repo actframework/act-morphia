@@ -21,6 +21,7 @@ package act.db.morphia.util;
  */
 
 import act.db.AdaptiveRecord;
+import act.util.EnhancedAdaptiveMap;
 import com.alibaba.fastjson.JSONObject;
 import com.mongodb.DBObject;
 import org.mongodb.morphia.AbstractEntityInterceptor;
@@ -34,8 +35,6 @@ import org.osgl.util.C;
 import org.osgl.util.S;
 import org.osgl.util.ValueObject;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.List;
@@ -43,6 +42,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 @Singleton
 public class AdaptiveRecordMappingInterceptor extends AbstractEntityInterceptor {
@@ -77,7 +78,7 @@ public class AdaptiveRecordMappingInterceptor extends AbstractEntityInterceptor 
         if (AdaptiveRecord.class.isAssignableFrom(c)) {
             AdaptiveRecord ar = $.cast(ent);
             final Map<String, Object> kv = ar.internalMap();
-            final AdaptiveRecord.MetaInfo metaInfo = ar.metaInfo();
+            final EnhancedAdaptiveMap.MetaInfo metaInfo = ar.metaInfo();
             new IterHelper<>().loopMap(dbObj, new IterHelper.MapIterCallback<Object, Object>() {
                 @Override
                 public void eval(final Object k, final Object val) {
