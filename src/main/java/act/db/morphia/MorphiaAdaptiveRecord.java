@@ -45,9 +45,13 @@ public abstract class MorphiaAdaptiveRecord<MODEL_TYPE extends MorphiaAdaptiveRe
     private transient volatile EnhancedAdaptiveMap.MetaInfo metaInfo;
 
     @Override
-    public Map<String, Object> internalMap() {
+    public synchronized Map<String, Object> internalMap() {
+        if (null == kv) {
+            kv = new JSONObject();
+        }
         return kv;
     }
+
 
     // --- implement KV
     @Override
