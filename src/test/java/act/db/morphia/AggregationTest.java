@@ -42,6 +42,7 @@ public class AggregationTest extends MorphiaDaoTestBase<Order> {
     @Override
     protected void postPrepareData() {
         MorphiaService service = MorphiaService.getService(entityClass());
+        service.init(app, C.<String, String>Map());
         Map<String, String> mapping = C.Map("department", "dep", "region", "reg");
         service.registerFieldNameMapping(entityClass(), mapping);
     }

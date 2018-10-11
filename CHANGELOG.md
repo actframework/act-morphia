@@ -1,6 +1,7 @@
 # act-morphia CHANGE LOG
 
 1.6.2
+* Make MorphiaService initialization process be async #25
 * Catch up `AdaptiveRecord` updates in Act #24
 * Update `MorphiaUserBase` - catch up `UserBase` changes in act-aaa-plugin #23
 * Add sample data provider for ObjectId #22   

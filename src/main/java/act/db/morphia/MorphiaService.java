@@ -23,39 +23,31 @@ package act.db.morphia;
 import act.Act;
 import act.app.App;
 import act.app.DbServiceManager;
+import act.app.event.SysEventId;
 import act.db.DB;
-import act.db.Dao;
-import act.db.DbService;
+import act.db.*;
 import act.db.morphia.util.FastJsonObjectIdCodec;
 import act.util.FastJsonIterableSerializer;
 import act.util.Stateless;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializeConfig;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
-import com.mongodb.MongoInterruptedException;
+import com.mongodb.*;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
-import org.mongodb.morphia.mapping.DefaultCreator;
-import org.mongodb.morphia.mapping.Mapper;
-import org.mongodb.morphia.mapping.MapperOptions;
+import org.mongodb.morphia.mapping.*;
 import org.mongodb.morphia.query.MorphiaIterator;
 import org.osgl.$;
 import org.osgl.inject.NamedProvider;
-import org.osgl.util.E;
-import org.osgl.util.S;
-import org.osgl.util.StringValueResolver;
+import org.osgl.util.*;
 import osgl.version.Version;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
@@ -96,8 +88,27 @@ public class MorphiaService extends DbService {
      */
     private Map<Class, Map<String, String>> fieldNameLookup;
 
-    public MorphiaService(String id, final App app, Map<String, String> conf) {
+    public MorphiaService(String id, final App app, final Map<String, String> conf) {
         super(id, app);
+        final Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                init(app, conf);
+            }
+        };
+        if (Act.isDev()) {
+            app.jobManager().alongWith(SysEventId.DEPENDENCY_INJECTOR_LOADED, "MorphiaService:init", runnable);
+        } else {
+            app.jobManager().post(SysEventId.DEPENDENCY_INJECTOR_LOADED, "MorphiaService:init", runnable);
+        }
+    }
+
+    @Override
+    public boolean initAsynchronously() {
+        return Act.isDev();
+    }
+
+    void init(final App app, Map<String, String> conf) {
         morphia = new Morphia();
         MapperOptions options = morphia.getMapper().getOptions();
         options.setObjectFactory(new DefaultCreator(){
@@ -119,6 +130,7 @@ public class MorphiaService extends DbService {
             }
         });
         initialized = true;
+        app.eventBus().emit(new DbServiceInitialized(this));
     }
 
     @Override
@@ -197,7 +209,7 @@ public class MorphiaService extends DbService {
     }
 
     private void delayedEnsureIndexesAndCaps(App app) {
-        app.jobManager().beforeAppStart(new Runnable() {
+        app.jobManager().on(SysEventId.START, "MorphiaService:ensureIndexesAndCaps", new Runnable() {
             @Override
             public void run() {
                 try {
@@ -214,7 +226,7 @@ public class MorphiaService extends DbService {
     }
 
     private void delayedMapExternalModels(App app) {
-        app.jobManager().beforeAppStart(new Runnable() {
+        app.jobManager().on(SysEventId.START, "MorphiaService:mapExternalModels", new Runnable() {
             @Override
             public void run() {
                 mapExternalModels();
