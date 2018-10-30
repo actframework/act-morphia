@@ -27,25 +27,20 @@ import act.app.App;
 import act.db.*;
 import act.db.morphia.util.AggregationResult;
 import act.event.EventBus;
-import act.inject.param.NoBind;
 import act.util.General;
+import act.util.Stateless;
 import com.mongodb.DBCollection;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.aggregation.AggregationPipeline;
 import org.mongodb.morphia.aggregation.Group;
 import org.mongodb.morphia.query.UpdateOperations;
 import org.osgl.$;
-import org.osgl.util.C;
-import org.osgl.util.E;
-import org.osgl.util.KVStore;
+import org.osgl.util.*;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @General
-@NoBind
+@Stateless
 public class
 MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         extends DaoBase<ID_TYPE, MODEL_TYPE, MorphiaQuery<MODEL_TYPE>> {
