@@ -1,5 +1,8 @@
 # act-morphia CHANGE LOG
 
+1.6.3
+* Revert changes that makes `JPADao` be `@Stateless` #26
+
 1.6.2 30/Oct/2018
 * update act to 1.8.8
 * Make MorphiaDao be stateless

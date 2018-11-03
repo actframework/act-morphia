@@ -40,15 +40,14 @@ import org.osgl.util.*;
 import java.util.*;
 
 @General
-@Stateless
 public class
 MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         extends DaoBase<ID_TYPE, MODEL_TYPE, MorphiaQuery<MODEL_TYPE>> {
 
-    private volatile Datastore ds;
-    private App app;
-    private MorphiaQuery<MODEL_TYPE> defQuery;
-    private boolean isAdaptive;
+    @Stateless private volatile Datastore ds;
+    @Stateless private App app;
+    @Stateless private MorphiaQuery<MODEL_TYPE> defQuery;
+    @Stateless private boolean isAdaptive;
 
     protected MorphiaDaoBase() {
         this.app = App.instance();

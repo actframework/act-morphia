@@ -21,7 +21,6 @@ package act.db.morphia;
  */
 
 import act.util.General;
-import act.util.Stateless;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
 
@@ -29,7 +28,6 @@ import org.mongodb.morphia.Datastore;
  * The morphia dao base implementation use {@link org.bson.types.ObjectId} as the ID type
  */
 @General
-@Stateless
 public class MorphiaDao<MODEL_TYPE>
         extends MorphiaDaoBase<ObjectId, MODEL_TYPE> {
 
