@@ -96,7 +96,7 @@ public class MorphiaService extends DbService {
                 init(app, conf);
             }
         };
-        if (Act.isDev()) {
+        if (app.isDev()) {
             app.jobManager().alongWith(SysEventId.DEPENDENCY_INJECTOR_LOADED, "MorphiaService:init", runnable);
         } else {
             app.jobManager().post(SysEventId.DEPENDENCY_INJECTOR_LOADED, "MorphiaService:init", runnable);
@@ -105,7 +105,7 @@ public class MorphiaService extends DbService {
 
     @Override
     public boolean initAsynchronously() {
-        return Act.isDev();
+        return true;
     }
 
     void init(final App app, Map<String, String> conf) {
@@ -130,7 +130,13 @@ public class MorphiaService extends DbService {
             }
         });
         initialized = true;
-        app.eventBus().emit(new DbServiceInitialized(this));
+        final MorphiaService me = this;
+        app.jobManager().post(SysEventId.SINGLETON_PROVISIONED, new Runnable() {
+            @Override
+            public void run() {
+                app.eventBus().emit(new DbServiceInitialized(me));
+            }
+        }, true);
     }
 
     @Override
