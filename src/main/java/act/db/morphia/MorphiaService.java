@@ -147,7 +147,10 @@ public class MorphiaService extends DbService {
     @Override
     protected void releaseResources() {
         ClientManager.release(this);
-        fieldNameLookup.clear();
+        if (null != fieldNameLookup) {
+            fieldNameLookup.clear();
+            fieldNameLookup = null;
+        }
         morphia = null;
         if (logger.isDebugEnabled()) {
             logger.debug("Morphia shutdown: %s", id());
