@@ -1,6 +1,10 @@
 # act-morphia CHANGE LOG
 
-1.6.3
+1.6.4 20/Nov/2018
+* update act to 1.8.12
+* NPE during app hot reload
+
+1.6.3 04/Nov/2018
 * Revert changes that makes `JPADao` be `@Stateless` #26
 
 1.6.2 30/Oct/2018
