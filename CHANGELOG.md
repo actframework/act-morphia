@@ -1,5 +1,9 @@
 # act-morphia CHANGE LOG
 
+1.6.5
+* update act to 1.8.16
+* @CreatedAt and @LastModifiedAt not support in morphia #28
+
 1.6.4 20/Nov/2018
 * update act to 1.8.12
 * NPE during app hot reload

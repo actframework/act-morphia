@@ -26,6 +26,7 @@ import act.Act;
 import act.app.App;
 import act.db.*;
 import act.db.morphia.util.AggregationResult;
+import act.db.util.AuditHelper;
 import act.event.EventBus;
 import act.util.General;
 import act.util.Stateless;
@@ -33,10 +34,12 @@ import com.mongodb.DBCollection;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.aggregation.AggregationPipeline;
 import org.mongodb.morphia.aggregation.Group;
+import org.mongodb.morphia.annotations.Id;
 import org.mongodb.morphia.query.UpdateOperations;
 import org.osgl.$;
 import org.osgl.util.*;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 @General
@@ -48,15 +51,15 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
     @Stateless private App app;
     @Stateless private MorphiaQuery<MODEL_TYPE> defQuery;
     @Stateless private boolean isAdaptive;
+    @Stateless private AuditHelper auditHelper;
+    @Stateless private Field idField;
 
     protected MorphiaDaoBase() {
-        this.app = App.instance();
-        probeAdaptive();
+        _init(null);
     }
 
     MorphiaDaoBase(Datastore ds) {
-        this.app = App.instance();
-        this.ds(ds);
+        _init(ds);
         probeAdaptive();
     }
 
@@ -64,19 +67,36 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         //TODO infer the ID_TYPE form model type by checking @Id annotation
         super(idType, modelType);
         E.NPE(modelType, ds);
-        this.ds(ds);
-        this.app = App.instance();
-        probeAdaptive();
+        _init(ds);
     }
 
     protected MorphiaDaoBase(Class<ID_TYPE> idType, Class<MODEL_TYPE> modelType) {
         super(idType, modelType);
+        _init(null);
+    }
+
+    private void _init(Datastore ds) {
         this.app = App.instance();
+        if (null != ds) {
+            this.ds(ds);
+        }
+        this.auditHelper = app.getInstance(AuditHelper.class);
         probeAdaptive();
+        probeIdField();
     }
 
     private void probeAdaptive() {
         this.isAdaptive = AdaptiveRecord.class.isAssignableFrom(this.modelType());
+    }
+
+    private void probeIdField() {
+        List<Field> fields = $.fieldsOf(modelClass);
+        for (Field field : fields) {
+            if (field.isAnnotationPresent(Id.class)) {
+                idField = field;
+                break;
+            }
+        }
     }
 
     protected App app() {
@@ -226,15 +246,26 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
     @Override
     @SuppressWarnings("unchecked")
     public MODEL_TYPE save(MODEL_TYPE entity) {
+        boolean isNew = false;
         if (entity instanceof TimeTrackingModel && entity instanceof Model) {
+            isNew = ((Model) entity)._isNew();
             TimeTrackingModel ttm = $.cast(entity);
             TimestampGenerator tsg = Act.dbManager().timestampGenerator(ttm._timestampType());
             if (null != tsg) {
                 Object now = tsg.now();
-                if (((Model) entity)._isNew()) {
+                if (isNew) {
                     ttm._created(now);
                 }
                 ttm._lastModified(now);
+            }
+        } else {
+            isNew = null == $.getFieldValue(entity, idField);
+        }
+        if (null != auditHelper) {
+            if (isNew) {
+                auditHelper.prePersist(entity);
+            } else {
+                auditHelper.preUpdate(entity);
             }
         }
         ds().save(entity);
