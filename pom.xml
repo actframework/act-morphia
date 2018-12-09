@@ -20,7 +20,7 @@
 
   <artifactId>act-morphia</artifactId>
   <packaging>jar</packaging>
-  <version>1.6.5-SNAPSHOT</version>
+  <version>1.6.5</version>
 
   <name>ACT Morphia</name>
   <description>The Morphia Plugin for Actframework MongoDB access</description>
