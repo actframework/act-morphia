@@ -31,14 +31,14 @@ import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.logging.MorphiaLoggerFactory;
 import org.mongodb.morphia.mapping.MappedField;
 import org.osgl.$;
+import org.osgl.OsglConfig;
+import org.osgl.util.C;
 import org.osgl.util.converter.TypeConverterRegistry;
 import osgl.version.Version;
 import osgl.version.Versioned;
 
 import java.lang.annotation.Annotation;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Versioned
 public class MorphiaPlugin extends DbPlugin {
@@ -72,6 +72,7 @@ public class MorphiaPlugin extends DbPlugin {
     }
 
     public MorphiaPlugin() {
+        OsglConfig.registerImmutableClassNames(C.list(ObjectId.class.getName()));
         MorphiaLoggerFactory.reset();
         MorphiaLoggerFactory.registerLogger(ActMorphiaLogger.Factory.class);
         MappedField.addInterestingAnnotation(PersistAsList.class);
