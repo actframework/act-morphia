@@ -96,7 +96,8 @@ public class MorphiaService extends DbService {
                 init(app, conf);
             }
         };
-        if (app.isDev()) {
+        if (/*app.isDev()*/false) {
+            // never go this - it breaks the Singleton Registration because of MorphiaDaoInjectionListener
             app.jobManager().alongWith(SysEventId.DEPENDENCY_INJECTOR_LOADED, "MorphiaService:init", runnable);
         } else {
             app.jobManager().post(SysEventId.DEPENDENCY_INJECTOR_LOADED, "MorphiaService:init", runnable);

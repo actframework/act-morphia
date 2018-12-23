@@ -1,5 +1,8 @@
 # act-morphia CHANGE LOG
 
+1.6.6
+* @CreatedAt @LastModifiedAt @CreatedBy @LastModifiedBy not support in morphia #30
+
 1.6.5 09/Dec/2018
 * update act to 1.8.16
 * @CreatedAt and @LastModifiedAt not support in morphia #28

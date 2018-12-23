@@ -23,6 +23,7 @@ package act.db.morphia;
 import act.app.App;
 import act.db.DbService;
 import act.db.di.DaoInjectionListenerBase;
+import org.mongodb.morphia.Datastore;
 import org.osgl.$;
 import org.osgl.inject.BeanSpec;
 import org.osgl.util.Generics;
@@ -53,6 +54,7 @@ public class MorphiaDaoInjectionListener extends DaoInjectionListenerBase {
         if (dbService instanceof MorphiaService) {
             MorphiaService morphiaService = $.cast(dbService);
             MorphiaDaoBase dao = $.cast(bean);
+            Datastore ds = morphiaService.ds();
             dao.ds(morphiaService.ds());
             dao.modelType(resolved._1);
         }
