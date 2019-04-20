@@ -2,7 +2,7 @@ package act.db.morphia;
 
 /*-
  * #%L
- * ACT JPA Common Module
+ * ACT Morphia Module
  * %%
  * Copyright (C) 2018 ActFramework
  * %%
