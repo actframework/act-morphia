@@ -1,0 +1,41 @@
+Scenario(30):
+  description: "`@Data` enhancement error when Model class has no fields"
+  urlContext: 30
+  interactions:
+    - description: create new record
+      request:
+        method: post
+        params:
+          name: abc
+          user: a
+      response:
+        json:
+          name: abc
+          created:
+            - exists: true
+          updated:
+            - exists: true
+          creator: a
+          updator: a
+      cache:
+        id: id
+        created: created
+    - description: update record
+      preActions:
+        - pause: 1000 # pause for 1s so we can test the last modified time is different than the created time
+      request:
+        put: ${id}
+        params:
+          name: xyz
+          user: b
+      response:
+        json:
+          name: xyz
+          created:
+            - exists: true
+            - eq: ${created}
+          updated:
+            - exists: true
+            - neq: ${created}
+          creator: a
+          updator: b
