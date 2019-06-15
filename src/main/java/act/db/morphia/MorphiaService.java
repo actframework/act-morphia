@@ -153,8 +153,8 @@ public class MorphiaService extends DbService {
             fieldNameLookup = null;
         }
         morphia = null;
-        if (logger.isDebugEnabled()) {
-            logger.debug("Morphia shutdown: %s", id());
+        if (isDebugEnabled()) {
+            debug("Morphia shutdown: %s", id());
         }
     }
 

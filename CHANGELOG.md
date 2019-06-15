@@ -1,5 +1,9 @@
 # act-morphia CHANGE LOG
 
+1.7.0
+
+* Improve aggregation API #32
+
 1.6.7 20/Apr/2019
 * update to act 1.8.20
 * update act-aaa to 1.5.5

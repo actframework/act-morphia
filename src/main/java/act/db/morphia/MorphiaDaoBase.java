@@ -26,6 +26,8 @@ import act.Act;
 import act.app.App;
 import act.db.*;
 import act.db.morphia.util.AggregationResult;
+import act.db.morphia.util.DoubleResult;
+import act.db.morphia.util.LongResult;
 import act.db.util.AuditHelper;
 import act.event.EventBus;
 import act.util.General;
@@ -400,39 +402,104 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         return defQuery.groupBy(groupKeys);
     }
 
-    public AggregationResult groupMax(String field, String... groupKeys) {
+    public DoubleResult groupMax(String field, String... groupKeys) {
         return defQuery.groupMax(field, groupKeys);
     }
 
-    public Long max(String maxField) {
+    public AggregationResult<Integer> intGroupMax(String field, String... groupKeys) {
+        return defQuery.intGroupMax(field, groupKeys);
+    }
+
+    public AggregationResult<Long> longGroupMax(String field, String... groupKeys) {
+        return defQuery.longGroupMax(field, groupKeys);
+    }
+
+    public Double max(String maxField) {
         return groupMax(maxField).getDefault();
     }
 
-    public AggregationResult groupMin(String field, String... groupKeys) {
+    public Integer intMax(String field) {
+        return intGroupMax(field).getDefault();
+    }
+
+    public Long longMax(String field) {
+        return longGroupMax(field).getDefault();
+    }
+
+    public DoubleResult groupMin(String field, String... groupKeys) {
         return defQuery.groupMin(field, groupKeys);
     }
 
-    public Long min(String minField) {
+    public AggregationResult<Integer> intGroupMin(String field, String... groupKeys) {
+        return defQuery.intGroupMin(field, groupKeys);
+    }
+
+    public AggregationResult<Long> longGroupMin(String field, String... groupKeys) {
+        return defQuery.longGroupMin(field, groupKeys);
+    }
+
+    public Double min(String minField) {
         return groupMin(minField).getDefault();
     }
 
-    public AggregationResult groupAverage(String field, String... groupKeys) {
+    public Integer intMin(String field) {
+        return intGroupMin(field).getDefault();
+    }
+
+    public Long longMin(String field) {
+        return longGroupMin(field).getDefault();
+    }
+
+    public DoubleResult groupAverage(String field, String... groupKeys) {
         return defQuery.groupAverage(field, groupKeys);
     }
 
-    public Long average(String field) {
+    public AggregationResult<Integer> intGroupAverage(String field, String... groupKeys) {
+        return defQuery.intGroupAverage(field, groupKeys);
+    }
+
+    public AggregationResult<Long> longGroupAverage(String field, String... groupKeys) {
+        return defQuery.longGroupAverage(field, groupKeys);
+    }
+
+    public Double average(String field) {
         return groupAverage(field).getDefault();
     }
 
-    public AggregationResult groupSum(String field, String... groupKeys) {
+    public Integer intAverage(String field) {
+        return intGroupAverage(field).getDefault();
+    }
+
+    public Long longAverage(String field) {
+        return longGroupAverage(field).getDefault();
+    }
+
+
+    public DoubleResult groupSum(String field, String... groupKeys) {
         return defQuery.groupSum(field, groupKeys);
     }
 
-    public Long sum(String field) {
-        return groupSum(field).getDefault();
+    public AggregationResult<Integer> intGroupSum(String field, String... groupKeys) {
+        return defQuery.intGroupSum(field, groupKeys);
     }
 
-    public AggregationResult groupCount(String... groupKeys) {
+    public AggregationResult<Long> longGroupSum(String field, String... groupKeys) {
+        return defQuery.longGroupSum(field, groupKeys);
+    }
+
+    public Double sum(String field) {
+        return groupSum(field).getDefault();
+    }
+    
+    public Integer intSum(String field) {
+        return intGroupSum(field).getDefault();
+    }
+
+    public Long longSum(String field) {
+        return longGroupSum(field).getDefault();
+    }
+
+    public LongResult groupCount(String... groupKeys) {
         return defQuery.groupCount(groupKeys);
     }
 

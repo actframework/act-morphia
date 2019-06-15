@@ -22,29 +22,76 @@ package act.db.morphia.util;
 
 
 import act.db.morphia.MorphiaService;
+import com.alibaba.fastjson.JSON;
 import com.mongodb.BasicDBObject;
 import org.osgl.$;
+import org.osgl.util.E;
+import org.osgl.util.Generics;
+import org.osgl.util.N;
 import org.osgl.util.S;
 
+import java.lang.reflect.Type;
 import java.util.*;
 
-public class AggregationResult {
-    private List<BasicDBObject> result = null;
-    private Class<?> modelType = null;
-    private String field = null;
+import static org.osgl.util.N.Comparator.*;
+
+public abstract class AggregationResult<T extends Number> {
+    protected List<BasicDBObject> result;
+    protected Class<?> modelType;
+    protected String field;
+    protected Class<T> valueType;
+
+    private static final class ConvertResult<T extends Number> extends AggregationResult<T> {}
+
+    private AggregationResult() {}
 
     public AggregationResult(List<BasicDBObject> r, String aggregationField, Class<?> modelClass) {
         if (null == r || null == aggregationField) throw new NullPointerException();
         result = r;
         modelType = modelClass;
         field = aggregationField;
+        exploreValueType();
     }
 
-    public Long getDefault() {
-        return result.size() > 0 ? result.get(0).getLong(field) : null;
+    public <NT extends Number> AggregationResult<NT> as(Class<NT> newValueType) {
+        ConvertResult<NT> result = new ConvertResult<>();
+        result.result = this.result;
+        result.modelType = this.modelType;
+        result.field = this.field;
+        result.valueType = newValueType;
+        return result;
     }
 
-    public Long get(Object ... groupValues) {
+    public AggregationResult<Integer> asIntResult() {
+        return as(Integer.class);
+    }
+
+    public AggregationResult<Long> asLongResult() {
+        return as(Long.class);
+    }
+
+    public AggregationResult<Double> asDoubleResult() {
+        return as(Double.class);
+    }
+
+    public AggregationResult<Float> asFloatResult() {
+        return as(Float.class);
+    }
+
+    @Override
+    public String toString() {
+        return JSON.toJSONString(asMap(), true);
+    }
+
+    private T getValue(BasicDBObject dbObject) {
+        return $.convert(dbObject.get(field)).to(valueType);
+    }
+
+    public T getDefault() {
+        return result.size() > 0 ? getValue(result.get(0)) : null;
+    }
+
+    public T get(Object ... groupValues) {
         if (groupValues.length == 0) {
             return getDefault();
         }
@@ -61,23 +108,19 @@ public class AggregationResult {
                 }
             }
             if (found) {
-                return r.getLong(field);
+                return getValue(r);
             }
         }
         return null;
     }
 
-    public Long getByGroupKeys(String groupKeys, Object... groupValues) {
+    public T getByGroupKeys(String groupKeys, Object... groupValues) {
         if (S.empty(groupKeys)) {
             if (groupValues.length == 0) return getDefault();
             throw new IllegalArgumentException("the number of group keys does not match the number of group values");
         }
         String[] sa = groupKeys.split("[\\s,;:]+");
         if (sa.length != groupValues.length) throw new IllegalArgumentException("the number of group keys does not match the number of group values");
-        Set<String> mappedKeys = new HashSet<String>();
-        for (String key : sa) {
-            mappedKeys.add(mappedName(key));
-        }
         for (BasicDBObject r: result) {
             boolean found = true;
             for (int i = 0; i < sa.length; ++i) {
@@ -89,21 +132,27 @@ public class AggregationResult {
                     break;
                 }
             }
-            if (found) return r.getLong(this.field);
+            if (found) return getValue(r);
         }
         return null;
     }
 
-    public Map<String, Long> asNumberMap() {
-        Map<String, Long> m = new HashMap(result.size());
+    public Map<String, T> asMap() {
+        return asNumberMap();
+    }
+
+    /**
+     * This method is deprecated. Use {@link #asMap()} instead
+     */
+    @Deprecated
+    public Map<String, T> asNumberMap() {
+        Map<String, T> m = new HashMap<>(result.size());
         for (BasicDBObject r : result) {
             Collection<?> c = r.values();
             Iterator itr = c.iterator();
-            String k = itr.next().toString();
-            String s = itr.next().toString();
-            float f = Float.parseFloat(s);
-            long l = (long)f;
-            m.put(k, l);
+            String k = S.string(itr.next());
+            Number n = (Number) itr.next();
+            m.put(k, $.convert(n).to(valueType));
         }
         return m;
     }
@@ -111,8 +160,88 @@ public class AggregationResult {
     public List<BasicDBObject> raw() {
         return result;
     }
+    
+    public <NT extends Number> AggregationResult<NT> gt(NT targetValue) {
+        return greaterThan(targetValue);
+    }
+
+    public <NT extends Number> AggregationResult<NT> greaterThan(NT targetValue) {
+        return filter(GT, targetValue);
+    }
+    
+    public <NT extends Number> AggregationResult<NT> gte(NT targetValue) {
+        return atLeast(targetValue);
+    }
+
+    public <NT extends Number> AggregationResult<NT> greaterThanOrEqualTo(NT targetValue) {
+        return atLeast(targetValue);
+    }
+
+    public <NT extends Number> AggregationResult<NT> atLeast(NT targetValue) {
+        return filter(GTE, targetValue);
+    }
+
+
+    public <NT extends Number> AggregationResult<NT> lt(NT targetValue) {
+        return lessThan(targetValue);
+    }
+
+    public <NT extends Number> AggregationResult<NT> lessThan(NT targetValue) {
+        return filter(LT, targetValue);
+    }
+
+    public <NT extends Number> AggregationResult<NT> lte(NT targetValue) {
+        return atMost(targetValue);
+    }
+
+    public <NT extends Number> AggregationResult<NT> lessThanOrEqualTo(NT targetValue) {
+        return atMost(targetValue);
+    }
+
+    public <NT extends Number> AggregationResult<NT> atMost(NT targetValue) {
+        return filter(LTE, targetValue);
+    }
+
+    public <NT extends Number> AggregationResult<NT> eq(NT targetValue) {
+        return equalTo(targetValue);
+    }
+
+    public <NT extends Number> AggregationResult<NT> equalTo(NT targetValue) {
+        return filter(EQ, targetValue);
+    }
+
+    public <T extends Number> AggregationResult<T> filter(N.Comparator comp, T targetValue) {
+        List<BasicDBObject> newResult = new ArrayList<>();
+        Class<T> targetType = $.cast(targetValue.getClass());
+        for (BasicDBObject obj : result) {
+            Collection<?> c = obj.values();
+            Iterator itr = c.iterator();
+            String k = S.string(itr.next());
+            T n = $.convert(itr.next()).to(targetType);
+            if (comp.compare(n, targetValue)) {
+                newResult.add(obj);
+            }
+        }
+        AggregationResult<T> retVal = new ConvertResult<>();
+        retVal.result = newResult;
+        retVal.field = field;
+        retVal.modelType = modelType;
+        retVal.valueType = targetType;
+        return retVal;
+    }
 
     private String mappedName(String field) {
         return MorphiaService.mappedName(field, modelType);
     }
+
+    private void exploreValueType() {
+        List<Type> types = Generics.typeParamImplementations(getClass(), AggregationResult.class);
+        int sz = types.size();
+        if (sz != 1) {
+            throw E.unexpected("Cannot determine value type");
+        }
+        Type type = types.get(0);
+        valueType = Generics.classOf(type);
+    }
+
 }

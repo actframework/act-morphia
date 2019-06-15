@@ -9,9 +9,9 @@ package act.db.morphia;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,6 +23,8 @@ package act.db.morphia;
 import act.db.Dao;
 import act.db.morphia.annotation.NoQueryValidation;
 import act.db.morphia.util.AggregationResult;
+import act.db.morphia.util.LongResult;
+import act.db.morphia.util.DoubleResult;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
@@ -86,7 +88,7 @@ public class MorphiaQuery<MODEL_TYPE> implements Dao.Query<MODEL_TYPE, MorphiaQu
     public MorphiaQuery<MODEL_TYPE> orderBy(String... fieldList) {
         C.List<String> spec = C.listOf(fieldList).flatMap(S.F.SPLIT);
         S.Buffer sb = S.newBuffer();
-        for (String s: spec) {
+        for (String s : spec) {
             if (s.startsWith("+")) {
                 s = s.substring(1);
             }
@@ -436,56 +438,128 @@ public class MorphiaQuery<MODEL_TYPE> implements Dao.Query<MODEL_TYPE, MorphiaQu
         return this;
     }
 
-    public AggregationResult groupMax(String field, String... groupKeys) {
+    public DoubleResult groupMax(String field, String... groupKeys) {
         return groupBy(groupKeys).on(field).max();
     }
 
-    public Long max(String maxField) {
+    public Double max(String maxField) {
         return groupMax(maxField).getDefault();
     }
 
-    public AggregationResult groupMin(String field, String... groupKeys) {
+    public AggregationResult<Long> longGroupMax(String field, String... groupKeys) {
+        return groupMax(field, groupKeys).asLongResult();
+    }
+
+    public Long longMax(String maxField) {
+        return longGroupMax(maxField).getDefault();
+    }
+
+    public AggregationResult<Integer> intGroupMax(String field, String... groupKeys) {
+        return groupMax(field, groupKeys).asIntResult();
+    }
+
+    public Integer intMax(String maxField) {
+        return intGroupMax(maxField).getDefault();
+    }
+    
+    public DoubleResult groupMin(String field, String... groupKeys) {
         return groupBy(groupKeys).on(field).min();
     }
 
-    public Long min(String minField) {
+    public Double min(String minField) {
         return groupMin(minField).getDefault();
     }
 
-    public AggregationResult groupAverage(String field, String... groupKeys) {
+    public AggregationResult<Long> longGroupMin(String field, String... groupKeys) {
+        return groupMin(field, groupKeys).asLongResult();
+    }
+
+    public Long longMin(String minField) {
+        return longGroupMin(minField).getDefault();
+    }
+
+    public AggregationResult<Integer> intGroupMin(String field, String... groupKeys) {
+        return groupMin(field, groupKeys).asIntResult();
+    }
+
+    public Integer intMin(String minField) {
+        return intGroupMin(minField).getDefault();
+    }
+
+    public DoubleResult groupAverage(String field, String... groupKeys) {
         return groupBy(groupKeys).on(field).average();
     }
 
-    public long average(String field) {
-        Long L = groupAverage(field).getDefault();
-        return null == L ? 0L : L;
+    public double average(String field) {
+        Double v = groupAverage(field).getDefault();
+        return null == v ? 0d : v;
+    }
+    
+    public AggregationResult<Long> longGroupAverage(String field, String... groupKeys) {
+        return groupAverage(field, groupKeys).asLongResult();
     }
 
-    public AggregationResult groupSum(String field, String... groupKeys) {
+    public Long longAverage(String averageField) {
+        return longGroupAverage(averageField).getDefault();
+    }
+
+    public AggregationResult<Integer> intGroupAverage(String field, String... groupKeys) {
+        return groupAverage(field, groupKeys).asIntResult();
+    }
+
+    public Integer intAverage(String averageField) {
+        return intGroupAverage(averageField).getDefault();
+    }
+
+    public DoubleResult groupSum(String field, String... groupKeys) {
         return groupBy(groupKeys).on(field).sum();
     }
 
-    public long sum(String field) {
-        Long L = groupSum(field).getDefault();
-        return null == L ? 0L : L;
+    public double sum(String field) {
+        Double v = groupSum(field).getDefault();
+        return null == v ? 0d : v;
     }
 
-    public AggregationResult groupCount(String... groupKeys) {
+    public AggregationResult<Long> longGroupSum(String field, String... groupKeys) {
+        return groupSum(field, groupKeys).asLongResult();
+    }
+
+    public Long longSum(String sumField) {
+        return longGroupSum(sumField).getDefault();
+    }
+
+    public AggregationResult<Integer> intGroupSum(String field, String... groupKeys) {
+        return groupSum(field, groupKeys).asIntResult();
+    }
+
+    public Integer intSum(String sumField) {
+        return intGroupSum(sumField).getDefault();
+    }
+
+    public LongResult groupCount(String... groupKeys) {
         return groupBy(groupKeys).count();
     }
 
-    private AggregationResult aggregate_(String mappedField, DBObject initial,
-                                         Long initVal, String reduce, String finalize,
-                                         String... groupKeys) {
+    public AggregationResult<Integer> intGroupCount(String... groupKeys) {
+        return groupCount(groupKeys).asIntResult();
+    }
+
+    private <T extends AggregationResult> T aggregate_(Aggregation type,
+                                                       String mappedField,
+                                                       DBObject initial,
+                                                       Long initVal,
+                                                       String reduce,
+                                                       String finalize,
+                                                       String... groupKeys) {
         if (null == initial) {
             initial = new BasicDBObject();
         }
         initial.put(mappedField, initVal);
-        return new AggregationResult(group(S.join(",", groupKeys), initial, reduce, finalize), mappedField, modelType);
+        return type.result(group(S.join(",", groupKeys), initial, reduce, finalize), mappedField, modelType);
     }
 
     private List<BasicDBObject> group(String groupKeys, DBObject initial,
-                                     String reduce, String finalize) {
+                                      String reduce, String finalize) {
         DBObject key = new BasicDBObject();
         if (!S.empty(groupKeys)) {
             String[] sa = MorphiaService.splitGroupKeys(groupKeys);
@@ -496,7 +570,7 @@ public class MorphiaQuery<MODEL_TYPE> implements Dao.Query<MODEL_TYPE, MorphiaQu
         return (List<BasicDBObject>) ds.getCollection(modelType).group(key, mq.getQueryObject(), initial, reduce, finalize);
     }
 
-    public GroupBy groupBy(String ... groupByKeys) {
+    public GroupBy groupBy(String... groupByKeys) {
         return new GroupBy(groupByKeys);
     }
 
@@ -506,10 +580,14 @@ public class MorphiaQuery<MODEL_TYPE> implements Dao.Query<MODEL_TYPE, MorphiaQu
 
     private enum Aggregation {
         COUNT() {
-
             @Override
             String _reduce(String mappedField) {
                 return String.format("function(obj, prev){prev.%s++;}", mappedField);
+            }
+
+            @Override
+            <T extends AggregationResult> T result(List<BasicDBObject> r, String aggregationField, Class<?> modelClass) {
+                return (T) new LongResult(r, aggregationField, modelClass);
             }
         },
         SUM() {
@@ -559,17 +637,24 @@ public class MorphiaQuery<MODEL_TYPE> implements Dao.Query<MODEL_TYPE, MorphiaQu
 
             @Override
             String _finalize(String mappedField) {
-                return String.format("function(prev) {prev.%s = prev.__sum / prev.__count;}", mappedField);
+                return String.format("function(prev) {prev.%s = prev.__sum / prev.__count;delete prev.__sum;delete prev.__count}", mappedField);
             }
-        }
-        ;
+        };
+
         DBObject _initial() {
             return null;
         }
+
+        <T extends AggregationResult> T result(List<BasicDBObject> r, String aggregationField, Class<?> modelClass) {
+            return (T) new DoubleResult(r, aggregationField, modelClass);
+        }
+
         abstract String _reduce(String mappedField);
-        String _finalize (String mappedField) {
+
+        String _finalize(String mappedField) {
             return null;
         }
+
         Long _initVal() {
             return 0L;
         }
@@ -578,6 +663,7 @@ public class MorphiaQuery<MODEL_TYPE> implements Dao.Query<MODEL_TYPE, MorphiaQu
     public class GroupBy {
         private String[] groupKeys;
         private String field;
+
         private GroupBy(String... groupKeys) {
             this.groupKeys = canonicalGroupKeys(groupKeys);
         }
@@ -587,30 +673,31 @@ public class MorphiaQuery<MODEL_TYPE> implements Dao.Query<MODEL_TYPE, MorphiaQu
             return this;
         }
 
-        public AggregationResult count() {
-            this.field = "_id";
+        public LongResult count() {
+            this.field = "__count";
             return aggregate(Aggregation.COUNT);
         }
 
-        public AggregationResult sum() {
+        public DoubleResult sum() {
             return aggregate(Aggregation.SUM);
         }
 
-        public AggregationResult average() {
+        public DoubleResult average() {
             return aggregate(Aggregation.AVERAGE);
         }
 
-        public AggregationResult max() {
+        public DoubleResult max() {
             return aggregate(Aggregation.MAX);
         }
 
-        public AggregationResult min() {
+        public DoubleResult min() {
             return aggregate(Aggregation.MIN);
         }
 
-        private AggregationResult aggregate(Aggregation type) {
+        private <T extends AggregationResult> T aggregate(Aggregation type) {
             E.illegalArgumentIf(null == field, "It must specify the field on which aggregation will be calculated");
-            return aggregate_(field,
+            return aggregate_(type,
+                    field,
                     type._initial(),
                     type._initVal(),
                     type._reduce(field),
@@ -622,7 +709,7 @@ public class MorphiaQuery<MODEL_TYPE> implements Dao.Query<MODEL_TYPE, MorphiaQu
             List<String> list = new ArrayList<String>();
             for (String key : keys) {
                 String[] sa = MorphiaService.splitGroupKeys(key);
-                for (String s: sa) {
+                for (String s : sa) {
                     list.add(mappedName(s));
                 }
             }
