@@ -1,4 +1,6 @@
 Scenario(30):
+  constants:
+    begin: ${now(-1s)} # set begin time to 1 second before current time
   description: "`@Data` enhancement error when Model class has no fields"
   urlContext: 30
   interactions:
@@ -12,17 +14,17 @@ Scenario(30):
         json:
           name: abc
           created:
-            - exists: true
+            - after: ${begin} # it must after the begin time
           updated:
-            - exists: true
+            - eq: ${created}
           creator: a
           updator: a
       cache:
-        id: id
-        created: created
+        id: id # keep id as we need to use it in the following interactions
+        created: created # keep created time so we can verify it in the following interactions
     - description: update record
       preActions:
-        - pause: 1000 # pause for 1s so we can test the last modified time is different than the created time
+        - pause: 1000 # pause for 1s so we can verify that the last modified time is later than the created time
       request:
         put: ${id}
         params:
@@ -32,10 +34,8 @@ Scenario(30):
         json:
           name: xyz
           created:
-            - exists: true
             - eq: ${created}
           updated:
-            - exists: true
-            - neq: ${created}
+            - after: ${created}
           creator: a
           updator: b
