@@ -1,0 +1,26 @@
+Scenario(6):
+  description: "@Property annotation fields could not support by Morphia orderBy(String... fieldList) method"
+  urlContext: 6
+  interactions:
+    - description: test sort by `login_name`
+      request:
+        get: by_login_name
+      response:
+        json:
+          0:
+            loginName: a
+          1:
+            loginName: b
+          2:
+            loginName: c
+    - description: test sort by `loginName`
+      request:
+        get: by_loginName
+      response:
+        json:
+          0:
+            loginName: a
+          1:
+            loginName: b
+          2:
+            loginName: c
