@@ -396,12 +396,24 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         return updates();
     }
 
-    public SimpleAggregation aggregation() {
+    public SimpleAggregation<Double> aggregation() {
+        return createAggregation();
+    }
+
+    public SimpleAggregation<Double> createAggregation() {
         return defQuery.aggregation();
     }
 
-    public MorphiaQuery.GroupByStage groupBy(String groupKey, String... otherGroupKeys) {
-        return defQuery.groupBy(groupKey, otherGroupKeys);
+    public SimpleAggregation<Double> a() {
+        return createAggregation();
+    }
+
+    public SimpleAggregation<Long> longAggregation() {
+        return a().asLong();
+    }
+
+    public SimpleAggregation<Integer> intAggregation() {
+        return a().asInt();
     }
 
     public Double max(String maxField) {

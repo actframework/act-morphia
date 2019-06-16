@@ -26,6 +26,7 @@ import act.db.DbPlugin;
 import act.db.DbService;
 import act.db.morphia.annotation.PersistAsList;
 import act.db.morphia.annotation.PersistAsMap;
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import org.bson.types.ObjectId;
@@ -109,8 +110,8 @@ public class MorphiaPlugin extends DbPlugin {
      * @param others other key value pairs.
      * @return An instance of {@link DBObject}
      */
-    public static DBObject dbo(String key, Object val, Object ... others) {
-        DBObject retVal = new BasicDBObject();
+    public static BasicDBObject dbo(String key, Object val, Object ... others) {
+        BasicDBObject retVal = new BasicDBObject();
         retVal.put(key, val);
         int len = others.length;
         if (len == 0) {

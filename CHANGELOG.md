@@ -1,5 +1,9 @@
 # act-morphia CHANGE LOG
 
+1.7.2 17/Jun/2019
+* Fix generic issue in SimpleAggregation class
+* Improve SimpleAggregation having API
+
 1.7.0 16/Jun/2019
 
 * update to act-1.8.23

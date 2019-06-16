@@ -23,9 +23,12 @@ package act.db.morphia;
 import act.db.morphia.util.AggregationResult;
 import model.Order;
 import org.junit.Test;
+import org.osgl.$;
 import org.osgl.util.C;
 
 import java.util.Map;
+
+import static org.osgl.util.N.Comparator.GT;
 
 /**
  * Test Aggregation features
@@ -73,20 +76,33 @@ public class AggregationTest extends MorphiaDaoTestBase<Order> {
     }
 
     @Test
+    public void testHaving() {
+        result = dao.q().groupBy("department").sum("price").atLeast(2201).getAsInt();
+        isNull(result.val("Marketing"));
+        eq(3500, result.val("Logistics"));
+
+        result = dao.q().groupBy("department").sum("price").between(2200, 2500).getAsInt();
+        eq(2200, result.val("Marketing"));
+        isNull(result.val("Logistics"));
+
+
+    }
+
+    @Test
     public void testGroupSum() {
-        result = dao.groupBy("region, dep").sum("price").getAsInt();
+        result = dao.q().groupBy("region, dep").sum("price").getAsInt();
         eq(1200, result.val(C.Map("region", "QLD", "dep", "Marketing")));
 
-        result = dao.groupBy("department").sum("price").getAsInt();
+        result = dao.q().groupBy("department").sum("price").getAsInt();
 
         eq(2200, result.val("Marketing"));
         eq(3500, result.val("Logistics"));
 
-        result = dao.groupBy("department, region").sum("price").getAsInt();
+        result = dao.q().groupBy("department, region").sum("price").getAsInt();
         eq(1200, result.val("Marketing", "QLD"));
         eq(1500, result.val("Logistics", "NSW"));
 
-        result = dao.groupBy("department", "region").sum("price").getAsInt();
+        result = dao.q().groupBy("department", "region").sum("price").getAsInt();
         eq(1000, result.val("Marketing", "NSW"));
         eq(1000, result.val(C.Map("region", "NSW", "department", "Marketing")));
         eq(1500, result.val("Logistics", "NSW"));
@@ -95,7 +111,7 @@ public class AggregationTest extends MorphiaDaoTestBase<Order> {
 
     @Test
     public void testGroupMax() {
-        result = dao.groupBy("department").max("price").getAsInt();
+        result = dao.q().groupBy("department").max("price").getAsInt();
         eq(1200, result.val( "Marketing"));
         eq(1500, result.val("Logistics"));
         eq(1200, result.val("Marketing"));
@@ -103,7 +119,7 @@ public class AggregationTest extends MorphiaDaoTestBase<Order> {
 
     @Test
     public void testGroupMin() {
-        result = dao.groupBy("department").min("price").getAsInt();
+        result = dao.q().groupBy("department").min("price").getAsInt();
         eq(1000, result.val("Marketing"));
 
         eq(800, result.val("Logistics"));
@@ -112,11 +128,11 @@ public class AggregationTest extends MorphiaDaoTestBase<Order> {
 
     @Test
     public void testGroupCount() {
-        result = dao.groupBy("dep").count().getAsInt();
+        result = dao.q().groupBy("dep").count().getAsInt();
         eq(2, result.val("Marketing"));
         eq(3, result.val("Logistics"));
 
-        result = dao.groupBy("dep", "region").count().get();
+        result = dao.q().groupBy("dep", "region").count().get();
         eq(1L, result.val("Marketing", "NSW"));
 
         assertNull(result.val("Marketing", "SA"));
@@ -128,10 +144,10 @@ public class AggregationTest extends MorphiaDaoTestBase<Order> {
 
     @Test
     public void testGroupAverage() {
-        result = dao.groupBy("dep").average("price").getAsInt();
+        result = dao.q().groupBy("dep").average("price").getAsInt();
         eq(1100, result.val("Marketing"));
 
-        result = dao.groupBy("region").average("price").getAsInt();
+        result = dao.q().groupBy("region").average("price").getAsInt();
         eq(1250, result.val("NSW"));
         eq(1000, result.val("QLD"));
     }

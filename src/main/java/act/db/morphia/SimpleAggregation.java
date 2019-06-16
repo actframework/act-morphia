@@ -22,16 +22,17 @@ package act.db.morphia;
 
 import act.db.morphia.util.AggregationResult;
 import com.mongodb.*;
+import org.osgl.$;
 import org.osgl.util.C;
 import org.osgl.util.E;
 import org.osgl.util.Keyword;
 import org.osgl.util.N;
-import org.rythmengine.utils.S;
 
 import java.util.*;
 
 import static act.db.morphia.SimpleAggregation.Operator.*;
 import static act.db.morphia.MorphiaPlugin.dbo;
+import static org.osgl.util.N.Comparator.*;
 
 /**
  * A simple mongodb aggregation pipeline
@@ -86,16 +87,104 @@ public class SimpleAggregation<T extends Number> {
         this.valType = valType;
     }
 
-    public SimpleAggregation having(N.Comparator comparator, Number target) {
-        this.having = dbo("$match", dbo("val", dbo(comp(comparator), target)));
+    private SimpleAggregation() {}
+
+    /**
+     * Having aggregation value must be applied to true when comparing with target value using
+     * comparator specified.
+     *
+     * @param comparator the number comparator
+     * @param target the target data to be evaluated using the comparator against aggregation value
+     * @return this aggregation with having clause set
+     */
+    public  SimpleAggregation<T> having(N.Comparator comparator, Number target) {
+        this.having = dbo("$match", dbo("val", dbo(compExpression(comparator), target)));
         return this;
     }
 
-    public SimpleAggregation sorted() {
+    /**
+     * Set a list of having conditions
+     * @param conditions a list of having conditions
+     * @return this aggregation with having clause set
+     */
+    public SimpleAggregation<T> having(List<$.T2<N.Comparator, Number>> conditions) {
+        if (conditions.isEmpty()) {
+            return this;
+        }
+        if (conditions.size() == 1) {
+            $.T2<N.Comparator, Number> pair = conditions.get(0);
+            return having(pair._1, pair._2);
+        }
+        BasicDBList list = new BasicDBList();
+        for ($.Pair<N.Comparator, Number> pair: conditions) {
+            list.add(dbo("val", dbo(compExpression(pair._1), pair._2)));
+        }
+        this.having = dbo("$match", dbo("$and", list));
+        return this;
+    }
+
+    /**
+     * Set raw having clause
+     * @param having the raw having clause
+     * @return this aggregtion with having clause set
+     */
+    public SimpleAggregation<T> having(DBObject having) {
+        this.having = having;
+        return this;
+    }
+
+    /**
+     * Having it must be greater than or equals to target
+     * @param target the upper bound inclusive
+     * @return this aggregation with having clause set
+     */
+    public SimpleAggregation<T> atLeast(Number target) {
+        return having(GTE, target);
+    }
+
+    /**
+     * Having it must be less than or equals to target
+     * @param target the lower bound inclusive
+     * @return this aggregation with having clause set
+     */
+    public SimpleAggregation<T> atMost(Number target) {
+        return having(LTE, target);
+    }
+
+    /**
+     * Having it must be greater than target
+     * @param target the lower bound exclusive
+     * @return this aggregation with having clause set
+     */
+    public SimpleAggregation<T> greaterThan(Number target) {
+        return having(N.Comparator.GT, target);
+    }
+
+    /**
+     * Having it must be less than target
+     * @param target the upper bound exclusive
+     * @return this aggregation with having clause set
+     */
+    public SimpleAggregation<T> lessThan(Number target) {
+        return having(LT, target);
+    }
+
+    /**
+     * Having it must be greater than or equals to `minInclusive` and less than `maxExclusive`
+     * @param minInclusive the lower bound inclusive
+     * @param maxExclusive the upper bound exclusive
+     * @return this aggregation with having clause set
+     */
+    public SimpleAggregation<T> between(Number minInclusive, Number maxExclusive) {
+        List<$.T2<N.Comparator, Number>> conditions = C.list($.Pair(GTE, minInclusive),$.Pair(LTE, maxExclusive));
+        return having(conditions);
+    }
+
+    public SimpleAggregation<T> sorted() {
         return sorted(false);
     }
 
-    public SimpleAggregation sorted(boolean ascending) {
+    public SimpleAggregation<T> sorted(boolean ascending) {
         this.sort = dbo("$sort", dbo("val", ascending ? 1 : -1));
         return this;
     }
@@ -179,6 +268,31 @@ public class SimpleAggregation<T extends Number> {
         }
         group = dbo("$group", dbo("_id", idObject(groupBy, otherGroupBys), "val", groupExp));
         return this;
+    }
+
+    public <NT extends Number> SimpleAggregation<NT> as(Class<NT> newValType) {
+        if (newValType == this.valType) {
+            return $.cast(this);
+        }
+        SimpleAggregation<NT> na = new SimpleAggregation<>();
+        na.collection = this.collection;
+        na.modelType = this.modelType;
+        na.where = this.where;
+        na.query = this.query;
+        na.valType = newValType;
+        return na;
+    }
+
+    public SimpleAggregation<Long> asLong() {
+        return as(Long.class);
+    }
+
+    public SimpleAggregation<Double> asDouble() {
+        return as(Double.class);
+    }
+
+    public SimpleAggregation<Integer> asInt() {
+        return as(Integer.class);
     }
 
     private DBObject idObject(DBObject idObject) {
@@ -269,7 +383,7 @@ public class SimpleAggregation<T extends Number> {
         ));
     }
 
-    private String comp(N.Comparator comparator) {
+    private static String compExpression(N.Comparator comparator) {
         switch (comparator) {
             case GT:
                 return "$gt";
