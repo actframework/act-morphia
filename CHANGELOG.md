@@ -1,7 +1,8 @@
 # act-morphia CHANGE LOG
 
-1.7.0
+1.7.0 16/Jun/2019
 
+* update to act-1.8.23
 * Improve aggregation API #32
 * Aggregation - use aggregation pipeline to replace group #33
 
