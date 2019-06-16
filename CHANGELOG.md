@@ -3,6 +3,7 @@
 1.7.0
 
 * Improve aggregation API #32
+* Aggregation - use aggregation pipeline to replace group #33
 
 1.6.7 20/Apr/2019
 * update to act 1.8.20

@@ -74,77 +74,73 @@ public class AggregationTest extends MorphiaDaoTestBase<Order> {
 
     @Test
     public void testGroupSum() {
-        result = dao.groupBy("region, dep").on("price").sum().asIntResult();
-        eq(1200, result.get("QLD", "Marketing"));
+        result = dao.groupBy("region, dep").sum("price").getAsInt();
+        eq(1200, result.val(C.Map("region", "QLD", "dep", "Marketing")));
 
-        result = dao.groupSum("price", "department").asIntResult();
+        result = dao.groupBy("department").sum("price").getAsInt();
 
-        eq(2200, result.getByGroupKeys("department", "Marketing"));
-        eq(2200, result.get("Marketing"));
-        eq(3500, result.getByGroupKeys("department", "Logistics"));
-        eq(3500, result.get("Logistics"));
+        eq(2200, result.val("Marketing"));
+        eq(3500, result.val("Logistics"));
 
-        result = dao.groupBy("department, region").on("price").sum().asIntResult();
-        eq(1200, result.getByGroupKeys("region, department", "QLD", "Marketing"));
-        eq(1500, result.get("Logistics", "NSW"));
+        result = dao.groupBy("department, region").sum("price").getAsInt();
+        eq(1200, result.val("Marketing", "QLD"));
+        eq(1500, result.val("Logistics", "NSW"));
 
-        result = dao.groupSum("price", "department", "region").as(Integer.class);
-        eq(1200, result.getByGroupKeys("region, department", "QLD", "Marketing"));
-        eq(1500, result.get("Logistics", "NSW"));
+        result = dao.groupBy("department", "region").sum("price").getAsInt();
+        eq(1000, result.val("Marketing", "NSW"));
+        eq(1000, result.val(C.Map("region", "NSW", "department", "Marketing")));
+        eq(1500, result.val("Logistics", "NSW"));
+        eq(1500, result.val(C.Map("reg", "NSW", "dep", "Logistics")));
     }
 
     @Test
     public void testGroupMax() {
-        result = dao.groupMax("price", "department").asIntResult();
-        eq(1200, result.getByGroupKeys("dep", "Marketing"));
-        eq(1500, result.getByGroupKeys("department", "Logistics"));
-        eq(1200, result.get("Marketing"));
+        result = dao.groupBy("department").max("price").getAsInt();
+        eq(1200, result.val( "Marketing"));
+        eq(1500, result.val("Logistics"));
+        eq(1200, result.val("Marketing"));
     }
 
     @Test
     public void testGroupMin() {
-        result = dao.groupMin("price", "department").asIntResult();
-        eq(1000, result.getByGroupKeys("dep", "Marketing"));
+        result = dao.groupBy("department").min("price").getAsInt();
+        eq(1000, result.val("Marketing"));
 
-        eq(800, result.getByGroupKeys("department", "Logistics"));
-        eq(800, result.get("Logistics"));
+        eq(800, result.val("Logistics"));
+        eq(800, result.val("Logistics"));
     }
 
     @Test
     public void testGroupCount() {
-        result = dao.groupCount("dep").asIntResult();
-        eq(2, result.get("Marketing"));
-        eq(3, result.getByGroupKeys("department", "Logistics"));
+        result = dao.groupBy("dep").count().getAsInt();
+        eq(2, result.val("Marketing"));
+        eq(3, result.val("Logistics"));
 
-        result = result.atLeast(3);
-        isNull(result.get("Marketing"));
-        notNull(result.get("Logistics"));
+        result = dao.groupBy("dep", "region").count().get();
+        eq(1L, result.val("Marketing", "NSW"));
 
-        result = dao.groupCount("dep", "region");
-        eq(1L, result.get("Marketing", "NSW"));
+        assertNull(result.val("Marketing", "SA"));
 
-        assertNull(result.get("Marketing", "SA"));
-
-        result = dao.q("region", "NSW").groupCount("dep");
-        eq(1L, result.get("Marketing"));
-        eq(1L, result.getByGroupKeys("dep", "Logistics"));
+        result = dao.q("region", "NSW").groupBy("dep").count().get();
+        eq(1L, result.val("Marketing"));
+        eq(1L, result.val("Logistics"));
     }
 
     @Test
     public void testGroupAverage() {
-        result = dao.groupAverage("price", "dep").asIntResult();
-        eq(1100, result.get("Marketing"));
+        result = dao.groupBy("dep").average("price").getAsInt();
+        eq(1100, result.val("Marketing"));
 
-        result = dao.groupBy("region").on("price").average().asIntResult();
-        eq(1250, result.get("NSW"));
-        eq(1000, result.get("QLD"));
+        result = dao.groupBy("region").average("price").getAsInt();
+        eq(1250, result.val("NSW"));
+        eq(1000, result.val("QLD"));
     }
 
     @Test
     public void testGroupAverageWithCriteria() {
-        result = dao.q("price >", 900).groupBy("region").on("price").average().asIntResult();
-        eq(1250, result.get("NSW"));
-        eq(1200, result.get("QLD"));
+        result = dao.q("price >", 900).groupBy("region").average("price").getAsInt();
+        eq(1250, result.val("NSW"));
+        eq(1200, result.val("QLD"));
     }
 
 }

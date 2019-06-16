@@ -23,7 +23,9 @@ package act.db.morphia.util;
 
 import act.db.morphia.MorphiaService;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 import org.osgl.$;
 import org.osgl.util.E;
 import org.osgl.util.Generics;
@@ -35,30 +37,45 @@ import java.util.*;
 
 import static org.osgl.util.N.Comparator.*;
 
-public abstract class AggregationResult<T extends Number> {
+public class AggregationResult<T extends Number> {
     protected List<BasicDBObject> result;
     protected Class<?> modelType;
     protected String field;
     protected Class<T> valueType;
+    protected Map<Object, T> mapCache;
+    protected Map<String, String> groupKeyMap;
 
     private static final class ConvertResult<T extends Number> extends AggregationResult<T> {}
 
     private AggregationResult() {}
 
-    public AggregationResult(List<BasicDBObject> r, String aggregationField, Class<?> modelClass) {
+    public AggregationResult(List<BasicDBObject> r, String aggregationField, Map<String, String> groupKeyMap, Class<?> modelClass, Class<T> valueType) {
         if (null == r || null == aggregationField) throw new NullPointerException();
         result = r;
         modelType = modelClass;
         field = aggregationField;
-        exploreValueType();
+        this.groupKeyMap = $.requireNotNull(groupKeyMap);
+        this.valueType = $.requireNotNull(valueType);
     }
 
     public <NT extends Number> AggregationResult<NT> as(Class<NT> newValueType) {
+        if (newValueType == valueType) {
+            return $.cast(this);
+        }
         ConvertResult<NT> result = new ConvertResult<>();
         result.result = this.result;
         result.modelType = this.modelType;
         result.field = this.field;
         result.valueType = newValueType;
+        result.groupKeyMap = groupKeyMap;
+        if (null != mapCache) {
+            Map<Object, T> myMapCache = mapCache();
+            Map<Object, NT> newMapCache = new LinkedHashMap<>();
+            for (Map.Entry<Object, T> entry : myMapCache.entrySet()) {
+                newMapCache.put(entry.getKey(), $.convert(entry.getValue()).to(newValueType));
+            }
+            result.mapCache = newMapCache;
+        }
         return result;
     }
 
@@ -83,61 +100,102 @@ public abstract class AggregationResult<T extends Number> {
         return JSON.toJSONString(asMap(), true);
     }
 
-    private T getValue(BasicDBObject dbObject) {
-        return $.convert(dbObject.get(field)).to(valueType);
-    }
-
-    public T getDefault() {
-        return result.size() > 0 ? getValue(result.get(0)) : null;
-    }
-
-    public T get(Object ... groupValues) {
-        if (groupValues.length == 0) {
-            return getDefault();
-        }
-        int len = groupValues.length;
-        for (BasicDBObject r : result) {
-            int i = 0;
-            boolean found = true;
-            for (Map.Entry<String, Object> entry : r.entrySet()) {
-                if (i < len) {
-                    if ($.ne(entry.getValue(), groupValues[i++])) {
-                        found = false;
-                        break;
+    private Map<Object, T> mapCache() {
+        if (null == mapCache) {
+            synchronized (this) {
+                if (null == mapCache) {
+                    mapCache = new LinkedHashMap<>();
+                    for (BasicDBObject obj : result) {
+                        Object key = obj.get("_id");
+                        T val = $.convert(obj.get(field)).to(valueType);
+                        if (null == key) {
+                            mapCache.put("", val);
+                        } else if (key instanceof DBObject) {
+                            BasicDBObject dbKey = $.cast(key);
+                            // the mongodb column name
+                            mapCache.put(new HashMap<>(dbKey), val);
+                            // the java field column name
+                            Map<String, Object> javaFields = new HashMap<>();
+                            // the group value sequence
+                            List seq = new ArrayList();
+                            for (Map.Entry<String, Object> keyEntry : dbKey.entrySet()) {
+                                javaFields.put(groupKeyMap.get(keyEntry.getKey()), keyEntry.getValue());
+                                seq.add(keyEntry.getValue());
+                            }
+                            mapCache.put(javaFields, val);
+                            mapCache.put(seq, val);
+                        } else {
+                            mapCache.put(key, val);
+                        }
                     }
                 }
             }
-            if (found) {
-                return getValue(r);
-            }
         }
-        return null;
+        return mapCache;
     }
 
-    public T getByGroupKeys(String groupKeys, Object... groupValues) {
-        if (S.empty(groupKeys)) {
-            if (groupValues.length == 0) return getDefault();
-            throw new IllegalArgumentException("the number of group keys does not match the number of group values");
-        }
-        String[] sa = groupKeys.split("[\\s,;:]+");
-        if (sa.length != groupValues.length) throw new IllegalArgumentException("the number of group keys does not match the number of group values");
-        for (BasicDBObject r: result) {
-            boolean found = true;
-            for (int i = 0; i < sa.length; ++i) {
-                String groupKey = sa[i];
-                String mappedGroupKey = mappedName(groupKey);
-                Object groupValue = groupValues[i];
-                if ($.ne(r.get(groupKey), groupValue) && $.ne(r.get(mappedGroupKey), groupValue)) {
-                    found = false;
-                    break;
-                }
-            }
-            if (found) return getValue(r);
-        }
-        return null;
+    /**
+     * Returns the first val in the aggregation result set.
+     *
+     * Normally this method shall be used to return single aggregation result,
+     * e.g. sum, max, min without grouping
+     * @return the single val aggregation result
+     */
+    public T val() {
+        return mapCache().values().iterator().next();
     }
 
-    public Map<String, T> asMap() {
+    /**
+     * Returns aggregation value by group values.
+     *
+     * When multiple group value specified, the sequence must corresponding to
+     * the sequence of aggregation group key sequence. For example if aggregation
+     * group key sequence is "region,department", the value sequence must
+     * be "NSW,Sales", not "Sales,NSW".
+     *
+     * @param groupValue the first group field value
+     * @param groupValues optional group field values
+     * @return the corresponding aggregation result.
+     */
+    public T val(Object groupValue, Object... groupValues) {
+        Map<Object, T> cache = mapCache();
+        int len = groupValues.length;
+        if (0 == len) {
+            return cache.get(groupValue);
+        }
+        List list = new ArrayList();
+        list.add(groupValue);
+        for (Object v : groupValues) {
+            list.add(v);
+        }
+        return cache.get(list);
+    }
+
+    /**
+     * Returns aggregation result by multiple group values.
+     *
+     * This method is used when aggregation is grouped by multiple groups.
+     *
+     * Sample code:
+     *
+     * ```
+     * Map<String, Object> groupValues = new HashMap<>();
+     * groupValues.put("departmentId", 5);
+     * groupValues.put("regionId", 10);
+     * return result.get(groupValues);
+     * ```
+     *
+     * The above code returns the aggregation result of (departmentId=5, regionId=10)
+     *
+     * @param groupValues specifies group
+     * @return the corresponding aggregation value
+     */
+    public T val(Map<String, Object> groupValues) {
+        Map<String, Object> key = new HashMap<>(groupValues);
+        return mapCache().get(key);
+    }
+
+    public Map<Object, T> asMap() {
         return asNumberMap();
     }
 
@@ -145,91 +203,21 @@ public abstract class AggregationResult<T extends Number> {
      * This method is deprecated. Use {@link #asMap()} instead
      */
     @Deprecated
-    public Map<String, T> asNumberMap() {
-        Map<String, T> m = new HashMap<>(result.size());
-        for (BasicDBObject r : result) {
-            Collection<?> c = r.values();
-            Iterator itr = c.iterator();
-            String k = S.string(itr.next());
-            Number n = (Number) itr.next();
-            m.put(k, $.convert(n).to(valueType));
+    public Map<Object, T> asNumberMap() {
+        Map<Object, T> map = new LinkedHashMap<>();
+        for (Map.Entry<Object, T> entry : mapCache().entrySet()) {
+            if (entry.getKey() instanceof Map) {
+                continue;
+            }
+            map.put(entry.getKey(), entry.getValue());
         }
-        return m;
+        return map;
     }
     
     public List<BasicDBObject> raw() {
         return result;
     }
     
-    public <NT extends Number> AggregationResult<NT> gt(NT targetValue) {
-        return greaterThan(targetValue);
-    }
-
-    public <NT extends Number> AggregationResult<NT> greaterThan(NT targetValue) {
-        return filter(GT, targetValue);
-    }
-    
-    public <NT extends Number> AggregationResult<NT> gte(NT targetValue) {
-        return atLeast(targetValue);
-    }
-
-    public <NT extends Number> AggregationResult<NT> greaterThanOrEqualTo(NT targetValue) {
-        return atLeast(targetValue);
-    }
-
-    public <NT extends Number> AggregationResult<NT> atLeast(NT targetValue) {
-        return filter(GTE, targetValue);
-    }
-
-
-    public <NT extends Number> AggregationResult<NT> lt(NT targetValue) {
-        return lessThan(targetValue);
-    }
-
-    public <NT extends Number> AggregationResult<NT> lessThan(NT targetValue) {
-        return filter(LT, targetValue);
-    }
-
-    public <NT extends Number> AggregationResult<NT> lte(NT targetValue) {
-        return atMost(targetValue);
-    }
-
-    public <NT extends Number> AggregationResult<NT> lessThanOrEqualTo(NT targetValue) {
-        return atMost(targetValue);
-    }
-
-    public <NT extends Number> AggregationResult<NT> atMost(NT targetValue) {
-        return filter(LTE, targetValue);
-    }
-
-    public <NT extends Number> AggregationResult<NT> eq(NT targetValue) {
-        return equalTo(targetValue);
-    }
-
-    public <NT extends Number> AggregationResult<NT> equalTo(NT targetValue) {
-        return filter(EQ, targetValue);
-    }
-
-    public <T extends Number> AggregationResult<T> filter(N.Comparator comp, T targetValue) {
-        List<BasicDBObject> newResult = new ArrayList<>();
-        Class<T> targetType = $.cast(targetValue.getClass());
-        for (BasicDBObject obj : result) {
-            Collection<?> c = obj.values();
-            Iterator itr = c.iterator();
-            String k = S.string(itr.next());
-            T n = $.convert(itr.next()).to(targetType);
-            if (comp.compare(n, targetValue)) {
-                newResult.add(obj);
-            }
-        }
-        AggregationResult<T> retVal = new ConvertResult<>();
-        retVal.result = newResult;
-        retVal.field = field;
-        retVal.modelType = modelType;
-        retVal.valueType = targetType;
-        return retVal;
-    }
-
     private String mappedName(String field) {
         return MorphiaService.mappedName(field, modelType);
     }
