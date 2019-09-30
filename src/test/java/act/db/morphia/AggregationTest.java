@@ -53,11 +53,15 @@ public class AggregationTest extends MorphiaDaoTestBase<Order> {
     @Test
     public void testCount() {
         eq(5, dao.count());
+        eq(2, dao.q("reg", "NSW").count());
+        eq(2, dao.q("region", "NSW").count());
     }
 
     @Test
     public void testSum() {
+        eq(5700, dao.a().groupSum("price", null).getAsLong().val());
         eq(5700, dao.q().intSum("price"));
+        eq(2500, dao.q("region", "NSW").intSum("price"));
     }
 
     @Test
@@ -84,8 +88,6 @@ public class AggregationTest extends MorphiaDaoTestBase<Order> {
         result = dao.q().groupBy("department").sum("price").between(2200, 2500).getAsInt();
         eq(2200, result.val("Marketing"));
         isNull(result.val("Logistics"));
-
-
     }
 
     @Test
@@ -128,6 +130,8 @@ public class AggregationTest extends MorphiaDaoTestBase<Order> {
 
     @Test
     public void testGroupCount() {
+        result = dao.a().groupCount("reg,dep").getAsLong();
+        System.out.println(result.asMap());
         result = dao.q().groupBy("dep").count().getAsInt();
         eq(2, result.val("Marketing"));
         eq(3, result.val("Logistics"));

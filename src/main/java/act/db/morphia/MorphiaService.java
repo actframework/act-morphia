@@ -96,12 +96,7 @@ public class MorphiaService extends DbService {
                 init(app, conf);
             }
         };
-        if (/*app.isDev()*/false) {
-            // never go this - it breaks the Singleton Registration because of MorphiaDaoInjectionListener
-            app.jobManager().alongWith(SysEventId.DEPENDENCY_INJECTOR_LOADED, "MorphiaService:init", runnable);
-        } else {
-            app.jobManager().post(SysEventId.DEPENDENCY_INJECTOR_LOADED, "MorphiaService:init", runnable);
-        }
+        app.jobManager().post(SysEventId.DEPENDENCY_INJECTOR_LOADED, jobId("init"), runnable);
     }
 
     @Override
@@ -132,7 +127,7 @@ public class MorphiaService extends DbService {
         });
         initialized = true;
         final MorphiaService me = this;
-        app.jobManager().post(SysEventId.SINGLETON_PROVISIONED, new Runnable() {
+        app.jobManager().post(SysEventId.SINGLETON_PROVISIONED, jobId("announceInitialized"),  new Runnable() {
             @Override
             public void run() {
                 app.eventBus().emit(new DbServiceInitialized(me));
@@ -219,7 +214,7 @@ public class MorphiaService extends DbService {
     }
 
     private void delayedEnsureIndexesAndCaps(App app) {
-        app.jobManager().on(SysEventId.START, "MorphiaService:ensureIndexesAndCaps", new Runnable() {
+        app.jobManager().on(SysEventId.START, jobId("ensureIndexesAndCaps"), new Runnable() {
             @Override
             public void run() {
                 try {
@@ -235,8 +230,12 @@ public class MorphiaService extends DbService {
         });
     }
 
+    private String jobId(String task) {
+        return S.buffer("MorphiaService:").a(task).a("[").a(id()).a("]").toString();
+    }
+
     private void delayedMapExternalModels(App app) {
-        app.jobManager().on(SysEventId.START, "MorphiaService:mapExternalModels", new Runnable() {
+        app.jobManager().on(SysEventId.START, jobId("mapExternalModels"), new Runnable() {
             @Override
             public void run() {
                 mapExternalModels();
@@ -262,7 +261,6 @@ public class MorphiaService extends DbService {
 
         ParserConfig parserConfig = ParserConfig.getGlobalInstance();
         parserConfig.putDeserializer(ObjectId.class, objectIdCodec);
-
     }
 
     public Morphia morphia() {

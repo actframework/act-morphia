@@ -1,5 +1,9 @@
 # act-morphia CHANGE LOG
 
+1.7.3 30/Sep/2019
+* update act to 1.8.28
+* `Job already registered` isssue with multiple mongodb data source #34
+
 1.7.2 17/Jun/2019
 * Fix generic issue in SimpleAggregation class
 * Improve SimpleAggregation having API
