@@ -41,6 +41,7 @@ import org.osgl.util.*;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.regex.Pattern;
 
 @General
 public class
@@ -462,6 +463,11 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
 
     public Long longSum(String sumField) {
         return defQuery.longSum(sumField);
+    }
+
+    @Override
+    public Object processLikeValue(String v) {
+        return Pattern.compile(v);
     }
 
     private Map<String, Object> kvList(String keys, Object... values) {

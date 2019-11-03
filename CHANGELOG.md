@@ -1,5 +1,9 @@
 # act-morphia CHANGE LOG
 
+1.8.0 03/Nov/2019
+* update act to 1.8.29
+* MorphiaDao - add `processLikeValue` method
+
 1.7.3 30/Sep/2019
 * update act to 1.8.28
 * `Job already registered` isssue with multiple mongodb data source #34

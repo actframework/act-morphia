@@ -20,7 +20,7 @@
 
   <artifactId>act-morphia</artifactId>
   <packaging>jar</packaging>
-  <version>1.7.4-SNAPSHOT</version>
+  <version>1.8.0-SNAPSHOT</version>
 
   <name>ACT Morphia</name>
   <description>The Morphia Plugin for Actframework MongoDB access</description>
@@ -30,7 +30,7 @@
   <parent>
     <groupId>org.actframework</groupId>
     <artifactId>parent</artifactId>
-    <version>1.8.28</version>
+    <version>1.8.29</version>
   </parent>
 
   <properties>
@@ -40,7 +40,7 @@
     <morphia.version>1.3.2</morphia.version>
     <mongodb-driver.version>3.8.0</mongodb-driver.version>
 
-    <act-aaa.version>1.5.5</act-aaa.version>
+    <act-aaa.version>1.6.1</act-aaa.version>
     <act-test.version>0.9.0-BETA-1</act-test.version>
   </properties>
 
