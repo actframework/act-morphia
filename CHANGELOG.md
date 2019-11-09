@@ -1,5 +1,9 @@
 # act-morphia CHANGE LOG
 
+1.8.1
+* Update EntityClassMetaInfo in entityMetaInfo registry #36
+* MorphiaUserBase - catch update to aaa.model.UserBase #35
+
 1.8.0 03/Nov/2019
 * update act to 1.8.29
 * MorphiaDao - add `processLikeValue` method

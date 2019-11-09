@@ -1,3 +1,4 @@
 act.db.morphia.MorphiaModule
 act.db.morphia.util.MorphiaAdaptiveRecordRestfulServiceBase
 act.db.morphia.ExternalModelAdaptor
+act.db.morphia.EntityMetaInfoUpdater
