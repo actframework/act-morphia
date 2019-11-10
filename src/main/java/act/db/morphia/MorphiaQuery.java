@@ -34,6 +34,7 @@ import org.osgl.util.S;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 public class MorphiaQuery<MODEL_TYPE> implements Dao.Query<MODEL_TYPE, MorphiaQuery<MODEL_TYPE>>, Query<MODEL_TYPE> {
 
@@ -61,6 +62,12 @@ public class MorphiaQuery<MODEL_TYPE> implements Dao.Query<MODEL_TYPE, MorphiaQu
     }
 
     public MorphiaQuery<MODEL_TYPE> filter(String key, Object val) {
+        if (key.endsWith(" like")) {
+            key = S.cut(key).before(" like");
+            if (!(val instanceof Pattern)) {
+                val = Pattern.compile(S.string(val));
+            }
+        }
         mq.filter(key, val);
         return this;
     }
