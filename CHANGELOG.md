@@ -1,6 +1,8 @@
 # act-morphia CHANGE LOG
 
-1.8.1
+1.8.1 23/Nov/2019
+* update to act-1.8.30
+* Allow `C` collections used in model class #37
 * Update EntityClassMetaInfo in entityMetaInfo registry #36
 * MorphiaUserBase - catch update to aaa.model.UserBase #35
 

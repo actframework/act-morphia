@@ -109,6 +109,47 @@ public class MorphiaService extends DbService {
         MapperOptions options = morphia.getMapper().getOptions();
         options.setObjectFactory(new DefaultCreator(){
             @Override
+            public <T> T createInstance(Class<T> clazz) {
+                return app.getInstance(clazz);
+            }
+
+            @Override
+            public List createList(MappedField mf) {
+                List list = super.createList(mf);
+                if (null != mf) {
+                    Class type = mf.getType();
+                    if (!type.isInstance(list)) {
+                        list = (List) app.getInstance(type);
+                    }
+                }
+                return list;
+            }
+
+            @Override
+            public Map createMap(MappedField mf) {
+                Map map = super.createMap(mf);
+                if (null != mf) {
+                    Class type = mf.getType();
+                    if (!type.isInstance(map)) {
+                        map = (Map) app.getInstance(type);
+                    }
+                }
+                return map;
+            }
+
+            @Override
+            public Set createSet(MappedField mf) {
+                Set set = super.createSet(mf);
+                if (null != mf) {
+                    Class type = mf.getType();
+                    if (!type.isInstance(set)) {
+                        set = (Set) app.getInstance(type);
+                    }
+                }
+                return set;
+            }
+
+            @Override
             protected ClassLoader getClassLoaderForClass() {
                 return app.classLoader();
             }
