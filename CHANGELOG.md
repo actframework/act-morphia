@@ -1,5 +1,9 @@
 # act-morphia CHANGE LOG
 
+1.8.2 02/Jan/2020
+* update to act-1.8.31
+* add `grantPrivilege` method to `MorphiaUserBase`
+
 1.8.1 23/Nov/2019
 * update to act-1.8.30
 * Allow `C` collections used in model class #37

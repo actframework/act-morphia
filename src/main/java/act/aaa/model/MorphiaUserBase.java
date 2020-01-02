@@ -90,6 +90,25 @@ public abstract class MorphiaUserBase<T extends MorphiaUserBase> extends Morphia
         return AAALookup.permissions(permissions);
     }
 
+    /**
+     * This method is deprecated. Please use {@link #grantPrivilege(int)} instead
+     */
+    @Deprecated
+    public T setPrivilege(int privilege) {
+        this.privilege = privilege;
+        return me();
+    }
+
+    public T grantPrivilege(int privilege) {
+        this.privilege = privilege;
+        return me();
+    }
+
+    public T grantPrivilege(Privilege privilege) {
+        this.privilege = privilege.getLevel();
+        return me();
+    }
+
     public T grantPermissions(Permission... permissions) {
         if (permissions.length > 0) {
             return grantPermissionByNames(stringOf(C.Array.of(permissions)));
