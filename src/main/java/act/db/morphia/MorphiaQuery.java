@@ -396,7 +396,7 @@ public class MorphiaQuery<MODEL_TYPE> implements Dao.Query<MODEL_TYPE, MorphiaQu
 
     @Override
     public long count() {
-        return mq.countAll();
+        return mq.count();
     }
 
     @Override

@@ -282,7 +282,12 @@ MorphiaDaoBase<ID_TYPE, MODEL_TYPE>
         q.filter("_id", id);
         UpdateOperations<MODEL_TYPE> upOps = ds().createUpdateOperations(modelType());
         for (String key : kvList.keySet()) {
-            upOps.set(key, kvList.get(key));
+            Object val = kvList.get(key);
+            if (null == val) {
+                upOps.unset(key);
+            } else {
+                upOps.set(key, val);
+            }
         }
         if (entity instanceof TimeTrackingModel && entity instanceof Model) {
             TimeTrackingModel ttm = $.cast(entity);

@@ -1,5 +1,9 @@
 # act-morphia CHANGE LOG
 
+1.9.0
+* Dao.update API - unset the field in database when passed in value is `null` #39
+* Automatically initialize Collection/Map typed fields #38
+
 1.8.2 02/Jan/2020
 * update to act-1.8.31
 * add `grantPrivilege` method to `MorphiaUserBase`

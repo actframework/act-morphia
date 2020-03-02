@@ -25,6 +25,7 @@ import act.db.DB;
 import act.db.morphia.event.EntityMapped;
 import act.job.OnSysEvent;
 import act.util.AnnotatedClassFinder;
+import org.mongodb.morphia.AbstractEntityInterceptor;
 import org.mongodb.morphia.EntityInterceptor;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Property;
@@ -71,9 +72,11 @@ public class MorphiaModule {
         for (MorphiaService service : MorphiaService.allMorphiaServices()) {
             app().eventBus().emit(new EntityMapped(service.mapper()));
             for (EntityInterceptor interceptor : interceptors) {
-                DB db = interceptor.getClass().getAnnotation(DB.class);
-                if (null == db || S.eq(db.value(), service.id())) {
-                    service.mapper().addInterceptor(interceptor);
+                if ($.ne(interceptor.getClass(), AbstractEntityInterceptor.class)) {
+                    DB db = interceptor.getClass().getAnnotation(DB.class);
+                    if (null == db || S.eq(db.value(), service.id())) {
+                        service.mapper().addInterceptor(interceptor);
+                    }
                 }
             }
         }
