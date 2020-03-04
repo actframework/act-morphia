@@ -1,6 +1,7 @@
 # act-morphia CHANGE LOG
 
-1.9.0
+1.9.0 04/Mar/2020
+* update to act-1.8.32
 * Dao.update API - unset the field in database when passed in value is `null` #39
 * Automatically initialize Collection/Map typed fields #38
 
