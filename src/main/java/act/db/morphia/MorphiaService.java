@@ -55,7 +55,7 @@ public class MorphiaService extends DbService {
 
     public static final Version VERSION = MorphiaPlugin.VERSION;
 
-    public static final String QUERY_SEP = "[,;:]+";
+    public static final String QUERY_SEP = "[,;]+";
     public static final String GROUP_SEP = S.COMMON_SEP;
 
     @Stateless

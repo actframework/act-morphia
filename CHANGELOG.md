@@ -1,5 +1,10 @@
 # act-morphia CHANGE LOG
 
+1.10.0 27/Jun/2020
+* remove ":" from MorphiaService.QUERY_SEP
+* update to act-1.8.33b
+* update act-aaa-plugin to 1.9.1
+
 1.9.0 04/Mar/2020
 * update to act-1.8.32
 * Dao.update API - unset the field in database when passed in value is `null` #39

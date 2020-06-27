@@ -21,6 +21,7 @@ package act.aaa.model;
  */
 
 import act.Act;
+import act.aaa.AAAService;
 import act.aaa.PasswordVerifier;
 import act.aaa.util.AAALookup;
 import act.aaa.util.PrivilegeCache;
@@ -117,6 +118,12 @@ public abstract class MorphiaUserBase<T extends MorphiaUserBase> extends Morphia
     }
 
     public T grantPermissionByNames(String... permissions) {
+        AAAService aaaService = aaaService();
+        for (String perm : permissions) {
+            if (!aaaService.isValidPermission(perm)) {
+                throw new IllegalArgumentException("Permission not recognized: " + perm);
+            }
+        }
         this.permissions = StringTokenSet.merge(this.permissions, permissions);
         return me();
     }
@@ -132,8 +139,7 @@ public abstract class MorphiaUserBase<T extends MorphiaUserBase> extends Morphia
         if (permissions.isEmpty()) {
             return me();
         }
-        this.permissions = StringTokenSet.merge(C.list(permissions).append(this.permissions));
-        return me();
+        return this.grantPermissionByNames(permissions.toArray(new String[]{}));
     }
 
     public T grantRoles(Role... roles) {
@@ -144,6 +150,12 @@ public abstract class MorphiaUserBase<T extends MorphiaUserBase> extends Morphia
     }
 
     public T grantRoleByNames(String... roles) {
+        AAAService aaaService = aaaService();
+        for (String role : roles) {
+            if (!aaaService.isValidRole(role)) {
+                throw new IllegalArgumentException("Role not recognized: " + role);
+            }
+        }
         this.roles = StringTokenSet.merge(this.roles, roles);
         return me();
     }
@@ -159,8 +171,7 @@ public abstract class MorphiaUserBase<T extends MorphiaUserBase> extends Morphia
         if (roles.isEmpty()) {
             return me();
         }
-        this.roles = StringTokenSet.merge(C.list(roles).append(this.roles));
-        return me();
+        return this.grantRoleByNames(roles.toArray(new String[]{}));
     }
 
     @Override
@@ -220,4 +231,9 @@ public abstract class MorphiaUserBase<T extends MorphiaUserBase> extends Morphia
         }
         return buf.toString();
     }
+
+    private AAAService aaaService() {
+        return Act.getInstance(AAAService.class);
+    }
+
 }
